@@ -171,13 +171,12 @@ export function Header({ blueprint, title, stepCount, onExportBlueprint, onImpor
               {isLaunching ? (
                 <>
                   <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
-                  <span className="hidden sm:inline">Launching...</span>
+                  <span>Launching...</span>
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4" />
-                  <span className="hidden sm:inline">Launch</span>
-                  <span className="sm:hidden">Play</span>
+                  <span>Launch</span>
                 </>
               )}
             </button>
