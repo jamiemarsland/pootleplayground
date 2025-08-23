@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Download, ExternalLink, Play, FileText, Zap } from 'lucide-react';
+import { Download, ExternalLink, Play, FileText, Zap, Save, Upload } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
   blueprint: Blueprint;
   title: string;
   stepCount: number;
+  onSavePootleBlueprint: () => void;
+  onLoadPootleBlueprintTrigger: () => void;
 }
 
-export function Header({ blueprint, title, stepCount }: HeaderProps) {
+export function Header({ blueprint, title, stepCount, onSavePootleBlueprint, onLoadPootleBlueprintTrigger }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
   const unicodeSafeBase64Encode = (str: string): string => {
@@ -146,12 +148,28 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
           
           <div className="flex items-center gap-3">
             <button
+              onClick={onSavePootleBlueprint}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors"
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium">Save</span>
+            </button>
+            
+            <button
+              onClick={onLoadPootleBlueprintTrigger}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="font-medium">Load</span>
+            </button>
+            
+            <button
               onClick={handleDownload}
               disabled={stepCount === 0}
               className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium">Download</span>
+              <span className="font-medium">Download Playground</span>
             </button>
             
             <button
