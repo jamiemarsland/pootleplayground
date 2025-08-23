@@ -23,11 +23,6 @@ const STEP_CATEGORIES: StepCategory[] = [
     name: 'Extensions',
     steps: ['installPlugin', 'installTheme'],
     color: 'green'
-  },
-  {
-    name: 'Import/Export',
-    steps: ['importWxr', 'addClientRole'],
-    color: 'orange'
   }
 ];
 
