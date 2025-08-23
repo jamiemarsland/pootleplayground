@@ -42,7 +42,6 @@ function App() {
     }
   };
 
-  const blueprint = generateBlueprint(steps, blueprintTitle, landingPage);
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
   return (
