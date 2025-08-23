@@ -25,7 +25,7 @@ interface ConfigPanelProps {
 export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPanelProps) {
   if (!selectedStep) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="hidden lg:flex flex-1 items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border">
             <Settings className="w-8 h-8 text-blueprint-accent" />
