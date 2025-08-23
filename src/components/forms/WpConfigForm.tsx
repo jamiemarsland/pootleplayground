@@ -60,7 +60,7 @@ export function WpConfigForm({ data, onChange }: WpConfigFormProps) {
               {Object.entries(consts).map(([name, value]) => (
                 <div key={name} className="flex items-center gap-3 p-3 bg-gray-50 rounded-md">
                   <div className="flex-1 grid grid-cols-2 gap-3">
-                    <div>
+                    <div className="col-span-2 md:col-span-1">
                       <label className="block text-xs font-medium text-gray-300 mb-1">
                         Constant Name
                       </label>
@@ -71,7 +71,7 @@ export function WpConfigForm({ data, onChange }: WpConfigFormProps) {
                         className="w-full px-2 py-1 text-sm bg-gray-100 border border-gray-300 rounded"
                       />
                     </div>
-                    <div>
+                    <div className="col-span-2 md:col-span-1">
                       <label className="block text-xs font-medium text-gray-300 mb-1">
                         Value
                       </label>

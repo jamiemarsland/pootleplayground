@@ -172,7 +172,7 @@ export function SiteOptionForm({ data, onChange }: SiteOptionFormProps) {
         <div className="blueprint-component border rounded-md p-4">
           <h3 className="text-sm font-medium text-blueprint-text mb-2">Common Options</h3>
           <div className="grid grid-cols-2 gap-2 text-xs text-blueprint-text/80">
-            <div><code>blogname</code> - Site title</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blueprint-text/80">
             <div><code>blogdescription</code> - Tagline</div>
             <div><code>admin_email</code> - Admin email</div>
             <div><code>posts_per_page</code> - Posts per page</div>
