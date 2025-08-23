@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Download, ExternalLink, Play, FileText, Settings } from 'lucide-react';
+import { Download, ExternalLink, Play, FileText, Zap } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -96,7 +96,7 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                <Settings className="w-5 h-5 text-white" />
+                <Zap className="w-5 h-5 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Pootle Playground</h1>
