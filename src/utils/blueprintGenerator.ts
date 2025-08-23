@@ -305,15 +305,28 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
       
       const steps: BlueprintStep[] = [];
       
-      // Escape content for wp-cli command
+      // Escape title for wp-cli command
       const escapedTitle = (data.postTitle || '').replace(/"/g, '\\"');
-      const escapedContent = (data.postContent || '').replace(/"/g, '\\"').replace(/\n/g, '\\n');
       
-      // Create the post
-      steps.push({
-        step: 'wp-cli',
-        command: `wp post create --post_type=${data.postType || 'post'} --post_status=${data.postStatus || 'publish'} --post_title="${escapedTitle}" --post_content="${escapedContent}" --porcelain`
-      });
+      // For Gutenberg blocks, use a different approach to preserve structure
+      const content = data.postContent || '';
+      const hasGutenbergBlocks = content.includes('<!-- wp:');
+      
+      if (hasGutenbergBlocks) {
+        // Use wp eval for Gutenberg content to preserve block structure
+        const jsContent = content.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+        steps.push({
+          step: 'wp-cli',
+          command: `wp eval '$post_data = array("post_title" => "${escapedTitle}", "post_content" => '"'"'${jsContent}'"'"', "post_status" => "${data.postStatus || 'publish'}", "post_type" => "${data.postType || 'post'}"); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created post ID: " . $post_id; }'`
+        });
+      } else {
+        // Use regular wp-cli for simple content
+        const escapedContent = content.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+        steps.push({
+          step: 'wp-cli',
+          command: `wp post create --post_type=${data.postType || 'post'} --post_status=${data.postStatus || 'publish'} --post_title="${escapedTitle}" --post_content="${escapedContent}" --porcelain`
+        });
+      }
       
       // If featured image URL is provided, import it and set as featured image
       if (data.featuredImageUrl && data.featuredImageUrl.trim()) {
@@ -336,14 +349,29 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
     case 'addPage':
       if (!data.postTitle) return null;
       
-      // Escape content for wp-cli command
+      // Escape title for wp-cli command
       const escapedPageTitle = (data.postTitle || '').replace(/"/g, '\\"');
-      const escapedPageContent = (data.postContent || '').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+      const pageContent = data.postContent || '';
+      const pageHasGutenbergBlocks = pageContent.includes('<!-- wp:');
       
-      return {
-        step: 'wp-cli',
-        command: `wp post create --post_type=page --post_status=${data.postStatus || 'publish'} --post_title="${escapedPageTitle}" --post_content="${escapedPageContent}"${data.postName ? ` --post_name="${data.postName.replace(/"/g, '\\"')}"` : ''}${data.postParent ? ` --post_parent=${data.postParent}` : ''}`
-      };
+      if (pageHasGutenbergBlocks) {
+        // Use wp eval for Gutenberg content to preserve block structure
+        const jsPageContent = pageContent.replace(/'/g, "\\'").replace(/\n/g, '\\n');
+        const postNameParam = data.postName ? `, "post_name" => "${data.postName.replace(/"/g, '\\"')}"` : '';
+        const postParentParam = data.postParent ? `, "post_parent" => ${data.postParent}` : '';
+        
+        return {
+          step: 'wp-cli',
+          command: `wp eval '$post_data = array("post_title" => "${escapedPageTitle}", "post_content" => '"'"'${jsPageContent}'"'"', "post_status" => "${data.postStatus || 'publish'}", "post_type" => "page"${postNameParam}${postParentParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
+        };
+      } else {
+        // Use regular wp-cli for simple content
+        const escapedPageContent = pageContent.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+        return {
+          step: 'wp-cli',
+          command: `wp post create --post_type=page --post_status=${data.postStatus || 'publish'} --post_title="${escapedPageTitle}" --post_content="${escapedPageContent}"${data.postName ? ` --post_name="${data.postName.replace(/"/g, '\\"')}"` : ''}${data.postParent ? ` --post_parent=${data.postParent}` : ''}`
+        };
+      }
 
     case 'addMedia':
       if (!data.downloadUrl) return null;
