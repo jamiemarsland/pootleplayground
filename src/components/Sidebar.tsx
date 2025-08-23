@@ -16,13 +16,18 @@ const STEP_CATEGORIES: StepCategory[] = [
   },
   {
     name: 'Structure',
-    steps: ['setLandingPage', 'setHomepage', 'setPostsPage', 'createNavigationMenu'],
+    steps: ['setHomepage', 'setPostsPage', 'createNavigationMenu'],
     color: 'indigo'
   },
   {
     name: 'Extensions',
     steps: ['installPlugin', 'installTheme'],
     color: 'green'
+  },
+  {
+    name: 'Launch View',
+    steps: ['setLandingPage'],
+    color: 'purple'
   }
 ];
 
