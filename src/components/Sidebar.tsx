@@ -25,11 +25,6 @@ const STEP_CATEGORIES: StepCategory[] = [
     color: 'green'
   },
   {
-    name: 'Configuration',
-    steps: ['setSiteOption', 'defineWpConfigConst', 'login'],
-    color: 'purple'
-  },
-  {
     name: 'Import/Export',
     steps: ['importWxr', 'addClientRole'],
     color: 'orange'
