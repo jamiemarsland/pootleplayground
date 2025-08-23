@@ -1,0 +1,172 @@
+/* Custom styles for the WordPress Playground Blueprint Configurator */
+
+/* Global improvements */
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom backdrop blur for better glass effect */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.blueprint-preview pre {
+  background: #1a1b26;
+  color: #a9b1d6;
+}
+
+.blueprint-preview code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+}
+
+/* Syntax highlighting for JSON */
+.blueprint-preview .json-key {
+  color: #7aa2f7;
+}
+
+.blueprint-preview .json-string {
+  color: #9ece6a;
+}
+
+.blueprint-preview .json-number {
+  color: #ff9e64;
+}
+
+.blueprint-preview .json-boolean {
+  color: #f7768e;
+}
+
+/* Smooth transitions */
+.sidebar-step {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-step:hover {
+  transform: translateY(-1px);
+}
+
+/* Custom scrollbar */
+*::-webkit-scrollbar {
+  width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #6b7280;
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Form improvements */
+.form-field {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-field:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button hover effects */
+.btn-primary {
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+/* Enhanced button styles */
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Step category colors */
+.step-blue {
+  --step-color: #3b82f6;
+  --step-bg: #dbeafe;
+  --step-hover: #eff6ff;
+}
+
+.step-green {
+  --step-color: #10b981;
+  --step-bg: #d1fae5;
+  --step-hover: #ecfdf5;
+}
+
+.step-purple {
+  --step-color: #8b5cf6;
+  --step-bg: #e9d5ff;
+  --step-hover: #f3e8ff;
+}
+
+.step-orange {
+  --step-color: #f97316;
+  --step-bg: #fed7aa;
+  --step-hover: #fff7ed;
+}
+
+/* Enhanced glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Responsive improvements */
+@media (max-width: 1024px) {
+  .main-layout {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .config-panel {
+    min-height: 400px;
+  }
+  
+  .preview-panel {
+    width: 100%;
+    max-height: 400px;
+  }
+}
