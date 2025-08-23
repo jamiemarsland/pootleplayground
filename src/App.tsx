@@ -121,7 +121,7 @@ function App() {
         onImportBlueprint={triggerLoadPootleBlueprint}
       />
       
-      <div className="flex relative z-10">
+      <div className="flex flex-col lg:flex-row relative z-10">
         <Sidebar 
           onAddStep={addStep}
           blueprintTitle={blueprintTitle}

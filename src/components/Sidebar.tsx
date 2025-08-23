@@ -72,9 +72,9 @@ export function Sidebar({
 }: SidebarProps) {
 
   return (
-    <div className="w-80 blueprint-paper border-r border-blueprint-accent/30 flex flex-col min-h-[calc(100vh-73px)] backdrop-blur-sm">
+    <div className="w-full lg:w-80 blueprint-paper border-r lg:border-r border-b lg:border-b-0 border-blueprint-accent/30 flex flex-col min-h-auto lg:min-h-[calc(100vh-73px)] backdrop-blur-sm">
       {/* Header */}
-      <div className="p-6 border-b border-blueprint-accent/30">
+      <div className="p-4 lg:p-6 border-b border-blueprint-accent/30">
         <div>
           <label className="block text-sm font-medium text-blueprint-text mb-2">
             Site Title
@@ -91,8 +91,8 @@ export function Sidebar({
       </div>
 
       {/* Add Steps */}
-      <div className="flex-1 blueprint-component/30 overflow-hidden">
-        <div className="p-4">
+      <div className="flex-1 blueprint-component/30 overflow-hidden lg:overflow-auto">
+        <div className="p-4 pb-6 lg:pb-4">
           <div className="space-y-4">
             {STEP_CATEGORIES.map(category => (
               <div key={category.name}>

@@ -65,9 +65,9 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: S
   };
 
   return (
-    <div className="w-80 blueprint-paper border-l border-blueprint-accent/30 flex flex-col min-h-[calc(100vh-73px)] backdrop-blur-sm">
+    <div className="w-full lg:w-80 blueprint-paper border-l lg:border-l border-t lg:border-t-0 border-blueprint-accent/30 flex flex-col min-h-auto lg:min-h-[calc(100vh-73px)] backdrop-blur-sm order-last lg:order-none">
       {/* Header */}
-      <div className="p-4 border-b border-blueprint-accent/30 blueprint-component/20">
+      <div className="p-4 lg:p-4 border-b border-blueprint-accent/30 blueprint-component/20">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-blueprint-text flex items-center gap-2">
             Blueprint Steps
@@ -84,7 +84,7 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: S
       </div>
       
       {/* Steps List */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4 max-h-64 lg:max-h-none">
         {steps.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg border">

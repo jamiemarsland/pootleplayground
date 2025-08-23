@@ -82,7 +82,7 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
   };
 
   return (
-    <div className="flex-1 blueprint-component rounded-tl-2xl shadow-xl border m-4 overflow-hidden backdrop-blur-sm">
+    <div className="flex-1 blueprint-component rounded-t-2xl lg:rounded-tl-2xl lg:rounded-tr-none shadow-xl border m-2 lg:m-4 overflow-hidden backdrop-blur-sm">
       {renderForm()}
     </div>
   );
