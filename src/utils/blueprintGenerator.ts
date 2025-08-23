@@ -1,5 +1,14 @@
 import { Step, Blueprint, BlueprintStep } from '../types/blueprint';
 
+// UTF-8 safe base64 encoding function
+function unicodeSafeBase64Encode(str: string): string {
+  // First encode the string to UTF-8 bytes using encodeURIComponent and escape
+  const utf8Bytes = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+    return String.fromCharCode(parseInt(p1, 16));
+  });
+  return btoa(utf8Bytes);
+}
+
 // Helper function to calculate estimated page ID based on step position
 function getEstimatedPageId(stepId: string, allSteps: Step[]): number {
   const stepIndex = allSteps.findIndex(s => s.id === stepId);
@@ -317,7 +326,7 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         const jsContent = content.replace(/'/g, "\\'").replace(/\n/g, '\\n');
         steps.push({
           step: 'wp-cli',
-          command: `wp eval '$content = base64_decode("${btoa(content)}"); $post_data = array("post_title" => "${escapedTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "${data.postType || 'post'}"); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created post ID: " . $post_id; }'`
+          command: `wp eval '$content = base64_decode("${unicodeSafeBase64Encode(content)}"); $post_data = array("post_title" => "${escapedTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "${data.postType || 'post'}"); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created post ID: " . $post_id; }'`
         });
       } else {
         // Use regular wp-cli for simple content
@@ -362,7 +371,7 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         
         return {
           step: 'wp-cli',
-          command: `wp eval '$content = base64_decode("${btoa(pageContent)}"); $post_data = array("post_title" => "${escapedPageTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "page"${postNameParam}${postParentParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
+          command: `wp eval '$content = base64_decode("${unicodeSafeBase64Encode(pageContent)}"); $post_data = array("post_title" => "${escapedPageTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "page"${postNameParam}${postParentParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
         };
       } else {
         // Use regular wp-cli for simple content
