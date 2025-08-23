@@ -95,10 +95,6 @@ export function Sidebar({
       {/* Add Steps */}
       <div className="flex-1 bg-gray-900/50">
         <div className="p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Plus className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-300">Add New Step</span>
-          </div>
           <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
             {STEP_CATEGORIES.map(category => (
               <div key={category.name}>
