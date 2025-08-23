@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Download, ExternalLink, Play, FileText, Zap, Save, Upload } from 'lucide-react';
+import { ExternalLink, Play, FileText, Zap, Download, Upload } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
   blueprint: Blueprint;
   title: string;
   stepCount: number;
-  onSavePootleBlueprint: () => void;
-  onLoadPootleBlueprintTrigger: () => void;
+  onExportBlueprint: () => void;
+  onImportBlueprint: () => void;
 }
 
-export function Header({ blueprint, title, stepCount, onSavePootleBlueprint, onLoadPootleBlueprintTrigger }: HeaderProps) {
+export function Header({ blueprint, title, stepCount, onExportBlueprint, onImportBlueprint }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
   const unicodeSafeBase64Encode = (str: string): string => {
@@ -148,28 +148,19 @@ export function Header({ blueprint, title, stepCount, onSavePootleBlueprint, onL
           
           <div className="flex items-center gap-3">
             <button
-              onClick={onSavePootleBlueprint}
+              onClick={onExportBlueprint}
               className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors"
             >
-              <Save className="w-4 h-4" />
-              <span className="font-medium">Save</span>
+              <Download className="w-4 h-4" />
+              <span className="font-medium">Export</span>
             </button>
             
             <button
-              onClick={onLoadPootleBlueprintTrigger}
+              onClick={onImportBlueprint}
               className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium">Load</span>
-            </button>
-            
-            <button
-              onClick={handleDownload}
-              disabled={stepCount === 0}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-4 h-4" />
-              <span className="font-medium">Download Playground</span>
+              <span className="font-medium">Import</span>
             </button>
             
             <button

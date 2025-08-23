@@ -117,8 +117,8 @@ function App() {
         blueprint={blueprint}
         title={blueprintTitle}
         stepCount={steps.length}
-        onSavePootleBlueprint={handleSavePootleBlueprint}
-        onLoadPootleBlueprintTrigger={triggerLoadPootleBlueprint}
+        onExportBlueprint={handleSavePootleBlueprint}
+        onImportBlueprint={triggerLoadPootleBlueprint}
       />
       
       <div className="flex relative z-10">
