@@ -179,6 +179,7 @@ export function SiteOptionForm({ data, onChange }: SiteOptionFormProps) {
             <div><code>page_on_front</code> - Static front page ID</div>
             <div><code>show_on_front</code> - posts or page</div>
           </div>
+          </div>
         </div>
       </div>
     </div>
