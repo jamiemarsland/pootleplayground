@@ -129,7 +129,7 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-blueprint-text">Pootle Playground</h1>
-                <p className="text-sm text-blueprint-text/70">Blueprint Generator</p>
+                <p className="text-sm text-blueprint-text/70">Blueprint Generator v1.0</p>
               </div>
             </div>
             
