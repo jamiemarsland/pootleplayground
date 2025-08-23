@@ -74,7 +74,7 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
       console.log('Valid steps after filtering:', validSteps);
       
       const playgroundBlueprint = {
-        landingPage: "/wp-admin/",
+        landingPage: blueprint.landingPage,
         preferredVersions: {
           php: "8.2",
           wp: "latest"
