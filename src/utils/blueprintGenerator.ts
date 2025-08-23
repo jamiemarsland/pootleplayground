@@ -317,7 +317,7 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         const jsContent = content.replace(/'/g, "\\'").replace(/\n/g, '\\n');
         steps.push({
           step: 'wp-cli',
-          command: `wp eval '$post_data = array("post_title" => "${escapedTitle}", "post_content" => '"'"'${jsContent}'"'"', "post_status" => "${data.postStatus || 'publish'}", "post_type" => "${data.postType || 'post'}"); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created post ID: " . $post_id; }'`
+          command: `wp eval '$content = base64_decode("${btoa(content)}"); $post_data = array("post_title" => "${escapedTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "${data.postType || 'post'}"); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created post ID: " . $post_id; }'`
         });
       } else {
         // Use regular wp-cli for simple content
@@ -362,7 +362,7 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         
         return {
           step: 'wp-cli',
-          command: `wp eval '$post_data = array("post_title" => "${escapedPageTitle}", "post_content" => '"'"'${jsPageContent}'"'"', "post_status" => "${data.postStatus || 'publish'}", "post_type" => "page"${postNameParam}${postParentParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
+          command: `wp eval '$content = base64_decode("${btoa(pageContent)}"); $post_data = array("post_title" => "${escapedPageTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "page"${postNameParam}${postParentParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
         };
       } else {
         // Use regular wp-cli for simple content
