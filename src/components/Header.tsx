@@ -119,27 +119,27 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
   };
 
   return (
-    <header className="bg-gray-900/90 backdrop-blur-sm border-b border-gray-700/50 sticky top-0 z-50">
+    <header className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
       <div className="px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-pootle-blue-500 rounded-xl flex items-center justify-center shadow-md">
-                <Zap className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50">
+                <Zap className="w-5 h-5 text-blueprint-paper" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Pootle Playground</h1>
-                <p className="text-sm text-gray-400">Blueprint Generator</p>
+                <h1 className="text-xl font-bold text-blueprint-text">Pootle Playground</h1>
+                <p className="text-sm text-blueprint-text/70">Blueprint Generator</p>
               </div>
             </div>
             
             <div className="hidden md:flex items-center gap-4 ml-8">
-              <div className="flex items-center gap-2 px-3 py-1 bg-blue-900/30 rounded-full">
-                <FileText className="w-4 h-4 text-pootle-blue-500" />
-                <span className="text-sm font-medium text-pootle-blue-400">{stepCount} steps</span>
+              <div className="flex items-center gap-2 px-3 py-1 blueprint-component rounded-full border">
+                <FileText className="w-4 h-4 text-blueprint-accent" />
+                <span className="text-sm font-medium text-blueprint-accent">{stepCount} steps</span>
               </div>
-              <div className="text-sm text-gray-400">
-                Building: <span className="font-medium text-gray-200">{title}</span>
+              <div className="text-sm text-blueprint-text/70">
+                Building: <span className="font-medium text-blueprint-text">{title}</span>
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
             <button
               onClick={handleDownload}
               disabled={stepCount === 0}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-4 h-4" />
               <span className="font-medium">Download</span>
@@ -157,11 +157,11 @@ export function Header({ blueprint, title, stepCount }: HeaderProps) {
             <button
               onClick={handleLaunch}
               disabled={stepCount === 0 || isLaunching}
-              className="flex items-center gap-2 px-6 py-2 bg-pootle-blue-500 text-white font-medium rounded-lg hover:bg-pootle-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95"
             >
               {isLaunching ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
                   <span>Launching...</span>
                 </>
               ) : (

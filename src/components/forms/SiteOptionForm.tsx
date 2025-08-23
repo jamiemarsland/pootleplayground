@@ -129,11 +129,11 @@ export function SiteOptionForm({ data, onChange }: SiteOptionFormProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-lg font-semibold text-white mb-6">Set Site Option</h2>
+      <h2 className="text-lg font-semibold text-blueprint-text mb-6">Set Site Option</h2>
       
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-blueprint-text mb-2">
             Option Name *
           </label>
           <div className="relative">
@@ -142,7 +142,7 @@ export function SiteOptionForm({ data, onChange }: SiteOptionFormProps) {
               list="common-options"
               value={data.option || ''}
               onChange={(e) => updateField('option', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
               placeholder="e.g., blogname, posts_per_page"
             />
             <datalist id="common-options">
@@ -154,24 +154,24 @@ export function SiteOptionForm({ data, onChange }: SiteOptionFormProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-blueprint-text mb-2">
             Option Value *
           </label>
           <textarea
             value={typeof data.value === 'object' ? JSON.stringify(data.value, null, 2) : (data.value || '')}
             onChange={(e) => updateField('value', parseValue(e.target.value))}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent font-mono text-sm"
             placeholder="Option value (string, number, boolean, JSON object/array)"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-blueprint-text/60 mt-1">
             Supports strings, numbers, booleans, and JSON objects/arrays
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Common Options</h3>
-          <div className="grid grid-cols-2 gap-2 text-xs text-blue-700">
+        <div className="blueprint-component border rounded-md p-4">
+          <h3 className="text-sm font-medium text-blueprint-text mb-2">Common Options</h3>
+          <div className="grid grid-cols-2 gap-2 text-xs text-blueprint-text/80">
             <div><code>blogname</code> - Site title</div>
             <div><code>blogdescription</code> - Tagline</div>
             <div><code>admin_email</code> - Admin email</div>

@@ -26,13 +26,13 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border border-gray-700">
-            <Settings className="w-8 h-8 text-pootle-blue-500" />
+          <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border">
+            <Settings className="w-8 h-8 text-blueprint-accent" />
           </div>
-          <h3 className="text-xl font-semibold text-gray-100 mb-3">
+          <h3 className="text-xl font-semibold text-blueprint-text mb-3">
             Select a Step to Configure
           </h3>
-          <p className="text-gray-400 max-w-sm">
+          <p className="text-blueprint-text/70 max-w-sm">
             Choose a step from the sidebar to configure its settings and content.
           </p>
         </div>
@@ -79,7 +79,7 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
   };
 
   return (
-    <div className="flex-1 bg-gray-800/80 backdrop-blur-sm rounded-tl-2xl shadow-xl border border-gray-700/50 m-4 overflow-hidden">
+    <div className="flex-1 blueprint-component rounded-tl-2xl shadow-xl border m-4 overflow-hidden backdrop-blur-sm">
       {renderForm()}
     </div>
   );

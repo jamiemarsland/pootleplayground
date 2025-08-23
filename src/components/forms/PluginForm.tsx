@@ -71,11 +71,11 @@ export function PluginForm({ data, onChange }: PluginFormProps) {
 
   return (
     <div className="p-6">
-      <h2 className="text-lg font-semibold text-white mb-6">Install Plugin</h2>
+      <h2 className="text-lg font-semibold text-blueprint-text mb-6">Install Plugin</h2>
       
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-blueprint-text mb-2">
             Plugin Source *
           </label>
           <select
@@ -84,7 +84,7 @@ export function PluginForm({ data, onChange }: PluginFormProps) {
               const resource = e.target.value;
               updatePluginZipFile(resource, '');
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
           >
             <option value="url">Download URL</option>
             <option value="wordpress.org/plugins">WordPress.org Plugin</option>
@@ -93,41 +93,40 @@ export function PluginForm({ data, onChange }: PluginFormProps) {
 
         {currentResource === 'url' ? (
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-blueprint-text mb-2">
               Plugin ZIP URL *
             </label>
             <input
               type="url"
               value={currentValue}
               onChange={(e) => handleUrlInput(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
               placeholder="https://example.com/plugin.zip or https://wordpress.org/plugins/plugin-name/"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-blueprint-text/60 mt-1">
               Enter a direct ZIP download URL or a WordPress.org plugin page URL (will auto-detect)
             </p>
           </div>
         ) : (
           <div>
-            <label className="block text-sm font-medium text-white mb-2">
+            <label className="block text-sm font-medium text-blueprint-text mb-2">
               Plugin Slug *
             </label>
             <input
               type="text"
               value={currentValue}
               onChange={(e) => updatePluginZipFile('wordpress.org/plugins', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
               placeholder="plugin-slug"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-blueprint-text/60 mt-1">
               The plugin directory name from wordpress.org (e.g., "contact-form-7")
             </p>
           </div>
         )}
 
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-gray-700">Options</h3>
-          <h3 className="text-sm font-medium text-white">Options</h3>
+          <h3 className="text-sm font-medium text-blueprint-text">Options</h3>
           
           <div className="flex items-center gap-3">
             <input
@@ -135,9 +134,9 @@ export function PluginForm({ data, onChange }: PluginFormProps) {
               id="activate"
               checked={pluginData.options?.activate !== false}
               onChange={(e) => updateOption('activate', e.target.checked)}
-              className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              className="w-4 h-4 text-blueprint-accent bg-blueprint-paper border-blueprint-grid rounded focus:ring-blueprint-accent focus:ring-2"
             />
-            <label htmlFor="activate" className="text-sm text-gray-700">
+            <label htmlFor="activate" className="text-sm text-blueprint-text">
               Activate plugin after installation
             </label>
           </div>

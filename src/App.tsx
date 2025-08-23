@@ -45,14 +45,14 @@ function App() {
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       <Header 
         blueprint={blueprint}
         title={blueprintTitle}
         stepCount={steps.length}
       />
       
-      <div className="flex">
+      <div className="flex relative z-10">
         <Sidebar 
           onAddStep={addStep}
           blueprintTitle={blueprintTitle}
