@@ -6,8 +6,8 @@ interface SidebarProps {
   onAddStep: (type: StepType) => void;
   blueprintTitle: string;
   onTitleChange: (title: string) => void;
-  landingPage: 'wp-admin' | 'front-page';
-  onLandingPageChange: (landingPage: 'wp-admin' | 'front-page') => void;
+  landingPageType: 'wp-admin' | 'front-page';
+  onLandingPageTypeChange: (landingPageType: 'wp-admin' | 'front-page') => void;
 }
 
 const STEP_CATEGORIES: StepCategory[] = [
@@ -74,8 +74,8 @@ export function Sidebar({
   onAddStep, 
   blueprintTitle,
   onTitleChange,
-  landingPage,
-  onLandingPageChange
+  landingPageType,
+  onLandingPageTypeChange
 }: SidebarProps) {
 
   return (
@@ -100,8 +100,8 @@ export function Sidebar({
             Landing Page
           </label>
           <select
-            value={landingPage}
-            onChange={(e) => onLandingPageChange(e.target.value as 'wp-admin' | 'front-page')}
+            value={landingPageType}
+            onChange={(e) => onLandingPageTypeChange(e.target.value as 'wp-admin' | 'front-page')}
             className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-900/70 text-white"
           >
             <option value="wp-admin">WordPress Admin</option>

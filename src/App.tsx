@@ -11,7 +11,7 @@ function App() {
   const [steps, setSteps] = useState<Step[]>([]);
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
-  const [landingPage, setLandingPage] = useState<'wp-admin' | 'front-page'>('wp-admin');
+  const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
 
   const addStep = (type: StepType) => {
     const newStep: Step = {
@@ -43,6 +43,7 @@ function App() {
   };
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPage);
+  const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -57,8 +58,8 @@ function App() {
           onAddStep={addStep}
           blueprintTitle={blueprintTitle}
           onTitleChange={setBlueprintTitle}
-          landingPage={landingPage}
-          onLandingPageChange={setLandingPage}
+          landingPageType={landingPageType}
+          onLandingPageTypeChange={setLandingPageType}
         />
         
         <ConfigPanel 
