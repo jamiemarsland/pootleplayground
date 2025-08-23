@@ -104,7 +104,7 @@ export function ClientRoleForm({ data, onChange }: ClientRoleFormProps) {
             <div className="space-y-3">
               <div>
                 <h4 className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wider">Posts & Pages</h4>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {COMMON_CAPABILITIES.filter(cap => cap.includes('post') || cap.includes('page')).map(capability => (
                     <label key={capability} className="flex items-center gap-2 text-sm">
                       <input
