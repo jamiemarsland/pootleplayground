@@ -27,7 +27,7 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border border-gray-700">
-            <Settings className="w-8 h-8 text-blue-600" />
+            <Settings className="w-8 h-8 text-pootle-blue-500" />
           </div>
           <h3 className="text-xl font-semibold text-gray-100 mb-3">
             Select a Step to Configure

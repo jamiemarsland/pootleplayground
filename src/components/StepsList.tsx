@@ -85,7 +85,7 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: S
         {steps.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg border border-gray-700">
-              <Settings className="w-8 h-8 text-blue-600" />
+              <Settings className="w-8 h-8 text-pootle-blue-500" />
             </div>
             <h3 className="text-lg font-semibold text-gray-100 mb-2">No Steps Yet</h3>
             <p className="text-sm text-gray-400 mb-4">Add steps from the left sidebar to build your blueprint</p>
