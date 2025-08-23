@@ -172,7 +172,10 @@ function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | Blue
   return steps.length > 0 ? steps : null;
 }
 export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' = 'wp-admin'): Blueprint {
-  const landingPageUrl = landingPageType === 'wp-admin' ? '/wp-admin/' : '/';
+  // Check if there's a setLandingPage step to override the default
+  const landingPageStep = allSteps.find(step => step.type === 'setLandingPage');
+  const finalLandingPageType = landingPageStep?.data?.landingPageType || landingPageType;
+  const landingPageUrl = finalLandingPageType === 'wp-admin' ? '/wp-admin/' : '/';
   
   const blueprint: Blueprint = {
     landingPage: landingPageUrl,
@@ -431,6 +434,11 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         name: data.name,
         capabilities: data.capabilities
       };
+
+    case 'setLandingPage':
+      // This step doesn't generate a blueprint step, it just affects the landingPage URL
+      // The URL is handled in generateBlueprint function
+      return null;
 
     default:
       return null;

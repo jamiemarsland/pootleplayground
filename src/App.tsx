@@ -126,8 +126,6 @@ function App() {
           onAddStep={addStep}
           blueprintTitle={blueprintTitle}
           onTitleChange={setBlueprintTitle}
-          landingPageType={landingPageType}
-          onLandingPageTypeChange={setLandingPageType}
         />
         
         <ConfigPanel 
@@ -214,6 +212,9 @@ function getDefaultStepData(type: StepType): any {
       menuName: 'Main Menu',
       menuLocation: 'primary',
       menuItems: []
+    },
+    setLandingPage: {
+      landingPageType: 'wp-admin'
     }
   };
   

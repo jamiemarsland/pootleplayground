@@ -17,7 +17,8 @@ export type StepType =
   | 'addClientRole'
   | 'setHomepage'
   | 'setPostsPage'
-  | 'createNavigationMenu';
+  | 'createNavigationMenu'
+  | 'setLandingPage';
 
 export interface Blueprint {
   landingPage: string;

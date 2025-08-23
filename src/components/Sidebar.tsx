@@ -6,8 +6,6 @@ interface SidebarProps {
   onAddStep: (type: StepType) => void;
   blueprintTitle: string;
   onTitleChange: (title: string) => void;
-  landingPageType: 'wp-admin' | 'front-page';
-  onLandingPageTypeChange: (landingPageType: 'wp-admin' | 'front-page') => void;
 }
 
 const STEP_CATEGORIES: StepCategory[] = [
@@ -18,7 +16,7 @@ const STEP_CATEGORIES: StepCategory[] = [
   },
   {
     name: 'Structure',
-    steps: ['setHomepage', 'setPostsPage', 'createNavigationMenu'],
+    steps: ['setLandingPage', 'setHomepage', 'setPostsPage', 'createNavigationMenu'],
     color: 'indigo'
   },
   {
@@ -42,6 +40,7 @@ const STEP_ICONS = {
   addPost: FileText,
   addPage: FileText,
   addMedia: Image,
+  setLandingPage: Settings,
   setHomepage: FileText,
   setPostsPage: FileText,
   installPlugin: Puzzle,
@@ -58,6 +57,7 @@ const STEP_LABELS = {
   addPost: 'Add Post',
   addPage: 'Add Page',
   addMedia: 'Add Media',
+  setLandingPage: 'Set Landing Page',
   setHomepage: 'Set Home Page',
   setPostsPage: 'Set Posts Page',
   installPlugin: 'Install Plugin',
@@ -73,9 +73,7 @@ const STEP_LABELS = {
 export function Sidebar({ 
   onAddStep, 
   blueprintTitle,
-  onTitleChange,
-  landingPageType,
-  onLandingPageTypeChange
+  onTitleChange
 }: SidebarProps) {
 
   return (
@@ -95,28 +93,12 @@ export function Sidebar({
           />
         </div>
 
-        <div className="mt-4">
-          <label className="block text-sm font-medium text-blueprint-text mb-2">
-            Landing Page
-          </label>
-          <select
-            value={landingPageType}
-            onChange={(e) => onLandingPageTypeChange(e.target.value as 'wp-admin' | 'front-page')}
-            className="w-full px-3 py-2 blueprint-input rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
-          >
-            <option value="wp-admin">WordPress Admin</option>
-            <option value="front-page">Front Page</option>
-          </select>
-          <p className="text-xs text-blueprint-text/60 mt-1">
-            Choose where visitors land when the playground loads
-          </p>
-        </div>
       </div>
 
       {/* Add Steps */}
-      <div className="flex-1 blueprint-component/30">
+      <div className="flex-1 blueprint-component/30 overflow-hidden">
         <div className="p-4">
-          <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-200px)]">
+          <div className="space-y-4">
             {STEP_CATEGORIES.map(category => (
               <div key={category.name}>
                 <h3 className="text-xs font-medium text-blueprint-text/70 mb-2 uppercase tracking-wider">
