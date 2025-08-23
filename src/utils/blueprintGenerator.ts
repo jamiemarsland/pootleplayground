@@ -345,17 +345,15 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
 
     case 'addMedia':
       if (!data.downloadUrl) return null;
-      const mediaStep: any = {
-        step: 'addMedia',
-        downloadUrl: data.downloadUrl
+      
+      // Use wp-cli to import media files
+      const escapedUrl = data.downloadUrl.replace(/"/g, '\\"');
+      const command = `wp media import "${escapedUrl}"`;
+      
+      return {
+        step: 'wp-cli',
+        command: command
       };
-      
-      if (data.title) mediaStep.title = data.title;
-      if (data.altText) mediaStep.altText = data.altText;
-      if (data.caption) mediaStep.caption = data.caption;
-      if (data.description) mediaStep.description = data.description;
-      
-      return mediaStep;
 
     case 'setSiteOption':
       if (!data.option) return null;
