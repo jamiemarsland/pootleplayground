@@ -6,6 +6,8 @@ interface SidebarProps {
   onAddStep: (type: StepType) => void;
   blueprintTitle: string;
   onTitleChange: (title: string) => void;
+  landingPage: 'wp-admin' | 'front-page';
+  onLandingPageChange: (landingPage: 'wp-admin' | 'front-page') => void;
 }
 
 const STEP_CATEGORIES: StepCategory[] = [
@@ -71,7 +73,9 @@ const STEP_LABELS = {
 export function Sidebar({ 
   onAddStep, 
   blueprintTitle,
-  onTitleChange 
+  onTitleChange,
+  landingPage,
+  onLandingPageChange
 }: SidebarProps) {
 
   return (
@@ -89,6 +93,23 @@ export function Sidebar({
             className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-900/70 text-white placeholder-gray-400"
             placeholder="My WordPress Site"
           />
+        </div>
+
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Landing Page
+          </label>
+          <select
+            value={landingPage}
+            onChange={(e) => onLandingPageChange(e.target.value as 'wp-admin' | 'front-page')}
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-900/70 text-white"
+          >
+            <option value="wp-admin">WordPress Admin</option>
+            <option value="front-page">Front Page</option>
+          </select>
+          <p className="text-xs text-gray-400 mt-1">
+            Choose where visitors land when the playground loads
+          </p>
         </div>
       </div>
 

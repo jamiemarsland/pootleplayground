@@ -162,9 +162,11 @@ function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | Blue
   
   return steps.length > 0 ? steps : null;
 }
-export function generateBlueprint(allSteps: Step[], title: string): Blueprint {
+export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' = 'wp-admin'): Blueprint {
+  const landingPageUrl = landingPageType === 'wp-admin' ? '/wp-admin/' : '/';
+  
   const blueprint: Blueprint = {
-    landingPage: '/wp-admin/',
+    landingPage: landingPageUrl,
     preferredVersions: {
       php: '8.2',
       wp: 'latest'
