@@ -1,0 +1,60 @@
+{
+  "blueprintTitle": "Full One-Pager Site",
+  "landingPageType": "front-page",
+  "steps": [
+    {
+      "id": "installTheme-twentytwentyfive",
+      "type": "installTheme",
+      "data": {
+        "themeZipFile": {
+          "resource": "wordpress.org/themes",
+          "wordpress.org/themes": "twentytwentyfive"
+        },
+        "options": {
+          "activate": true
+        }
+      }
+    },
+    {
+      "id": "addPage-home",
+      "type": "addPage",
+      "data": {
+        "postTitle": "Home",
+        "postContent": "<!-- wp:group {\"style\":{\"spacing\":{\"padding\":{\"top\":\"0\",\"bottom\":\"0\"}}}} --><div class=\"wp-block-group\"><!-- wp:group {\"style\":{\"position\":{\"type\":\"sticky\",\"top\":\"0\"},\"border\":{\"bottom\":{\"color\":\"#e5e7eb\",\"style\":\"solid\",\"width\":\"1px\"}},\"spacing\":{\"padding\":{\"top\":\"8px\",\"bottom\":\"8px\",\"left\":\"16px\",\"right\":\"16px\"}}},\"layout\":{\"type\":\"constrained\"}} --><div class=\"wp-block-group\" style=\"position:sticky;top:0;border-bottom:1px solid #e5e7eb;padding-top:8px;padding-right:16px;padding-bottom:8px;padding-left:16px\"><!-- wp:navigation {\"overlayMenu\":\"never\",\"layout\":{\"type\":\"flex\",\"justifyContent\":\"space-between\"}} --><!-- wp:navigation-link {\"label\":\"Home\",\"url\":\"/#home\"} /--><!-- wp:navigation-link {\"label\":\"Features\",\"url\":\"/#features\"} /--><!-- wp:navigation-link {\"label\":\"Proof\",\"url\":\"/#proof\"} /--><!-- wp:navigation-link {\"label\":\"Services\",\"url\":\"/#services\"} /--><!-- wp:navigation-link {\"label\":\"About\",\"url\":\"/#about\"} /--><!-- wp:navigation-link {\"label\":\"FAQ\",\"url\":\"/#faq\"} /--><!-- wp:navigation-link {\"label\":\"Contact\",\"url\":\"/#contact\"} /--><!-- /wp:navigation --></div><!-- /wp:group --><!-- wp:group {\"tagName\":\"main\",\"layout\":{\"type\":\"constrained\"}} --><main class=\"wp-block-group\"><!-- HERO --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"home\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"6rem\",\"bottom\":\"6rem\"}}}} --><section id=\"home\" class=\"wp-block-group\" style=\"padding-top:6rem;padding-bottom:6rem\"><!-- wp:heading {\"level\":1,\"fontSize\":\"xx-large\"} --><h1 class=\"wp-block-heading has-xx-large-font-size\">Your Clear Value Proposition</h1><!-- /wp:heading --><!-- wp:paragraph --><p>A short, punchy explanation of what you do and for whom.</p><!-- /wp:paragraph --><!-- wp:buttons --><div class=\"wp-block-buttons\"><!-- wp:button {\"width\":100} --><div class=\"wp-block-button has-custom-width wp-block-button__width-100\"><a class=\"wp-block-button__link wp-element-button\" href=\"/#contact\">Get Started</a></div><!-- /wp:button --></div><!-- /wp:buttons --></section><!-- /wp:group --><!-- FEATURES --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"features\"} --><section id=\"features\" class=\"wp-block-group\"><!-- wp:heading {\"level\":2} --><h2 class=\"wp-block-heading\">Features</h2><!-- /wp:heading --><!-- wp:columns --><div class=\"wp-block-columns\"><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:heading {\"level\":3} --><h3 class=\"wp-block-heading\">Benefit One</h3><!-- /wp:heading --><!-- wp:paragraph --><p>A line of text describing the value.</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:heading {\"level\":3} --><h3 class=\"wp-block-heading\">Benefit Two</h3><!-- /wp:heading --><!-- wp:paragraph --><p>A line of text describing the value.</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:heading {\"level\":3} --><h3 class=\"wp-block-heading\">Benefit Three</h3><!-- /wp:heading --><!-- wp:paragraph --><p>A line of text describing the value.</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns --></section><!-- /wp:group --><!-- PROOF --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"proof\",\"style\":{\"color\":{\"background\":\"#f3f4f6\"},\"spacing\":{\"padding\":{\"top\":\"3rem\",\"bottom\":\"3rem\"}}}} --><section id=\"proof\" class=\"wp-block-group has-background\" style=\"background-color:#f3f4f6;padding-top:3rem;padding-bottom:3rem\"><!-- wp:heading {\"level\":2} --><h2 class=\"wp-block-heading\">Trusted By</h2><!-- /wp:heading --><!-- wp:columns --><div class=\"wp-block-columns\"><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:paragraph --><p>Logo 1</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:paragraph --><p>Logo 2</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class=\"wp-block-column\"><!-- wp:paragraph --><p>Logo 3</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns --></section><!-- /wp:group --><!-- SERVICES --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"services\"} --><section id=\"services\" class=\"wp-block-group\"><!-- wp:heading {\"level\":2} --><h2 class=\"wp-block-heading\">What You Get</h2><!-- /wp:heading --><!-- wp:list --><ul><li>Thing A</li><li>Thing B</li><li>Thing C</li></ul><!-- /wp:list --></section><!-- /wp:group --><!-- ABOUT --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"about\"} --><section id=\"about\" class=\"wp-block-group\"><!-- wp:heading {\"level\":2} --><h2 class=\"wp-block-heading\">About</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Two or three sentences that build trust and credibility.</p><!-- /wp:paragraph --></section><!-- /wp:group --><!-- FAQ --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"faq\"} --><section id=\"faq\" class=\"wp-block-group\"><!-- wp:heading {\"level\":2} --><h2 class=\"wp-block-heading\">FAQ</h2><!-- /wp:heading --><!-- wp:details --><details class=\"wp-block-details\"><summary>Short question?</summary><p>Clear answer.</p></details><!-- /wp:details --><!-- wp:details --><details class=\"wp-block-details\"><summary>Another question?</summary><p>Another clear answer.</p></details><!-- /wp:details --></section><!-- /wp:group --><!-- CONTACT --><!-- wp:group {\"tagName\":\"section\",\"anchor\":\"contact\",\"style\":{\"spacing\":{\"padding\":{\"top\":\"4rem\",\"bottom\":\"4rem\"}}}} --><section id=\"contact\" class=\"wp-block-group\" style=\"padding-top:4rem;padding-bottom:4rem\"><!-- wp:heading {\"level\":2} --><h2 class=\"wp-block-heading\">Ready?</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Drop your details and we’ll get back to you.</p><!-- /wp:paragraph --><!-- wp:buttons --><div class=\"wp-block-buttons\"><!-- wp:button {\"className\":\"is-style-fill\"} --><div class=\"wp-block-button is-style-fill\"><a class=\"wp-block-button__link wp-element-button\" href=\"mailto:you@example.com\">Email Us</a></div><!-- /wp:button --></div><!-- /wp:buttons --></section><!-- /wp:group --></main><!-- /wp:group --></div><!-- /wp:group -->",
+        "postStatus": "publish",
+        "postName": "home"
+      }
+    },
+    {
+      "id": "setHomepage-existing",
+      "type": "setHomepage",
+      "data": {
+        "option": "existing",
+        "stepId": "addPage-home"
+      }
+    },
+    {
+      "id": "setSiteOption-blogname",
+      "type": "setSiteOption",
+      "data": {
+        "option": "blogname",
+        "value": "One Pager Site"
+      }
+    },
+    {
+      "id": "login-admin",
+      "type": "login",
+      "data": {
+        "username": "admin",
+        "password": "password"
+      }
+    },
+    {
+      "id": "setLandingPage-front",
+      "type": "setLandingPage",
+      "data": {
+        "landingPageType": "front-page"
+      }
+    }
+  ]
+}
