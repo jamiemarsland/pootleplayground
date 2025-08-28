@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar';
 import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
+import { BlueprintGallery } from './components/BlueprintGallery';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import './App.css';
@@ -12,7 +13,31 @@ function App() {
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
+  const [showGallery, setShowGallery] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Check for blueprint to load from localStorage on mount
+  React.useEffect(() => {
+    const blueprintToLoad = localStorage.getItem('loadBlueprint');
+    if (blueprintToLoad) {
+      try {
+        const data = JSON.parse(blueprintToLoad);
+        loadBlueprintFromData(data);
+        localStorage.removeItem('loadBlueprint');
+      } catch (error) {
+        console.error('Error loading blueprint from localStorage:', error);
+        localStorage.removeItem('loadBlueprint');
+      }
+    }
+  }, []);
+
+  const loadBlueprintFromData = (data: any) => {
+    setBlueprintTitle(data.blueprintTitle || 'My WordPress Site');
+    setLandingPageType(data.landingPageType || 'wp-admin');
+    setSteps(data.steps || []);
+    setSelectedStep(null);
+    setShowGallery(false);
+  };
 
   const addStep = (type: StepType) => {
     const newStep: Step = {
@@ -109,7 +134,20 @@ function App() {
     reader.readAsText(file);
   };
 
+  const handleSelectBlueprint = (blueprintData: any) => {
+    loadBlueprintFromData(blueprintData);
+  };
+
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
+
+  if (showGallery) {
+    return (
+      <BlueprintGallery 
+        onSelectBlueprint={handleSelectBlueprint}
+        onBack={() => setShowGallery(false)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
@@ -119,6 +157,7 @@ function App() {
         stepCount={steps.length}
         onExportBlueprint={handleSavePootleBlueprint}
         onImportBlueprint={triggerLoadPootleBlueprint}
+        onShowGallery={() => setShowGallery(true)}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">

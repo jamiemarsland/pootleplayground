@@ -123,3 +123,36 @@ html {
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
 }
+
+/* Gallery-specific styles */
+.blueprint-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem 0;
+}
+
+.blueprint-template-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.blueprint-template-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(79, 195, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 195, 247, 0.03) 1px, transparent 1px);
+  background-size: 12px 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.blueprint-template-card:hover::before {
+  opacity: 1;
+}
