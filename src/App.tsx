@@ -216,6 +216,22 @@ function getDefaultStepData(type: StepType): any {
       postContent: '',
       postStatus: 'publish'
     },
+    addTemplate: {
+      postTitle: '',
+      postContent: '',
+      postStatus: 'publish',
+      postName: '',
+      theme: '',
+      templateType: 'wp_template'
+    },
+    addTemplatePart: {
+      postTitle: '',
+      postContent: '',
+      postStatus: 'publish',
+      postName: '',
+      theme: '',
+      area: ''
+    },
     addMedia: {
       downloadUrl: ''
     },

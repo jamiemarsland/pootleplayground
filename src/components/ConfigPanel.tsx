@@ -4,6 +4,8 @@ import { Step } from '../types/blueprint';
 import { PostForm } from './forms/PostForm';
 import { PageForm } from './forms/PageForm';
 import { MediaForm } from './forms/MediaForm';
+import { TemplateForm } from './forms/TemplateForm';
+import { TemplatePartForm } from './forms/TemplatePartForm';
 import { PluginForm } from './forms/PluginForm';
 import { ThemeForm } from './forms/ThemeForm';
 import { SiteOptionForm } from './forms/SiteOptionForm';
@@ -54,6 +56,10 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
         return <PageForm {...commonProps} />;
       case 'addMedia':
         return <MediaForm {...commonProps} />;
+      case 'addTemplate':
+        return <TemplateForm {...commonProps} />;
+      case 'addTemplatePart':
+        return <TemplatePartForm {...commonProps} />;
       case 'installPlugin':
         return <PluginForm {...commonProps} />;
       case 'installTheme':

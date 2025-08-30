@@ -25,6 +25,11 @@ const STEP_CATEGORIES: StepCategory[] = [
     color: 'green'
   },
   {
+    name: 'Templates',
+    steps: ['addTemplate', 'addTemplatePart'],
+    color: 'orange'
+  },
+  {
     name: 'Launch View',
     steps: ['setLandingPage'],
     color: 'purple'
@@ -35,6 +40,8 @@ const STEP_ICONS = {
   addPost: FileText,
   addPage: FileText,
   addMedia: Image,
+  addTemplate: FileText,
+  addTemplatePart: FileText,
   setLandingPage: Settings,
   setHomepage: FileText,
   setPostsPage: FileText,
@@ -52,6 +59,8 @@ const STEP_LABELS = {
   addPost: 'Add Post',
   addPage: 'Add Page',
   addMedia: 'Add Media',
+  addTemplate: 'Add Template',
+  addTemplatePart: 'Add Template Part',
   setLandingPage: 'Set Landing Page',
   setHomepage: 'Set Home Page',
   setPostsPage: 'Set Posts Page',

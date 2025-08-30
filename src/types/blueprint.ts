@@ -10,6 +10,8 @@ export type StepType =
   | 'addPost'
   | 'addPage'
   | 'addMedia'
+  | 'addTemplate'
+  | 'addTemplatePart'
   | 'setSiteOption'
   | 'defineWpConfigConst'
   | 'login'
