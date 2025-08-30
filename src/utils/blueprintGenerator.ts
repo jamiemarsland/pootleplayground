@@ -236,76 +236,6 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
     case 'createNavigationMenu':
       return handleNavigationMenuStep(step, allSteps);
 
-    case 'addTemplate': {
-      if (!data.postTitle || !data.postContent) return null;
-      
-      const escapedTitle = data.postTitle.replace(/"/g, '\\"');
-      const templateContent = data.postContent || '';
-      const slug = data.postName || data.postTitle.toLowerCase().replace(/\s+/g, '-');
-      const theme = data.theme || '';
-      
-      // Use wp eval to create the template with proper metadata
-      const command = `wp eval '
-        $template_data = array(
-          "post_title" => "${escapedTitle}",
-          "post_content" => base64_decode("${unicodeSafeBase64Encode(templateContent)}"),
-          "post_status" => "${data.postStatus || 'publish'}",
-          "post_type" => "wp_template",
-          "post_name" => "${slug}"
-        );
-        
-        $template_id = wp_insert_post($template_data);
-        
-        if (!is_wp_error($template_id)) {
-          ${theme ? `update_post_meta($template_id, "theme", "${theme}");` : ''}
-          echo "Created template ID: " . $template_id;
-        } else {
-          echo "Error: " . $template_id->get_error_message();
-        }
-      '`;
-
-      return {
-        step: 'wp-cli',
-        command: command.replace(/\s+/g, ' ').trim()
-      };
-    }
-
-    case 'addTemplatePart': {
-      if (!data.postTitle || !data.postContent) return null;
-      
-      const escapedTitle = data.postTitle.replace(/"/g, '\\"');
-      const templatePartContent = data.postContent || '';
-      const slug = data.postName || data.postTitle.toLowerCase().replace(/\s+/g, '-');
-      const theme = data.theme || '';
-      const area = data.area || '';
-      
-      // Use wp eval to create the template part with proper metadata
-      const command = `wp eval '
-        $template_part_data = array(
-          "post_title" => "${escapedTitle}",
-          "post_content" => base64_decode("${unicodeSafeBase64Encode(templatePartContent)}"),
-          "post_status" => "${data.postStatus || 'publish'}",
-          "post_type" => "wp_template_part",
-          "post_name" => "${slug}"
-        );
-        
-        $template_part_id = wp_insert_post($template_part_data);
-        
-        if (!is_wp_error($template_part_id)) {
-          ${theme ? `update_post_meta($template_part_id, "theme", "${theme}");` : ''}
-          ${area ? `update_post_meta($template_part_id, "area", "${area}");` : ''}
-          echo "Created template part ID: " . $template_part_id;
-        } else {
-          echo "Error: " . $template_part_id->get_error_message();
-        }
-      '`;
-
-      return {
-        step: 'wp-cli',
-        command: command.replace(/\s+/g, ' ').trim()
-      };
-    }
-
     case 'installPlugin': {
       const steps: BlueprintStep[] = [];
       
@@ -322,8 +252,8 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         return {
           step: 'installPlugin',
           pluginData: {
-            resource: 'url',
-            url: `https://downloads.wordpress.org/plugin/${slug}.latest-stable.zip`
+            resource: 'wordpress.org/plugins',
+            slug: slug
           },
           options: {
             activate: data.options?.activate !== false
