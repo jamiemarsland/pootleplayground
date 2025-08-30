@@ -252,8 +252,8 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         return {
           step: 'installPlugin',
           pluginData: {
-            resource: 'wordpress.org/plugins',
-            slug: slug
+            resource: 'url',
+            url: `https://downloads.wordpress.org/plugin/${slug}.latest-stable.zip`
           },
           options: {
             activate: data.options?.activate !== false
