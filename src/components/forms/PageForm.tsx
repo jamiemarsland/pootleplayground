@@ -88,6 +88,40 @@ export function PageForm({ data, onChange }: PageFormProps) {
           </div>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-blueprint-text mb-2">
+              Page Template
+            </label>
+            <input
+              type="text"
+              value={pageData.template || ''}
+              onChange={(e) => updateField('template', e.target.value)}
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
+              placeholder="e.g., page-contact.php (leave empty for default)"
+            />
+            <p className="text-xs text-blueprint-text/60 mt-1">
+              Custom page template filename
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-blueprint-text mb-2">
+              Menu Order
+            </label>
+            <input
+              type="number"
+              value={pageData.menuOrder || ''}
+              onChange={(e) => updateField('menuOrder', e.target.value ? parseInt(e.target.value) : '')}
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
+              placeholder="0"
+            />
+            <p className="text-xs text-blueprint-text/60 mt-1">
+              Order for page sorting (0 = default)
+            </p>
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-blueprint-text mb-2">
             Parent Page ID

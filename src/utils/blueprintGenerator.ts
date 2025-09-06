@@ -361,29 +361,42 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
     case 'addPage':
       if (!data.postTitle) return null;
       
-      // Escape title for wp-cli command
-      const escapedPageTitle = (data.postTitle || '').replace(/"/g, '\\"');
+      // Always use wp eval for pages to handle all attributes consistently
       const pageContent = data.postContent || '';
-      const pageHasGutenbergBlocks = pageContent.includes('<!-- wp:');
       
-      if (pageHasGutenbergBlocks) {
-        // Use wp eval for Gutenberg content to preserve block structure
-        const jsPageContent = pageContent.replace(/'/g, "\\'").replace(/\n/g, '\\n');
-        const postNameParam = data.postName ? `, "post_name" => "${data.postName.replace(/"/g, '\\"')}"` : '';
-        const postParentParam = data.postParent ? `, "post_parent" => ${data.postParent}` : '';
-        
-        return {
-          step: 'wp-cli',
-          command: `wp eval '$content = base64_decode("${unicodeSafeBase64Encode(pageContent)}"); $post_data = array("post_title" => "${escapedPageTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "page"${postNameParam}${postParentParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
-        };
-      } else {
-        // Use regular wp-cli for simple content
-        const escapedPageContent = pageContent.replace(/"/g, '\\"').replace(/\n/g, '\\n');
-        return {
-          step: 'wp-cli',
-          command: `wp post create --post_type=page --post_status=${data.postStatus || 'publish'} --post_title="${escapedPageTitle}" --post_content="${escapedPageContent}"${data.postName ? ` --post_name="${data.postName.replace(/"/g, '\\"')}"` : ''}${data.postParent ? ` --post_parent=${data.postParent}` : ''}`
-        };
+      // Build post data array
+      const postDataParts = [
+        `"post_title" => "${(data.postTitle || '').replace(/"/g, '\\"')}"`,
+        `"post_content" => $content`,
+        `"post_status" => "${data.postStatus || 'publish'}"`,
+        `"post_type" => "page"`
+      ];
+      
+      // Add optional fields
+      if (data.postName) {
+        postDataParts.push(`"post_name" => "${data.postName.replace(/"/g, '\\"')}"`);
       }
+      if (data.postParent) {
+        postDataParts.push(`"post_parent" => ${data.postParent}`);
+      }
+      if (data.menuOrder) {
+        postDataParts.push(`"menu_order" => ${data.menuOrder}`);
+      }
+      
+      // Build meta input array for page template
+      const metaInputParts = [];
+      if (data.template && data.template.trim()) {
+        metaInputParts.push(`"_wp_page_template" => "${data.template.replace(/"/g, '\\"')}"`);
+      }
+      
+      const metaInputParam = metaInputParts.length > 0 
+        ? `, "meta_input" => array(${metaInputParts.join(', ')})` 
+        : '';
+      
+      return {
+        step: 'wp-cli',
+        command: `wp eval '$content = base64_decode("${unicodeSafeBase64Encode(pageContent)}"); $post_data = array(${postDataParts.join(', ')}${metaInputParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
+      };
 
     case 'addMedia':
       if (!data.downloadUrl) return null;

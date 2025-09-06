@@ -214,7 +214,11 @@ function getDefaultStepData(type: StepType): any {
     addPage: {
       postTitle: '',
       postContent: '',
-      postStatus: 'publish'
+      postStatus: 'publish',
+      postName: '',
+      postParent: '',
+      template: '',
+      menuOrder: ''
     },
     addMedia: {
       downloadUrl: ''
