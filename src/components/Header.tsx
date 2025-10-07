@@ -8,10 +8,21 @@ interface HeaderProps {
   stepCount: number;
   onExportBlueprint: () => void;
   onImportBlueprint: () => void;
+  onExportNativeBlueprint: () => void;
+  onImportNativeBlueprint: () => void;
   onShowGallery: () => void;
 }
 
-export function Header({ blueprint, title, stepCount, onExportBlueprint, onImportBlueprint, onShowGallery }: HeaderProps) {
+export function Header({ 
+  blueprint, 
+  title, 
+  stepCount, 
+  onExportBlueprint, 
+  onImportBlueprint, 
+  onExportNativeBlueprint,
+  onImportNativeBlueprint,
+  onShowGallery 
+}: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
   const unicodeSafeBase64Encode = (str: string): string => {
@@ -157,11 +168,27 @@ export function Header({ blueprint, title, stepCount, onExportBlueprint, onImpor
             </button>
             
             <button
+              onClick={onExportNativeBlueprint}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+            >
+              <Download className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Export WP</span>
+            </button>
+            
+            <button
               onClick={onExportBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
             >
               <Download className="w-4 h-4" />
               <span className="font-medium hidden xl:inline">Export</span>
+            </button>
+            
+            <button
+              onClick={onImportNativeBlueprint}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+            >
+              <Upload className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Import WP</span>
             </button>
             
             <button

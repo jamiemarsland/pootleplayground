@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 import { BlueprintGallery } from './components/BlueprintGallery';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
+import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
 import './App.css';
 
 function App() {
@@ -92,9 +93,29 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportNativeBlueprint = () => {
+    const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
+    const jsonString = JSON.stringify(nativeBlueprint, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${blueprintTitle.toLowerCase().replace(/\s+/g, '-')}-wp-blueprint.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const triggerLoadPootleBlueprint = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  const triggerLoadNativeBlueprint = () => {
+    if (fileInputRefNative.current) {
+      fileInputRefNative.current.click();
     }
   };
 
@@ -128,6 +149,57 @@ function App() {
       } catch (error) {
         console.error('Error parsing blueprint file:', error);
         alert('Error loading blueprint file. Please check the file format.');
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+
+  const handleLoadNativeBlueprint = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const nativeBlueprint = JSON.parse(content);
+        
+        // Validate basic WordPress Playground blueprint structure
+        if (!nativeBlueprint.steps || !Array.isArray(nativeBlueprint.steps)) {
+          alert('Invalid WordPress Playground blueprint file format');
+          return;
+        }
+        
+        // Convert native blueprint to Pootle format
+        const convertedSteps = convertNativeBlueprintToPootleSteps(nativeBlueprint);
+        
+        // Extract landing page type from landingPage URL
+        const landingPageType = nativeBlueprint.landingPage === '/wp-admin/' ? 'wp-admin' : 'front-page';
+        
+        // Extract title from setSiteOptions steps or use default
+        let extractedTitle = 'Imported WordPress Site';
+        const titleStep = convertedSteps.find(step => 
+          step.type === 'setSiteOption' && step.data.option === 'blogname'
+        );
+        if (titleStep) {
+          extractedTitle = titleStep.data.value;
+        }
+        
+        // Load the converted data
+        setBlueprintTitle(extractedTitle);
+        setLandingPageType(landingPageType);
+        setSteps(convertedSteps);
+        setSelectedStep(null);
+        
+        // Clear file input to allow reloading same file
+        if (fileInputRefNative.current) {
+          fileInputRefNative.current.value = '';
+        }
+        
+      } catch (error) {
+        console.error('Error parsing native blueprint file:', error);
+        alert('Error loading WordPress Playground blueprint file. Please check the file format.');
       }
     };
     
@@ -187,6 +259,15 @@ function App() {
         type="file"
         accept=".json"
         onChange={handleLoadPootleBlueprint}
+        style={{ display: 'none' }}
+      />
+      
+      {/* Hidden file input for loading native WordPress Playground blueprints */}
+      <input
+        ref={fileInputRefNative}
+        type="file"
+        accept=".json"
+        onChange={handleLoadNativeBlueprint}
         style={{ display: 'none' }}
       />
     </div>
