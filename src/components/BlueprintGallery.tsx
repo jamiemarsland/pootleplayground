@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 
@@ -707,6 +707,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         .from('blueprints')
         .select('*')
         .eq('is_public', true)
+        .order('votes', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -768,6 +769,39 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         setIsAdmin(true);
       }
     }
+  };
+
+  const handleUpvote = async (blueprintId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const votedKey = `voted_${blueprintId}`;
+    if (localStorage.getItem(votedKey)) {
+      return;
+    }
+
+    try {
+      const blueprint = savedBlueprints.find(bp => bp.id === blueprintId);
+      if (!blueprint) return;
+
+      const { error } = await supabase
+        .from('blueprints')
+        .update({ votes: blueprint.votes + 1 })
+        .eq('id', blueprintId);
+
+      if (error) throw error;
+
+      localStorage.setItem(votedKey, 'true');
+      setSavedBlueprints(savedBlueprints.map(bp =>
+        bp.id === blueprintId ? { ...bp, votes: bp.votes + 1 } : bp
+      ).sort((a, b) => b.votes - a.votes));
+    } catch (error) {
+      console.error('Error upvoting blueprint:', error);
+      alert('Failed to upvote blueprint. Please try again.');
+    }
+  };
+
+  const hasVoted = (blueprintId: string) => {
+    return localStorage.getItem(`voted_${blueprintId}`) !== null;
   };
 
   return (
@@ -944,8 +978,23 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                   </div>
 
                   <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
-                    <div className="text-xs text-blueprint-text/60">
-                      {blueprint.step_count} steps
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => handleUpvote(blueprint.id, e)}
+                        disabled={hasVoted(blueprint.id)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                          hasVoted(blueprint.id)
+                            ? 'bg-blueprint-accent/20 text-blueprint-accent cursor-not-allowed'
+                            : 'blueprint-button hover:bg-blueprint-accent/10'
+                        }`}
+                        title={hasVoted(blueprint.id) ? 'Already voted' : 'Upvote this blueprint'}
+                      >
+                        <ThumbsUp className={`w-3 h-3 ${hasVoted(blueprint.id) ? 'fill-current' : ''}`} />
+                        <span>{blueprint.votes}</span>
+                      </button>
+                      <div className="text-xs text-blueprint-text/60">
+                        {blueprint.step_count} steps
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-0 group-hover:opacity-100 transition-opacity">
                       <Play className="w-3 h-3" />
