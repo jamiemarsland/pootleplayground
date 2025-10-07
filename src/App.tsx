@@ -3,11 +3,9 @@ import { Sidebar } from './components/Sidebar';
 import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
-import { BlueprintGallery } from './components/BlueprintGallery';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
-import { supabase } from './lib/supabase';
 import './App.css';
 
 function App() {
@@ -15,32 +13,8 @@ function App() {
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
-  const [showGallery, setShowGallery] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRefNative = useRef<HTMLInputElement>(null);
 
-  // Check for blueprint to load from localStorage on mount
-  React.useEffect(() => {
-    const blueprintToLoad = localStorage.getItem('loadBlueprint');
-    if (blueprintToLoad) {
-      try {
-        const data = JSON.parse(blueprintToLoad);
-        loadBlueprintFromData(data);
-        localStorage.removeItem('loadBlueprint');
-      } catch (error) {
-        console.error('Error loading blueprint from localStorage:', error);
-        localStorage.removeItem('loadBlueprint');
-      }
-    }
-  }, []);
-
-  const loadBlueprintFromData = (data: any) => {
-    setBlueprintTitle(data.blueprintTitle || 'My WordPress Site');
-    setLandingPageType(data.landingPageType || 'wp-admin');
-    setSteps(data.steps || []);
-    setSelectedStep(null);
-    setShowGallery(false);
-  };
 
   const addStep = (type: StepType) => {
     const newStep: Step = {
@@ -71,93 +45,28 @@ function App() {
     }
   };
 
-  const handleSavePootleBlueprint = () => {
-    const pootleBlueprint = {
-      version: '1.0',
-      blueprintTitle,
-      landingPageType,
-      steps: steps.map(step => ({
-        id: step.id,
-        type: step.type,
-        data: step.data
-      }))
-    };
-    
-    const jsonString = JSON.stringify(pootleBlueprint, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${blueprintTitle.toLowerCase().replace(/\s+/g, '-')}-pootle-blueprint.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
-  const handleExportNativeBlueprint = () => {
+  const handleExportBlueprint = () => {
     const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
     const jsonString = JSON.stringify(nativeBlueprint, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${blueprintTitle.toLowerCase().replace(/\s+/g, '-')}-wp-blueprint.json`;
+    a.download = `${blueprintTitle.toLowerCase().replace(/\s+/g, '-')}-blueprint.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  const triggerLoadPootleBlueprint = () => {
+  const triggerLoadBlueprint = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  const triggerLoadNativeBlueprint = () => {
-    if (fileInputRefNative.current) {
-      fileInputRefNative.current.click();
-    }
-  };
-
-  const handleLoadPootleBlueprint = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const pootleBlueprint = JSON.parse(content);
-        
-        // Validate basic structure
-        if (!pootleBlueprint.blueprintTitle || !Array.isArray(pootleBlueprint.steps)) {
-          alert('Invalid Pootle blueprint file format');
-          return;
-        }
-        
-        // Load the blueprint data
-        setBlueprintTitle(pootleBlueprint.blueprintTitle);
-        setLandingPageType(pootleBlueprint.landingPageType || 'wp-admin');
-        setSteps(pootleBlueprint.steps || []);
-        setSelectedStep(null);
-        
-        // Clear file input to allow reloading same file
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        
-      } catch (error) {
-        console.error('Error parsing blueprint file:', error);
-        alert('Error loading blueprint file. Please check the file format.');
-      }
-    };
-    
-    reader.readAsText(file);
-  };
-
-  const handleLoadNativeBlueprint = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLoadBlueprint = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -172,94 +81,38 @@ function App() {
           alert('Invalid WordPress Playground blueprint file format');
           return;
         }
-        
-        // Convert native blueprint to Pootle format
+
         const convertedSteps = convertNativeBlueprintToPootleSteps(nativeBlueprint);
-        
-        // Extract landing page type from landingPage URL
         const landingPageType = nativeBlueprint.landingPage === '/wp-admin/' ? 'wp-admin' : 'front-page';
-        
-        // Extract title from setSiteOptions steps or use default
+
         let extractedTitle = 'Imported WordPress Site';
-        const titleStep = convertedSteps.find(step => 
+        const titleStep = convertedSteps.find(step =>
           step.type === 'setSiteOption' && step.data.option === 'blogname'
         );
         if (titleStep) {
           extractedTitle = titleStep.data.value;
         }
-        
-        // Load the converted data
+
         setBlueprintTitle(extractedTitle);
         setLandingPageType(landingPageType);
         setSteps(convertedSteps);
         setSelectedStep(null);
-        
-        // Clear file input to allow reloading same file
-        if (fileInputRefNative.current) {
-          fileInputRefNative.current.value = '';
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
         }
         
       } catch (error) {
-        console.error('Error parsing native blueprint file:', error);
+        console.error('Error parsing blueprint file:', error);
         alert('Error loading WordPress Playground blueprint file. Please check the file format.');
       }
     };
-    
+
     reader.readAsText(file);
-  };
-
-  const handleSelectBlueprint = (blueprintData: any) => {
-    loadBlueprintFromData(blueprintData);
-  };
-
-  const handleSaveToGallery = async () => {
-    const description = prompt('Enter a description for this blueprint (optional):');
-    if (description === null) return;
-
-    const blueprintData = {
-      version: '1.0',
-      blueprintTitle,
-      landingPageType,
-      steps: steps.map(step => ({
-        id: step.id,
-        type: step.type,
-        data: step.data
-      }))
-    };
-
-    try {
-      const { data, error } = await supabase
-        .from('blueprints')
-        .insert({
-          title: blueprintTitle,
-          description: description || '',
-          blueprint_data: blueprintData,
-          landing_page_type: landingPageType,
-          step_count: steps.length,
-          is_public: true
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      alert('Blueprint saved to gallery successfully!');
-    } catch (error) {
-      console.error('Error saving blueprint:', error);
-      alert('Failed to save blueprint to gallery. Please try again.');
-    }
   };
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
-  if (showGallery) {
-    return (
-      <BlueprintGallery 
-        onSelectBlueprint={handleSelectBlueprint}
-        onBack={() => setShowGallery(false)}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
@@ -267,12 +120,8 @@ function App() {
         blueprint={blueprint}
         title={blueprintTitle}
         stepCount={steps.length}
-        onExportBlueprint={handleSavePootleBlueprint}
-        onImportBlueprint={triggerLoadPootleBlueprint}
-        onExportNativeBlueprint={handleExportNativeBlueprint}
-        onImportNativeBlueprint={triggerLoadNativeBlueprint}
-        onSaveToGallery={handleSaveToGallery}
-        onShowGallery={() => setShowGallery(true)}
+        onExportBlueprint={handleExportBlueprint}
+        onImportBlueprint={triggerLoadBlueprint}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">
@@ -296,21 +145,11 @@ function App() {
         />
       </div>
       
-      {/* Hidden file input for loading blueprints */}
       <input
         ref={fileInputRef}
         type="file"
         accept=".json"
-        onChange={handleLoadPootleBlueprint}
-        style={{ display: 'none' }}
-      />
-      
-      {/* Hidden file input for loading native WordPress Playground blueprints */}
-      <input
-        ref={fileInputRefNative}
-        type="file"
-        accept=".json"
-        onChange={handleLoadNativeBlueprint}
+        onChange={handleLoadBlueprint}
         style={{ display: 'none' }}
       />
     </div>

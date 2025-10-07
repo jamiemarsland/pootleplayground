@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Play, FileText, Zap, Download, Upload, Grid3x3, Save } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -8,10 +8,6 @@ interface HeaderProps {
   stepCount: number;
   onExportBlueprint: () => void;
   onImportBlueprint: () => void;
-  onExportNativeBlueprint: () => void;
-  onImportNativeBlueprint: () => void;
-  onSaveToGallery: () => void;
-  onShowGallery: () => void;
 }
 
 export function Header({
@@ -19,11 +15,7 @@ export function Header({
   title,
   stepCount,
   onExportBlueprint,
-  onImportBlueprint,
-  onExportNativeBlueprint,
-  onImportNativeBlueprint,
-  onSaveToGallery,
-  onShowGallery
+  onImportBlueprint
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -162,67 +154,40 @@ export function Header({
           
           <div className="flex items-center gap-3">
             <button
-              onClick={onShowGallery}
+              onClick={onImportBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Import WordPress Playground blueprint"
             >
-              <Grid3x3 className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Gallery</span>
+              <Upload className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Import</span>
             </button>
 
             <button
-              onClick={onSaveToGallery}
-              disabled={stepCount === 0}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Save this blueprint to the gallery"
-            >
-              <Save className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Save</span>
-            </button>
-            
-            <button
-              onClick={onExportNativeBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Export as WordPress Playground blueprint (native format)"
-            >
-              <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Native</span>
-            </button>
-            
-            <button
               onClick={onExportBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Export as Pootle blueprint (editable format)"
+              title="Export as WordPress Playground blueprint"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Pootle</span>
+              <span className="font-medium hidden xl:inline">Export</span>
             </button>
-            
-            <button
-              onClick={onImportNativeBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Import WordPress Playground blueprint (converts to Pootle format)"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Native</span>
-            </button>
-            
+
             <button
               onClick={onImportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Import Pootle blueprint (editable format)"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Import blueprint"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Pootle</span>
             </button>
-            
-            {/* Mobile Gallery Button */}
+
             <button
-              onClick={onShowGallery}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              onClick={onExportBlueprint}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Export blueprint"
             >
-              <Grid3x3 className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             </button>
-            
+
             <button
               onClick={handleLaunch}
               disabled={stepCount === 0 || isLaunching}
