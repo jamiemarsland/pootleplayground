@@ -6,8 +6,6 @@ interface HeaderProps {
   blueprint: Blueprint;
   title: string;
   stepCount: number;
-  onExportBlueprint: () => void;
-  onImportBlueprint: () => void;
   onExportNativeBlueprint: () => void;
   onImportNativeBlueprint: () => void;
   onSaveToGallery: () => void;
@@ -18,8 +16,6 @@ export function Header({
   blueprint,
   title,
   stepCount,
-  onExportBlueprint,
-  onImportBlueprint,
   onExportNativeBlueprint,
   onImportNativeBlueprint,
   onSaveToGallery,
@@ -182,37 +178,19 @@ export function Header({
             <button
               onClick={onExportNativeBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Export as WordPress Playground blueprint (native format)"
+              title="Export as WordPress Playground blueprint"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Native</span>
+              <span className="font-medium hidden xl:inline">Export</span>
             </button>
-            
-            <button
-              onClick={onExportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Export as Pootle blueprint (editable format)"
-            >
-              <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Pootle</span>
-            </button>
-            
+
             <button
               onClick={onImportNativeBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Import WordPress Playground blueprint (converts to Pootle format)"
+              title="Import WordPress Playground blueprint"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Native</span>
-            </button>
-            
-            <button
-              onClick={onImportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Import Pootle blueprint (editable format)"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Pootle</span>
+              <span className="font-medium hidden xl:inline">Import</span>
             </button>
             
             {/* Mobile Gallery Button */}

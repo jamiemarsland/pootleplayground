@@ -17,7 +17,6 @@ function App() {
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
   const [showGallery, setShowGallery] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRefNative = useRef<HTMLInputElement>(null);
 
   // Check for blueprint to load from localStorage on mount
   React.useEffect(() => {
@@ -71,29 +70,6 @@ function App() {
     }
   };
 
-  const handleSavePootleBlueprint = () => {
-    const pootleBlueprint = {
-      version: '1.0',
-      blueprintTitle,
-      landingPageType,
-      steps: steps.map(step => ({
-        id: step.id,
-        type: step.type,
-        data: step.data
-      }))
-    };
-    
-    const jsonString = JSON.stringify(pootleBlueprint, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${blueprintTitle.toLowerCase().replace(/\s+/g, '-')}-pootle-blueprint.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
 
   const handleExportNativeBlueprint = () => {
     const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
@@ -109,53 +85,12 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
-  const triggerLoadPootleBlueprint = () => {
+  const triggerLoadNativeBlueprint = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  const triggerLoadNativeBlueprint = () => {
-    if (fileInputRefNative.current) {
-      fileInputRefNative.current.click();
-    }
-  };
-
-  const handleLoadPootleBlueprint = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string;
-        const pootleBlueprint = JSON.parse(content);
-        
-        // Validate basic structure
-        if (!pootleBlueprint.blueprintTitle || !Array.isArray(pootleBlueprint.steps)) {
-          alert('Invalid Pootle blueprint file format');
-          return;
-        }
-        
-        // Load the blueprint data
-        setBlueprintTitle(pootleBlueprint.blueprintTitle);
-        setLandingPageType(pootleBlueprint.landingPageType || 'wp-admin');
-        setSteps(pootleBlueprint.steps || []);
-        setSelectedStep(null);
-        
-        // Clear file input to allow reloading same file
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-        
-      } catch (error) {
-        console.error('Error parsing blueprint file:', error);
-        alert('Error loading blueprint file. Please check the file format.');
-      }
-    };
-    
-    reader.readAsText(file);
-  };
 
   const handleLoadNativeBlueprint = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -195,8 +130,8 @@ function App() {
         setSelectedStep(null);
         
         // Clear file input to allow reloading same file
-        if (fileInputRefNative.current) {
-          fileInputRefNative.current.value = '';
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
         }
         
       } catch (error) {
@@ -267,8 +202,6 @@ function App() {
         blueprint={blueprint}
         title={blueprintTitle}
         stepCount={steps.length}
-        onExportBlueprint={handleSavePootleBlueprint}
-        onImportBlueprint={triggerLoadPootleBlueprint}
         onExportNativeBlueprint={handleExportNativeBlueprint}
         onImportNativeBlueprint={triggerLoadNativeBlueprint}
         onSaveToGallery={handleSaveToGallery}
@@ -296,18 +229,9 @@ function App() {
         />
       </div>
       
-      {/* Hidden file input for loading blueprints */}
+      {/* Hidden file input for loading WordPress Playground blueprints */}
       <input
         ref={fileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleLoadPootleBlueprint}
-        style={{ display: 'none' }}
-      />
-      
-      {/* Hidden file input for loading native WordPress Playground blueprints */}
-      <input
-        ref={fileInputRefNative}
         type="file"
         accept=".json"
         onChange={handleLoadNativeBlueprint}
