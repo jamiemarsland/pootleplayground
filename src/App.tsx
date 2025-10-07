@@ -4,6 +4,7 @@ import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
 import { BlueprintGallery } from './components/BlueprintGallery';
+import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
@@ -13,6 +14,7 @@ function App() {
   const [steps, setSteps] = useState<Step[]>([]);
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [showGallery, setShowGallery] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -121,6 +123,10 @@ function App() {
     setShowGallery(false);
   };
 
+  const handleSaveSuccess = () => {
+    alert('Blueprint saved successfully! You can now find it in the Community Gallery.');
+  };
+
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
   if (showGallery) {
@@ -142,6 +148,7 @@ function App() {
         onExportBlueprint={handleExportBlueprint}
         onImportBlueprint={triggerLoadBlueprint}
         onShowGallery={() => setShowGallery(true)}
+        onSaveBlueprint={() => setShowSaveModal(true)}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">
@@ -171,6 +178,17 @@ function App() {
         accept=".json"
         onChange={handleLoadBlueprint}
         style={{ display: 'none' }}
+      />
+
+      <SaveBlueprintModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        blueprintData={{
+          blueprintTitle,
+          landingPageType,
+          steps
+        }}
+        onSuccess={handleSaveSuccess}
       />
     </div>
   );

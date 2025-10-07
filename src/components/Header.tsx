@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3 } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Database } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -9,6 +9,7 @@ interface HeaderProps {
   onExportBlueprint: () => void;
   onImportBlueprint: () => void;
   onShowGallery: () => void;
+  onSaveBlueprint: () => void;
 }
 
 export function Header({
@@ -17,7 +18,8 @@ export function Header({
   stepCount,
   onExportBlueprint,
   onImportBlueprint,
-  onShowGallery
+  onShowGallery,
+  onSaveBlueprint
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -183,6 +185,16 @@ export function Header({
             </button>
 
             <button
+              onClick={onSaveBlueprint}
+              disabled={stepCount === 0}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Save to Community Gallery"
+            >
+              <Database className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Save</span>
+            </button>
+
+            <button
               onClick={onShowGallery}
               className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Browse gallery"
@@ -205,6 +217,15 @@ export function Header({
               title="Export blueprint"
             >
               <Download className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onSaveBlueprint}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Save to Community"
+            >
+              <Database className="w-4 h-4" />
             </button>
 
             <button
