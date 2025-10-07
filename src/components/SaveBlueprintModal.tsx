@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Database, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { ConfirmModal } from './ConfirmModal';
 
 interface SaveBlueprintModalProps {
   isOpen: boolean;
@@ -19,20 +20,25 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSave = async () => {
+  const handleSaveClick = () => {
     if (!title.trim()) {
       setError('Title is required');
       return;
     }
 
     if (!description.trim()) {
-      if (!confirm('Are you sure you want to save without a description? A description helps others understand what your blueprint does.')) {
-        return;
-      }
+      setShowConfirm(true);
+      return;
     }
+
+    handleSave();
+  };
+
+  const handleSave = async () => {
 
     setSaving(true);
     setError('');
@@ -76,6 +82,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
     setDescription('');
     setIsPublic(true);
     setError('');
+    setShowConfirm(false);
   };
 
   const handleClose = () => {
@@ -172,7 +179,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            onClick={handleSaveClick}
             disabled={saving || !title.trim()}
             className="flex-1 px-4 py-2 blueprint-accent rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
           >
@@ -190,6 +197,20 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
           </button>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirm}
+        title="Save Without Description?"
+        message="A description helps others understand what your blueprint does. Are you sure you want to continue without one?"
+        type="warning"
+        confirmText="Save Anyway"
+        cancelText="Go Back"
+        onConfirm={() => {
+          setShowConfirm(false);
+          handleSave();
+        }}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
+import { ConfirmModal } from './ConfirmModal';
+import { AlertModal } from './AlertModal';
 
 interface BlueprintTemplate {
   id: string;
@@ -693,6 +695,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'my' | 'community'>('my');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; blueprintId: string | null; event: React.MouseEvent | null }>({ isOpen: false, blueprintId: null, event: null });
+  const [alertState, setAlertState] = useState<{ isOpen: boolean; title: string; message: string; type: 'warning' | 'danger' | 'info' | 'success' }>({ isOpen: false, title: '', message: '', type: 'info' });
 
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
@@ -747,34 +751,43 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     onSelectBlueprint(blueprint.blueprint_data);
   };
 
-  const handleDeleteBlueprint = async (blueprintId: string, event: React.MouseEvent) => {
+  const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {
     event.stopPropagation();
+    setConfirmDelete({ isOpen: true, blueprintId, event });
+  };
+
+  const handleDeleteBlueprint = async () => {
+    if (!confirmDelete.blueprintId) return;
 
     if (!isAdmin) {
       const authenticated = promptAdminPassword();
       if (!authenticated) {
+        setConfirmDelete({ isOpen: false, blueprintId: null, event: null });
         return;
       }
       setIsAdmin(true);
-    }
-
-    if (!confirm('Are you sure you want to delete this blueprint? This action cannot be undone.')) {
-      return;
     }
 
     try {
       const { error } = await supabase
         .from('blueprints')
         .delete()
-        .eq('id', blueprintId);
+        .eq('id', confirmDelete.blueprintId);
 
       if (error) throw error;
 
-      setCommunityBlueprints(communityBlueprints.filter(bp => bp.id !== blueprintId));
-      setMyBlueprints(myBlueprints.filter(bp => bp.id !== blueprintId));
+      setCommunityBlueprints(communityBlueprints.filter(bp => bp.id !== confirmDelete.blueprintId));
+      setMyBlueprints(myBlueprints.filter(bp => bp.id !== confirmDelete.blueprintId));
+      setConfirmDelete({ isOpen: false, blueprintId: null, event: null });
     } catch (error) {
       console.error('Error deleting blueprint:', error);
-      alert('Failed to delete blueprint. Please try again.');
+      setConfirmDelete({ isOpen: false, blueprintId: null, event: null });
+      setAlertState({
+        isOpen: true,
+        title: 'Delete Failed',
+        message: 'Failed to delete the blueprint. Please try again.',
+        type: 'danger'
+      });
     }
   };
 
@@ -818,7 +831,12 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       setMyBlueprints(updateVotes(myBlueprints));
     } catch (error) {
       console.error('Error upvoting blueprint:', error);
-      alert('Failed to upvote blueprint. Please try again.');
+      setAlertState({
+        isOpen: true,
+        title: 'Upvote Failed',
+        message: 'Failed to upvote the blueprint. Please try again.',
+        type: 'danger'
+      });
     }
   };
 
@@ -927,7 +945,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       <User className="w-6 h-6 text-blueprint-paper" />
                     </div>
                     <button
-                      onClick={(e) => handleDeleteBlueprint(blueprint.id, e)}
+                      onClick={(e) => handleDeleteClick(blueprint.id, e)}
                       className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
                       title="Delete blueprint"
                     >
@@ -1004,7 +1022,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     </div>
                     {isAdmin && (
                       <button
-                        onClick={(e) => handleDeleteBlueprint(blueprint.id, e)}
+                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
                         className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
                         title="Delete blueprint"
                       >
@@ -1074,6 +1092,25 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmDelete.isOpen}
+        title="Delete Blueprint?"
+        message="Are you sure you want to delete this blueprint? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteBlueprint}
+        onCancel={() => setConfirmDelete({ isOpen: false, blueprintId: null, event: null })}
+      />
+
+      <AlertModal
+        isOpen={alertState.isOpen}
+        title={alertState.title}
+        message={alertState.message}
+        type={alertState.type}
+        onClose={() => setAlertState({ ...alertState, isOpen: false })}
+      />
     </div>
   );
 }

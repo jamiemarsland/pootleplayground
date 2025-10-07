@@ -5,6 +5,7 @@ import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
 import { BlueprintGallery } from './components/BlueprintGallery';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
+import { AlertModal } from './components/AlertModal';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
@@ -18,6 +19,12 @@ function App() {
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'warning' | 'danger' | 'info' | 'success';
+  }>({ isOpen: false, title: '', message: '', type: 'info' });
 
 
   const addStep = (type: StepType) => {
@@ -82,7 +89,12 @@ function App() {
         
         // Validate basic WordPress Playground blueprint structure
         if (!nativeBlueprint.steps || !Array.isArray(nativeBlueprint.steps)) {
-          alert('Invalid WordPress Playground blueprint file format');
+          setAlertState({
+            isOpen: true,
+            title: 'Invalid Blueprint',
+            message: 'The selected file is not a valid WordPress Playground blueprint format.',
+            type: 'danger'
+          });
           return;
         }
 
@@ -108,7 +120,12 @@ function App() {
         
       } catch (error) {
         console.error('Error parsing blueprint file:', error);
-        alert('Error loading WordPress Playground blueprint file. Please check the file format.');
+        setAlertState({
+          isOpen: true,
+          title: 'Error Loading Blueprint',
+          message: 'Failed to load the blueprint file. Please check the file format and try again.',
+          type: 'danger'
+        });
       }
     };
 
@@ -124,7 +141,12 @@ function App() {
   };
 
   const handleSaveSuccess = () => {
-    alert('Blueprint saved successfully! You can now find it in the Community Gallery.');
+    setAlertState({
+      isOpen: true,
+      title: 'Blueprint Saved!',
+      message: 'Your blueprint has been saved successfully. You can now find it in the Gallery under "My Blueprints".',
+      type: 'success'
+    });
   };
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
@@ -189,6 +211,14 @@ function App() {
           steps
         }}
         onSuccess={handleSaveSuccess}
+      />
+
+      <AlertModal
+        isOpen={alertState.isOpen}
+        title={alertState.title}
+        message={alertState.message}
+        type={alertState.type}
+        onClose={() => setAlertState({ ...alertState, isOpen: false })}
       />
     </div>
   );
