@@ -1046,13 +1046,15 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
                       <Database className="w-6 h-6 text-blueprint-paper" />
                     </div>
-                    <button
-                      onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
-                      title={isAdmin ? "Delete blueprint" : "Delete blueprint (admin login required)"}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                        className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
+                        title="Delete blueprint"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
 
                   <div className="mb-4">
