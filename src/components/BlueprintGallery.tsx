@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 
@@ -688,9 +688,10 @@ const BLUEPRINT_TEMPLATES: BlueprintTemplate[] = [
 ];
 
 export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGalleryProps) {
-  const [savedBlueprints, setSavedBlueprints] = useState<BlueprintRecord[]>([]);
+  const [communityBlueprints, setCommunityBlueprints] = useState<BlueprintRecord[]>([]);
+  const [myBlueprints, setMyBlueprints] = useState<BlueprintRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'templates' | 'community'>('templates');
+  const [activeTab, setActiveTab] = useState<'my' | 'community'>('my');
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -698,10 +699,10 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   }, []);
 
   useEffect(() => {
-    loadSavedBlueprints();
+    loadBlueprints();
   }, []);
 
-  const loadSavedBlueprints = async () => {
+  const loadBlueprints = async () => {
     try {
       const { data, error } = await supabase
         .from('blueprints')
@@ -711,7 +712,15 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSavedBlueprints(data || []);
+
+      const allBlueprints = data || [];
+      const savedBlueprintIds = getSavedBlueprintIds();
+
+      const myBps = allBlueprints.filter(bp => savedBlueprintIds.includes(bp.id));
+      const communityBps = allBlueprints;
+
+      setMyBlueprints(myBps);
+      setCommunityBlueprints(communityBps);
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
@@ -719,10 +728,19 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     }
   };
 
-  const handleSelectBlueprint = (template: BlueprintTemplate) => {
-    localStorage.setItem('loadBlueprint', JSON.stringify(template.data));
-    onSelectBlueprint(template.data);
+  const getSavedBlueprintIds = (): string[] => {
+    const saved = localStorage.getItem('myBlueprintIds');
+    return saved ? JSON.parse(saved) : [];
   };
+
+  const addToMyBlueprints = (blueprintId: string) => {
+    const savedIds = getSavedBlueprintIds();
+    if (!savedIds.includes(blueprintId)) {
+      savedIds.push(blueprintId);
+      localStorage.setItem('myBlueprintIds', JSON.stringify(savedIds));
+    }
+  };
+
 
   const handleSelectSavedBlueprint = (blueprint: BlueprintRecord) => {
     localStorage.setItem('loadBlueprint', JSON.stringify(blueprint.blueprint_data));
@@ -752,7 +770,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       if (error) throw error;
 
-      setSavedBlueprints(savedBlueprints.filter(bp => bp.id !== blueprintId));
+      setCommunityBlueprints(communityBlueprints.filter(bp => bp.id !== blueprintId));
+      setMyBlueprints(myBlueprints.filter(bp => bp.id !== blueprintId));
     } catch (error) {
       console.error('Error deleting blueprint:', error);
       alert('Failed to delete blueprint. Please try again.');
@@ -780,7 +799,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     }
 
     try {
-      const blueprint = savedBlueprints.find(bp => bp.id === blueprintId);
+      const blueprint = communityBlueprints.find(bp => bp.id === blueprintId);
       if (!blueprint) return;
 
       const { error } = await supabase
@@ -791,9 +810,12 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       if (error) throw error;
 
       localStorage.setItem(votedKey, 'true');
-      setSavedBlueprints(savedBlueprints.map(bp =>
-        bp.id === blueprintId ? { ...bp, votes: bp.votes + 1 } : bp
-      ).sort((a, b) => b.votes - a.votes));
+      const updateVotes = (bps: BlueprintRecord[]) =>
+        bps.map(bp => bp.id === blueprintId ? { ...bp, votes: bp.votes + 1 } : bp)
+           .sort((a, b) => b.votes - a.votes);
+
+      setCommunityBlueprints(updateVotes(communityBlueprints));
+      setMyBlueprints(updateVotes(myBlueprints));
     } catch (error) {
       console.error('Error upvoting blueprint:', error);
       alert('Failed to upvote blueprint. Please try again.');
@@ -853,16 +875,16 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         {/* Tabs */}
         <div className="flex justify-center gap-4 mb-8">
           <button
-            onClick={() => setActiveTab('templates')}
+            onClick={() => setActiveTab('my')}
             className={`px-6 py-3 rounded-lg font-medium transition-all ${
-              activeTab === 'templates'
+              activeTab === 'my'
                 ? 'blueprint-accent text-blueprint-paper shadow-lg'
                 : 'blueprint-button'
             }`}
           >
             <div className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Templates ({BLUEPRINT_TEMPLATES.length})
+              <User className="w-4 h-4" />
+              My Blueprints ({myBlueprints.length})
             </div>
           </button>
           <button
@@ -875,62 +897,85 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
           >
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4" />
-              Community ({savedBlueprints.length})
+              Community ({communityBlueprints.length})
             </div>
           </button>
         </div>
 
-        {activeTab === 'templates' && (
+        {activeTab === 'my' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {BLUEPRINT_TEMPLATES.map((template) => {
-            const Icon = template.icon;
-            return (
-              <div
-                key={template.id}
-                onClick={() => handleSelectBlueprint(template)}
-                className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm"
-              >
-                {/* Blueprint-style header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-6 h-6 text-blueprint-paper" />
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-60">
-                    <div className="w-2 h-2 rounded-full blueprint-accent"></div>
-                    <div className="w-2 h-2 rounded-full blueprint-accent"></div>
-                    <div className="w-2 h-2 rounded-full blueprint-accent"></div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="mb-4">
-                  <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
-                    {template.title}
-                  </h3>
-                  <p className="text-sm text-blueprint-text/70 leading-relaxed">
-                    {template.description}
-                  </p>
-                </div>
-
-                {/* Blueprint-style footer */}
-                <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
-                  <div className="text-xs text-blueprint-text/60">
-                    {template.data.steps.length} steps
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Play className="w-3 h-3" />
-                    <span>Load Blueprint</span>
-                  </div>
-                </div>
-
-                {/* Blueprint-style decorative elements */}
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-2 right-2 w-16 h-8 blueprint-grid/20 rounded-lg opacity-50"></div>
-                  <div className="absolute bottom-2 left-2 w-8 h-4 blueprint-grid/20 rounded opacity-30"></div>
-                </div>
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-blueprint-accent/30 border-t-blueprint-accent rounded-full animate-spin"></div>
+                <p className="text-blueprint-text/70 mt-4">Loading your blueprints...</p>
               </div>
-            );
-          })}
+            ) : myBlueprints.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <User className="w-16 h-16 text-blueprint-accent/30 mx-auto mb-4" />
+                <p className="text-blueprint-text/70 mb-2">You haven't saved any blueprints yet</p>
+                <p className="text-sm text-blueprint-text/50">Create a blueprint and click Save to add it here</p>
+              </div>
+            ) : (
+              myBlueprints.map((blueprint) => (
+                <div
+                  key={blueprint.id}
+                  onClick={() => handleSelectSavedBlueprint(blueprint)}
+                  className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
+                      <User className="w-6 h-6 text-blueprint-paper" />
+                    </div>
+                    <button
+                      onClick={(e) => handleDeleteBlueprint(blueprint.id, e)}
+                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
+                      title="Delete blueprint"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
+                      {blueprint.title}
+                    </h3>
+                    <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
+                      {blueprint.description || 'No description provided'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => handleUpvote(blueprint.id, e)}
+                        disabled={hasVoted(blueprint.id)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                          hasVoted(blueprint.id)
+                            ? 'bg-blueprint-accent/20 text-blueprint-accent cursor-not-allowed'
+                            : 'blueprint-button hover:bg-blueprint-accent/10'
+                        }`}
+                        title={hasVoted(blueprint.id) ? 'Already voted' : 'Upvote this blueprint'}
+                      >
+                        <ThumbsUp className={`w-3 h-3 ${hasVoted(blueprint.id) ? 'fill-current' : ''}`} />
+                        <span>{blueprint.votes}</span>
+                      </button>
+                      <div className="text-xs text-blueprint-text/60">
+                        {blueprint.step_count} steps
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Play className="w-3 h-3" />
+                      <span>Load Blueprint</span>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-2 right-2 w-16 h-8 blueprint-grid/20 rounded-lg opacity-50"></div>
+                    <div className="absolute bottom-2 left-2 w-8 h-4 blueprint-grid/20 rounded opacity-30"></div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
 
@@ -941,13 +986,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                 <div className="inline-block w-8 h-8 border-4 border-blueprint-accent/30 border-t-blueprint-accent rounded-full animate-spin"></div>
                 <p className="text-blueprint-text/70 mt-4">Loading community blueprints...</p>
               </div>
-            ) : savedBlueprints.length === 0 ? (
+            ) : communityBlueprints.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <Database className="w-16 h-16 text-blueprint-accent/30 mx-auto mb-4" />
                 <p className="text-blueprint-text/70">No community blueprints yet. Be the first to save one!</p>
               </div>
             ) : (
-              savedBlueprints.map((blueprint) => (
+              communityBlueprints.map((blueprint) => (
                 <div
                   key={blueprint.id}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}

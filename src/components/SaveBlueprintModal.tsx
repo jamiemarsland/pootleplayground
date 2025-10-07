@@ -38,7 +38,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
     setError('');
 
     try {
-      const { error: saveError } = await supabase
+      const { data: savedBlueprint, error: saveError } = await supabase
         .from('blueprints')
         .insert({
           title: title.trim(),
@@ -47,9 +47,18 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
           landing_page_type: blueprintData.landingPageType,
           step_count: blueprintData.steps.length,
           is_public: isPublic,
-        });
+        })
+        .select()
+        .single();
 
       if (saveError) throw saveError;
+
+      if (savedBlueprint) {
+        const savedIds = localStorage.getItem('myBlueprintIds');
+        const idsArray = savedIds ? JSON.parse(savedIds) : [];
+        idsArray.push(savedBlueprint.id);
+        localStorage.setItem('myBlueprintIds', JSON.stringify(idsArray));
+      }
 
       onSuccess();
       onClose();
