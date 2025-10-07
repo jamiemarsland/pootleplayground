@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
   onImportBlueprint: () => void;
   onShowGallery: () => void;
   onSaveBlueprint: () => void;
+  onReset: () => void;
 }
 
 export function Header({
@@ -19,7 +20,8 @@ export function Header({
   onExportBlueprint,
   onImportBlueprint,
   onShowGallery,
-  onSaveBlueprint
+  onSaveBlueprint,
+  onReset
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -158,6 +160,16 @@ export function Header({
           
           <div className="flex items-center gap-3">
             <button
+              onClick={onReset}
+              disabled={stepCount === 0}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500/10 hover:text-red-600"
+              title="Reset blueprint (clear all steps)"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Reset</span>
+            </button>
+
+            <button
               onClick={onSaveBlueprint}
               disabled={stepCount === 0}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
@@ -192,6 +204,15 @@ export function Header({
             >
               <Download className="w-4 h-4" />
               <span className="font-medium hidden xl:inline">Export</span>
+            </button>
+
+            <button
+              onClick={onReset}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500/10 hover:text-red-600"
+              title="Reset blueprint"
+            >
+              <RotateCcw className="w-4 h-4" />
             </button>
 
             <button

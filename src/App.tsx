@@ -149,6 +149,13 @@ function App() {
     });
   };
 
+  const handleReset = () => {
+    setSteps([]);
+    setSelectedStep(null);
+    setBlueprintTitle('My WordPress Site');
+    setLandingPageType('wp-admin');
+  };
+
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
   if (showGallery) {
@@ -171,6 +178,7 @@ function App() {
         onImportBlueprint={triggerLoadBlueprint}
         onShowGallery={() => setShowGallery(true)}
         onSaveBlueprint={() => setShowSaveModal(true)}
+        onReset={handleReset}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">
