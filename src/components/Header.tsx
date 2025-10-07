@@ -173,7 +173,7 @@ export function Header({
               title="Export as WordPress Playground blueprint (native format)"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Export Native Blueprint</span>
+              <span className="font-medium hidden xl:inline">Native</span>
             </button>
             
             <button
@@ -182,7 +182,7 @@ export function Header({
               title="Export as Pootle blueprint (editable format)"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Export Pootle Blueprint</span>
+              <span className="font-medium hidden xl:inline">Pootle</span>
             </button>
             
             <button
@@ -191,7 +191,7 @@ export function Header({
               title="Import WordPress Playground blueprint (converts to Pootle format)"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Import Native Blueprint</span>
+              <span className="font-medium hidden xl:inline">Native</span>
             </button>
             
             <button
@@ -200,7 +200,7 @@ export function Header({
               title="Import Pootle blueprint (editable format)"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Import Pootle Blueprint</span>
+              <span className="font-medium hidden xl:inline">Pootle</span>
             </button>
             
             {/* Mobile Gallery Button */}
