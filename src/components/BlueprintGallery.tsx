@@ -970,7 +970,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
                   <div className="mb-4">
                     <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
-                      {blueprint.blueprint_data.blueprintTitle || blueprint.title}
+                      {blueprint.title}
                     </h3>
                     <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
                       {blueprint.description || 'No description provided'}
