@@ -158,6 +158,16 @@ export function Header({
           
           <div className="flex items-center gap-3">
             <button
+              onClick={onSaveBlueprint}
+              disabled={stepCount === 0}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Save to Community Gallery"
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Save</span>
+            </button>
+
+            <button
               onClick={onShowGallery}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Browse blueprint gallery"
@@ -187,11 +197,10 @@ export function Header({
             <button
               onClick={onSaveBlueprint}
               disabled={stepCount === 0}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Save to Community Gallery"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Save to Community"
             >
               <Save className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Save</span>
             </button>
 
             <button
@@ -217,15 +226,6 @@ export function Header({
               title="Export blueprint"
             >
               <Download className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={onSaveBlueprint}
-              disabled={stepCount === 0}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Save to Community"
-            >
-              <Save className="w-4 h-4" />
             </button>
 
             <button
