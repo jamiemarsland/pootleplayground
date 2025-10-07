@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2 } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
+import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 
 interface BlueprintTemplate {
   id: string;
@@ -690,6 +691,11 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [savedBlueprints, setSavedBlueprints] = useState<BlueprintRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'templates' | 'community'>('templates');
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(isAdminAuthenticated());
+  }, []);
 
   useEffect(() => {
     loadSavedBlueprints();
@@ -725,6 +731,14 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const handleDeleteBlueprint = async (blueprintId: string, event: React.MouseEvent) => {
     event.stopPropagation();
 
+    if (!isAdmin) {
+      const authenticated = promptAdminPassword();
+      if (!authenticated) {
+        return;
+      }
+      setIsAdmin(true);
+    }
+
     if (!confirm('Are you sure you want to delete this blueprint? This action cannot be undone.')) {
       return;
     }
@@ -741,6 +755,18 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     } catch (error) {
       console.error('Error deleting blueprint:', error);
       alert('Failed to delete blueprint. Please try again.');
+    }
+  };
+
+  const handleAdminToggle = () => {
+    if (isAdmin) {
+      clearAdminSession();
+      setIsAdmin(false);
+    } else {
+      const authenticated = promptAdminPassword();
+      if (authenticated) {
+        setIsAdmin(true);
+      }
     }
   };
 
@@ -763,6 +789,18 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                 <p className="text-xs lg:text-sm text-blueprint-text/70">Choose a template to get started</p>
               </div>
             </div>
+            <button
+              onClick={handleAdminToggle}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                isAdmin
+                  ? 'bg-green-500/20 text-green-600 hover:bg-green-500/30'
+                  : 'blueprint-button'
+              }`}
+              title={isAdmin ? 'Admin mode active' : 'Enable admin mode'}
+            >
+              <Shield className="w-4 h-4" />
+              {isAdmin ? 'Admin' : 'Login'}
+            </button>
           </div>
         </div>
       </div>
@@ -885,13 +923,15 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
                       <Database className="w-6 h-6 text-blueprint-paper" />
                     </div>
-                    <button
-                      onClick={(e) => handleDeleteBlueprint(blueprint.id, e)}
-                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
-                      title="Delete blueprint"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={(e) => handleDeleteBlueprint(blueprint.id, e)}
+                        className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
+                        title="Delete blueprint"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
 
                   <div className="mb-4">
