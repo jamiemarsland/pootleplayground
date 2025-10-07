@@ -4,6 +4,7 @@ import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
+import { getUserId } from '../utils/userManager';
 
 interface BlueprintTemplate {
   id: string;
@@ -708,40 +709,31 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
   const loadBlueprints = async () => {
     try {
-      const { data, error } = await supabase
+      const userId = getUserId();
+
+      const { data: myData, error: myError } = await supabase
+        .from('blueprints')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (myError) throw myError;
+
+      const { data: communityData, error: communityError } = await supabase
         .from('blueprints')
         .select('*')
         .eq('is_public', true)
         .order('votes', { ascending: false })
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (communityError) throw communityError;
 
-      const allBlueprints = data || [];
-      const savedBlueprintIds = getSavedBlueprintIds();
-
-      const myBps = allBlueprints.filter(bp => savedBlueprintIds.includes(bp.id));
-      const communityBps = allBlueprints;
-
-      setMyBlueprints(myBps);
-      setCommunityBlueprints(communityBps);
+      setMyBlueprints(myData || []);
+      setCommunityBlueprints(communityData || []);
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const getSavedBlueprintIds = (): string[] => {
-    const saved = localStorage.getItem('myBlueprintIds');
-    return saved ? JSON.parse(saved) : [];
-  };
-
-  const addToMyBlueprints = (blueprintId: string) => {
-    const savedIds = getSavedBlueprintIds();
-    if (!savedIds.includes(blueprintId)) {
-      savedIds.push(blueprintId);
-      localStorage.setItem('myBlueprintIds', JSON.stringify(savedIds));
     }
   };
 
@@ -759,7 +751,19 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const handleDeleteBlueprint = async () => {
     if (!confirmDelete.blueprintId) return;
 
-    if (!isAdmin) {
+    const blueprintToDelete = [...myBlueprints, ...communityBlueprints].find(
+      bp => bp.id === confirmDelete.blueprintId
+    );
+
+    if (!blueprintToDelete) {
+      setConfirmDelete({ isOpen: false, blueprintId: null, event: null });
+      return;
+    }
+
+    const userId = getUserId();
+    const isOwner = blueprintToDelete.user_id === userId;
+
+    if (!isOwner && !isAdmin) {
       const authenticated = promptAdminPassword();
       if (!authenticated) {
         setConfirmDelete({ isOpen: false, blueprintId: null, event: null });
@@ -946,8 +950,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     </div>
                     <button
                       onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
-                      title="Delete blueprint"
+                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all z-10"
+                      title="Delete your blueprint"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

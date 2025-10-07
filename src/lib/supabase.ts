@@ -26,4 +26,5 @@ export interface BlueprintRecord {
   updated_at: string;
   created_by: string;
   votes: number;
+  user_id: string;
 }

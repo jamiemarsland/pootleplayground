@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Save, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
+import { getUserId } from '../utils/userManager';
 
 interface SaveBlueprintModalProps {
   isOpen: boolean;
@@ -44,6 +45,8 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
     setError('');
 
     try {
+      const userId = getUserId();
+
       const { data: savedBlueprint, error: saveError } = await supabase
         .from('blueprints')
         .insert({
@@ -53,18 +56,12 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
           landing_page_type: blueprintData.landingPageType,
           step_count: blueprintData.steps.length,
           is_public: isPublic,
+          user_id: userId,
         })
         .select()
         .single();
 
       if (saveError) throw saveError;
-
-      if (savedBlueprint) {
-        const savedIds = localStorage.getItem('myBlueprintIds');
-        const idsArray = savedIds ? JSON.parse(savedIds) : [];
-        idsArray.push(savedBlueprint.id);
-        localStorage.setItem('myBlueprintIds', JSON.stringify(idsArray));
-      }
 
       onSuccess();
       onClose();
@@ -99,8 +96,8 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
               <Save className="w-5 h-5 text-blueprint-paper" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-blueprint-text">Save to Community</h2>
-              <p className="text-sm text-blueprint-text/70">Share your blueprint with others</p>
+              <h2 className="text-xl font-bold text-blueprint-text">Save Blueprint</h2>
+              <p className="text-sm text-blueprint-text/70">Save to your collection or share with the community</p>
             </div>
           </div>
           <button
@@ -143,8 +140,8 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
 
           <div className="flex items-center justify-between p-4 bg-blueprint-accent/5 rounded-lg border border-blueprint-accent/20">
             <div>
-              <p className="font-medium text-blueprint-text text-sm">Make Public</p>
-              <p className="text-xs text-blueprint-text/70">Share with the community gallery</p>
+              <p className="font-medium text-blueprint-text text-sm">Share Publicly</p>
+              <p className="text-xs text-blueprint-text/70">Make visible in the community gallery (otherwise only you can see it)</p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input
