@@ -11,6 +11,8 @@ import { supabase } from './lib/supabase';
 import './App.css';
 
 function App() {
+  console.log('App component rendering...');
+
   const [steps, setSteps] = useState<Step[]>([]);
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
