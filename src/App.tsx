@@ -16,6 +16,7 @@ function App() {
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
   const [showGallery, setShowGallery] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefNative = useRef<HTMLInputElement>(null);
 
   // Check for blueprint to load from localStorage on mount
   React.useEffect(() => {

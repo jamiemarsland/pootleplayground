@@ -621,8 +621,7 @@ const BLUEPRINT_TEMPLATES: BlueprintTemplate[] = [
             postTitle: 'The ROI of Professional Web Design',
             postContent: '<!-- wp:paragraph --><p>Investing in professional web design isn\'t just about aesthetics—it\'s about driving real business results. Let\'s explore how quality design translates to measurable ROI.</p><!-- /wp:paragraph --><!-- wp:heading {"level":2} --><h2>Conversion Rate Improvements</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Well-designed websites typically see 200-400% higher conversion rates compared to poorly designed alternatives. Strategic placement of call-to-action buttons and optimized user flows make a significant difference.</p><!-- /wp:paragraph --><!-- wp:heading {"level":2} --><h2>Reduced Bounce Rates</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Professional design keeps visitors engaged longer, reducing bounce rates by up to 40%. This means more opportunities to convert visitors into customers.</p><!-- /wp:paragraph --><!-- wp:heading {"level":2} --><h2>Brand Credibility</h2><!-- /wp:heading --><!-- wp:paragraph --><p>75% of users judge a company\'s credibility based on website design alone. Professional design builds trust and confidence in your brand.</p><!-- /wp:paragraph --><!-- wp:heading {"level":2} --><h2>SEO Benefits</h2><!-- /wp:heading --><!-- wp:paragraph --><p>Modern web design practices improve site speed, mobile responsiveness, and user experience—all factors that search engines reward with better rankings.</p><!-- /wp:paragraph -->',
             postStatus: 'publish',
-            featuredImageUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg',
-            postStatus: 'publish'
+            featuredImageUrl: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg'
           }
         },
         {
