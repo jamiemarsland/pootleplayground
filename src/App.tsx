@@ -7,6 +7,7 @@ import { BlueprintGallery } from './components/BlueprintGallery';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
+import { supabase } from './lib/supabase';
 import './App.css';
 
 function App() {
@@ -211,6 +212,44 @@ function App() {
     loadBlueprintFromData(blueprintData);
   };
 
+  const handleSaveToGallery = async () => {
+    const description = prompt('Enter a description for this blueprint (optional):');
+    if (description === null) return;
+
+    const blueprintData = {
+      version: '1.0',
+      blueprintTitle,
+      landingPageType,
+      steps: steps.map(step => ({
+        id: step.id,
+        type: step.type,
+        data: step.data
+      }))
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('blueprints')
+        .insert({
+          title: blueprintTitle,
+          description: description || '',
+          blueprint_data: blueprintData,
+          landing_page_type: landingPageType,
+          step_count: steps.length,
+          is_public: true
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      alert('Blueprint saved to gallery successfully!');
+    } catch (error) {
+      console.error('Error saving blueprint:', error);
+      alert('Failed to save blueprint to gallery. Please try again.');
+    }
+  };
+
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
 
   if (showGallery) {
@@ -232,6 +271,7 @@ function App() {
         onImportBlueprint={triggerLoadPootleBlueprint}
         onExportNativeBlueprint={handleExportNativeBlueprint}
         onImportNativeBlueprint={triggerLoadNativeBlueprint}
+        onSaveToGallery={handleSaveToGallery}
         onShowGallery={() => setShowGallery(true)}
       />
       

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Play, FileText, Zap, Download, Upload, Grid3x3 } from 'lucide-react';
+import { ExternalLink, Play, FileText, Zap, Download, Upload, Grid3x3, Save } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -10,18 +10,20 @@ interface HeaderProps {
   onImportBlueprint: () => void;
   onExportNativeBlueprint: () => void;
   onImportNativeBlueprint: () => void;
+  onSaveToGallery: () => void;
   onShowGallery: () => void;
 }
 
-export function Header({ 
-  blueprint, 
-  title, 
-  stepCount, 
-  onExportBlueprint, 
-  onImportBlueprint, 
+export function Header({
+  blueprint,
+  title,
+  stepCount,
+  onExportBlueprint,
+  onImportBlueprint,
   onExportNativeBlueprint,
   onImportNativeBlueprint,
-  onShowGallery 
+  onSaveToGallery,
+  onShowGallery
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -165,6 +167,16 @@ export function Header({
             >
               <Grid3x3 className="w-4 h-4" />
               <span className="font-medium hidden xl:inline">Gallery</span>
+            </button>
+
+            <button
+              onClick={onSaveToGallery}
+              disabled={stepCount === 0}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Save this blueprint to the gallery"
+            >
+              <Save className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Save</span>
             </button>
             
             <button

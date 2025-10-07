@@ -1,5 +1,6 @@
-import React from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database } from 'lucide-react';
+import { supabase, BlueprintRecord } from '../lib/supabase';
 
 interface BlueprintTemplate {
   id: string;
@@ -686,10 +687,39 @@ const BLUEPRINT_TEMPLATES: BlueprintTemplate[] = [
 ];
 
 export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGalleryProps) {
+  const [savedBlueprints, setSavedBlueprints] = useState<BlueprintRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'templates' | 'community'>('templates');
+
+  useEffect(() => {
+    loadSavedBlueprints();
+  }, []);
+
+  const loadSavedBlueprints = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blueprints')
+        .select('*')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setSavedBlueprints(data || []);
+    } catch (error) {
+      console.error('Error loading blueprints:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSelectBlueprint = (template: BlueprintTemplate) => {
-    // Store blueprint data and signal to load it
     localStorage.setItem('loadBlueprint', JSON.stringify(template.data));
     onSelectBlueprint(template.data);
+  };
+
+  const handleSelectSavedBlueprint = (blueprint: BlueprintRecord) => {
+    localStorage.setItem('loadBlueprint', JSON.stringify(blueprint.blueprint_data));
+    onSelectBlueprint(blueprint.blueprint_data);
   };
 
   return (
@@ -719,15 +749,45 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
           <h2 className="text-2xl lg:text-3xl font-bold text-blueprint-text mb-4">
-            Pre-Built WordPress Blueprints
+            Blueprint Gallery
           </h2>
           <p className="text-blueprint-text/80 max-w-2xl mx-auto">
-            Select from our collection of professionally designed WordPress setups. 
-            Each blueprint includes pages, posts, plugins, and configurations ready to launch.
+            Select from our collection or browse community blueprints
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Tabs */}
+        <div className="flex justify-center gap-4 mb-8">
+          <button
+            onClick={() => setActiveTab('templates')}
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              activeTab === 'templates'
+                ? 'blueprint-accent text-blueprint-paper shadow-lg'
+                : 'blueprint-button'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Templates ({BLUEPRINT_TEMPLATES.length})
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('community')}
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+              activeTab === 'community'
+                ? 'blueprint-accent text-blueprint-paper shadow-lg'
+                : 'blueprint-button'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Database className="w-4 h-4" />
+              Community ({savedBlueprints.length})
+            </div>
+          </button>
+        </div>
+
+        {activeTab === 'templates' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {BLUEPRINT_TEMPLATES.map((template) => {
             const Icon = template.icon;
             return (
@@ -777,7 +837,67 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
+
+        {activeTab === 'community' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-blueprint-accent/30 border-t-blueprint-accent rounded-full animate-spin"></div>
+                <p className="text-blueprint-text/70 mt-4">Loading community blueprints...</p>
+              </div>
+            ) : savedBlueprints.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <Database className="w-16 h-16 text-blueprint-accent/30 mx-auto mb-4" />
+                <p className="text-blueprint-text/70">No community blueprints yet. Be the first to save one!</p>
+              </div>
+            ) : (
+              savedBlueprints.map((blueprint) => (
+                <div
+                  key={blueprint.id}
+                  onClick={() => handleSelectSavedBlueprint(blueprint)}
+                  className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
+                      <Database className="w-6 h-6 text-blueprint-paper" />
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-60">
+                      <div className="w-2 h-2 rounded-full blueprint-accent"></div>
+                      <div className="w-2 h-2 rounded-full blueprint-accent"></div>
+                      <div className="w-2 h-2 rounded-full blueprint-accent"></div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
+                      {blueprint.title}
+                    </h3>
+                    <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
+                      {blueprint.description || 'No description provided'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
+                    <div className="text-xs text-blueprint-text/60">
+                      {blueprint.step_count} steps
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Play className="w-3 h-3" />
+                      <span>Load Blueprint</span>
+                    </div>
+                  </div>
+
+                  <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-2 right-2 w-16 h-8 blueprint-grid/20 rounded-lg opacity-50"></div>
+                    <div className="absolute bottom-2 left-2 w-8 h-4 blueprint-grid/20 rounded opacity-30"></div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         <div className="text-center mt-12">
           <div className="blueprint-component border rounded-xl p-6 max-w-2xl mx-auto">
