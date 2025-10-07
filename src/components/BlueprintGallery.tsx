@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
+import { generateBlueprint } from '../utils/blueprintGenerator';
 
 interface BlueprintTemplate {
   id: string;
@@ -743,6 +744,22 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     onSelectBlueprint(blueprint.blueprint_data);
   };
 
+  const handleLaunchBlueprint = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const nativeBlueprint = generateBlueprint(
+      blueprint.blueprint_data.steps,
+      blueprint.blueprint_data.blueprintTitle,
+      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+    );
+
+    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const compressed = btoa(blueprintJson);
+    const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
+
+    window.open(playgroundUrl, '_blank');
+  };
+
   const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setConfirmDelete({ isOpen: true, blueprintId, event });
@@ -985,9 +1002,14 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         {blueprint.step_count} steps
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Play className="w-3 h-3" />
-                      <span>Load Blueprint</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => handleLaunchBlueprint(blueprint, e)}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
+                        title="Launch in WordPress Playground"
+                      >
+                        <Rocket className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
 
@@ -1063,9 +1085,14 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         {blueprint.step_count} steps
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Play className="w-3 h-3" />
-                      <span>Load Blueprint</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => handleLaunchBlueprint(blueprint, e)}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
+                        title="Launch in WordPress Playground"
+                      >
+                        <Rocket className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
 
