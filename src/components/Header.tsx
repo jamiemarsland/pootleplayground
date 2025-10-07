@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3 } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
   stepCount: number;
   onExportBlueprint: () => void;
   onImportBlueprint: () => void;
+  onShowGallery: () => void;
 }
 
 export function Header({
@@ -15,7 +16,8 @@ export function Header({
   title,
   stepCount,
   onExportBlueprint,
-  onImportBlueprint
+  onImportBlueprint,
+  onShowGallery
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -154,6 +156,15 @@ export function Header({
           
           <div className="flex items-center gap-3">
             <button
+              onClick={onShowGallery}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Browse blueprint gallery"
+            >
+              <Grid3x3 className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">Gallery</span>
+            </button>
+
+            <button
               onClick={onImportBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Import WordPress Playground blueprint"
@@ -169,6 +180,14 @@ export function Header({
             >
               <Download className="w-4 h-4" />
               <span className="font-medium hidden xl:inline">Export</span>
+            </button>
+
+            <button
+              onClick={onShowGallery}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Browse gallery"
+            >
+              <Grid3x3 className="w-4 h-4" />
             </button>
 
             <button
