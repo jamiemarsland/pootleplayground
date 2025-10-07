@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2 } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 
 interface BlueprintTemplate {
@@ -722,6 +722,28 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     onSelectBlueprint(blueprint.blueprint_data);
   };
 
+  const handleDeleteBlueprint = async (blueprintId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    if (!confirm('Are you sure you want to delete this blueprint? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('blueprints')
+        .delete()
+        .eq('id', blueprintId);
+
+      if (error) throw error;
+
+      setSavedBlueprints(savedBlueprints.filter(bp => bp.id !== blueprintId));
+    } catch (error) {
+      console.error('Error deleting blueprint:', error);
+      alert('Failed to delete blueprint. Please try again.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       {/* Header */}
@@ -863,11 +885,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
                       <Database className="w-6 h-6 text-blueprint-paper" />
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-blueprint-accent opacity-60">
-                      <div className="w-2 h-2 rounded-full blueprint-accent"></div>
-                      <div className="w-2 h-2 rounded-full blueprint-accent"></div>
-                      <div className="w-2 h-2 rounded-full blueprint-accent"></div>
-                    </div>
+                    <button
+                      onClick={(e) => handleDeleteBlueprint(blueprint.id, e)}
+                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
+                      title="Delete blueprint"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
 
                   <div className="mb-4">
