@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Database, Loader2 } from 'lucide-react';
+import { X, Save, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
 
@@ -96,7 +96,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
         <div className="flex items-center justify-between p-6 border-b border-blueprint-grid/30">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50">
-              <Database className="w-5 h-5 text-blueprint-paper" />
+              <Save className="w-5 h-5 text-blueprint-paper" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-blueprint-text">Save to Community</h2>
@@ -159,7 +159,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
           </div>
 
           <div className="flex items-center gap-2 text-sm text-blueprint-text/70 p-3 bg-blueprint-grid/10 rounded-lg">
-            <Database className="w-4 h-4" />
+            <Save className="w-4 h-4" />
             <span>{blueprintData.steps.length} steps • {blueprintData.landingPageType === 'wp-admin' ? 'WP Admin' : 'Front Page'} landing</span>
           </div>
 
@@ -190,7 +190,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
               </>
             ) : (
               <>
-                <Database className="w-4 h-4" />
+                <Save className="w-4 h-4" />
                 <span>Save Blueprint</span>
               </>
             )}

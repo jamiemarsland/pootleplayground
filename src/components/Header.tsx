@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Database } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -190,7 +190,7 @@ export function Header({
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title="Save to Community Gallery"
             >
-              <Database className="w-4 h-4" />
+              <Save className="w-4 h-4" />
               <span className="font-medium hidden xl:inline">Save</span>
             </button>
 
@@ -225,7 +225,7 @@ export function Header({
               className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title="Save to Community"
             >
-              <Database className="w-4 h-4" />
+              <Save className="w-4 h-4" />
             </button>
 
             <button
