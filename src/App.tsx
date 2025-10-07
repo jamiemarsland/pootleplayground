@@ -224,12 +224,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
-      <Header 
+      <Header
         blueprint={blueprint}
         title={blueprintTitle}
         stepCount={steps.length}
         onExportBlueprint={handleSavePootleBlueprint}
         onImportBlueprint={triggerLoadPootleBlueprint}
+        onExportNativeBlueprint={handleExportNativeBlueprint}
+        onImportNativeBlueprint={triggerLoadNativeBlueprint}
         onShowGallery={() => setShowGallery(true)}
       />
       

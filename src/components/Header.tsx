@@ -170,33 +170,37 @@ export function Header({
             <button
               onClick={onExportNativeBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Export as WordPress Playground blueprint (native format)"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Export WP</span>
+              <span className="font-medium hidden xl:inline">Export Native Blueprint</span>
             </button>
             
             <button
               onClick={onExportBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Export as Pootle blueprint (editable format)"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Export</span>
+              <span className="font-medium hidden xl:inline">Export Pootle Blueprint</span>
             </button>
             
             <button
               onClick={onImportNativeBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Import WordPress Playground blueprint (converts to Pootle format)"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Import WP</span>
+              <span className="font-medium hidden xl:inline">Import Native Blueprint</span>
             </button>
             
             <button
               onClick={onImportBlueprint}
               className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Import Pootle blueprint (editable format)"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Import</span>
+              <span className="font-medium hidden xl:inline">Import Pootle Blueprint</span>
             </button>
             
             {/* Mobile Gallery Button */}
