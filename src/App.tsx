@@ -17,7 +17,8 @@ function App() {
   const [showGallery, setShowGallery] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
-  const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page'>('wp-admin');
+  const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page' | 'custom'>('wp-admin');
+  const [customLandingUrl, setCustomLandingUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [alertState, setAlertState] = useState<{
     isOpen: boolean;
@@ -58,7 +59,7 @@ function App() {
 
 
   const handleExportBlueprint = () => {
-    const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
+    const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
     const jsonString = JSON.stringify(nativeBlueprint, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -99,7 +100,17 @@ function App() {
         }
 
         const convertedSteps = convertNativeBlueprintToPootleSteps(nativeBlueprint);
-        const landingPageType = nativeBlueprint.landingPage === '/wp-admin/' ? 'wp-admin' : 'front-page';
+        let landingPageType: 'wp-admin' | 'front-page' | 'custom' = 'wp-admin';
+        let customUrl = '';
+
+        if (nativeBlueprint.landingPage === '/wp-admin/') {
+          landingPageType = 'wp-admin';
+        } else if (nativeBlueprint.landingPage === '/') {
+          landingPageType = 'front-page';
+        } else {
+          landingPageType = 'custom';
+          customUrl = nativeBlueprint.landingPage;
+        }
 
         let extractedTitle = 'Imported WordPress Site';
         const titleStep = convertedSteps.find(step =>
@@ -111,6 +122,7 @@ function App() {
 
         setBlueprintTitle(extractedTitle);
         setLandingPageType(landingPageType);
+        setCustomLandingUrl(customUrl);
         setSteps(convertedSteps);
         setSelectedStep(null);
 
@@ -135,6 +147,7 @@ function App() {
   const handleSelectBlueprint = (blueprintData: any) => {
     setBlueprintTitle(blueprintData.blueprintTitle || 'My WordPress Site');
     setLandingPageType(blueprintData.landingPageType || 'wp-admin');
+    setCustomLandingUrl(blueprintData.customLandingUrl || '');
     setSteps(blueprintData.steps || []);
     setSelectedStep(null);
     setShowGallery(false);
@@ -154,9 +167,10 @@ function App() {
     setSelectedStep(null);
     setBlueprintTitle('My WordPress Site');
     setLandingPageType('wp-admin');
+    setCustomLandingUrl('');
   };
 
-  const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType);
+  const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
 
   if (showGallery) {
     return (
@@ -216,6 +230,7 @@ function App() {
         blueprintData={{
           blueprintTitle,
           landingPageType,
+          customLandingUrl,
           steps
         }}
         onSuccess={handleSaveSuccess}

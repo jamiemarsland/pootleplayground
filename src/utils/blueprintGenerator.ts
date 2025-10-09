@@ -171,12 +171,19 @@ function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | Blue
   
   return steps.length > 0 ? steps : null;
 }
-export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' = 'wp-admin'): Blueprint {
+export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' | 'custom' = 'wp-admin', customUrl?: string): Blueprint {
   // Check if there's a setLandingPage step to override the default
   const landingPageStep = allSteps.find(step => step.type === 'setLandingPage');
   const finalLandingPageType = landingPageStep?.data?.landingPageType || landingPageType;
-  const landingPageUrl = finalLandingPageType === 'wp-admin' ? '/wp-admin/' : '/';
-  
+  const finalCustomUrl = landingPageStep?.data?.customUrl || customUrl;
+
+  let landingPageUrl = '/wp-admin/';
+  if (finalLandingPageType === 'front-page') {
+    landingPageUrl = '/';
+  } else if (finalLandingPageType === 'custom' && finalCustomUrl) {
+    landingPageUrl = finalCustomUrl;
+  }
+
   const blueprint: Blueprint = {
     landingPage: landingPageUrl,
     preferredVersions: {
