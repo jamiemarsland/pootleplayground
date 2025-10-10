@@ -143,7 +143,7 @@ export function Header({
               </div>
               <div>
                 <h1 className="text-lg lg:text-xl font-bold text-blueprint-text">Pootle Playground</h1>
-                <p className="text-xs lg:text-sm text-blueprint-text/70">Blueprint Generator v1.0</p>
+                <p className="text-xs lg:text-sm text-blueprint-text/70">Blueprint Generator v1.1</p>
               </div>
             </div>
             
