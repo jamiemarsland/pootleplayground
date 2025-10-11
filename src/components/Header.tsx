@@ -195,7 +195,7 @@ export function Header({
               className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Import WordPress Playground blueprint"
             >
-              <Upload className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             </button>
 
             <button
@@ -203,7 +203,7 @@ export function Header({
               className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Export as WordPress Playground blueprint"
             >
-              <Download className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
             </button>
 
             <button
@@ -245,7 +245,7 @@ export function Header({
               className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Import blueprint"
             >
-              <Upload className="w-4 h-4" />
+              <Download className="w-4 h-4" />
             </button>
 
             <button
@@ -254,7 +254,7 @@ export function Header({
               className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title="Export blueprint"
             >
-              <Download className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
             </button>
 
             <button
