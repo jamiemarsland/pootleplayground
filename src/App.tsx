@@ -6,6 +6,7 @@ import { Header } from './components/Header';
 import { BlueprintGallery } from './components/BlueprintGallery';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { AlertModal } from './components/AlertModal';
+import { AiPromptSidebar } from './components/AiPromptSidebar';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
@@ -16,6 +17,7 @@ function App() {
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [showGallery, setShowGallery] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showAiSidebar, setShowAiSidebar] = useState(false);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page' | 'custom'>('wp-admin');
   const [customLandingUrl, setCustomLandingUrl] = useState('');
@@ -170,6 +172,29 @@ function App() {
     setCustomLandingUrl('');
   };
 
+  const handleAiGenerateBlueprint = (blueprintData: any) => {
+    if (blueprintData.blueprintTitle) {
+      setBlueprintTitle(blueprintData.blueprintTitle);
+    }
+    if (blueprintData.landingPageType) {
+      setLandingPageType(blueprintData.landingPageType);
+    }
+    if (blueprintData.customLandingUrl) {
+      setCustomLandingUrl(blueprintData.customLandingUrl);
+    }
+    if (blueprintData.steps && Array.isArray(blueprintData.steps)) {
+      setSteps(blueprintData.steps);
+      setSelectedStep(null);
+    }
+
+    setAlertState({
+      isOpen: true,
+      title: 'Blueprint Generated!',
+      message: blueprintData.explanation || 'Your AI-generated blueprint is ready. Review and customize as needed.',
+      type: 'success'
+    });
+  };
+
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
 
   if (showGallery) {
@@ -193,6 +218,7 @@ function App() {
         onShowGallery={() => setShowGallery(true)}
         onSaveBlueprint={() => setShowSaveModal(true)}
         onReset={handleReset}
+        onOpenAiSidebar={() => setShowAiSidebar(true)}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">
@@ -242,6 +268,12 @@ function App() {
         message={alertState.message}
         type={alertState.type}
         onClose={() => setAlertState({ ...alertState, isOpen: false })}
+      />
+
+      <AiPromptSidebar
+        isOpen={showAiSidebar}
+        onClose={() => setShowAiSidebar(false)}
+        onGenerateBlueprint={handleAiGenerateBlueprint}
       />
     </div>
   );

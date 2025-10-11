@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -11,6 +11,7 @@ interface HeaderProps {
   onShowGallery: () => void;
   onSaveBlueprint: () => void;
   onReset: () => void;
+  onOpenAiSidebar: () => void;
 }
 
 export function Header({
@@ -21,7 +22,8 @@ export function Header({
   onImportBlueprint,
   onShowGallery,
   onSaveBlueprint,
-  onReset
+  onReset,
+  onOpenAiSidebar
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -207,6 +209,15 @@ export function Header({
             </button>
 
             <button
+              onClick={onOpenAiSidebar}
+              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
+              title="Generate blueprint with AI"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span className="font-medium hidden xl:inline">AI Generate</span>
+            </button>
+
+            <button
               onClick={onReset}
               disabled={stepCount === 0}
               className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500/10 hover:text-red-600"
@@ -247,6 +258,14 @@ export function Header({
               title="Export blueprint"
             >
               <Download className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onOpenAiSidebar}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all text-sm"
+              title="AI Generate"
+            >
+              <Sparkles className="w-4 h-4" />
             </button>
 
             <button
