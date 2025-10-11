@@ -64,9 +64,11 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
 
         try {
           const errorData = await response.json();
-          console.log('Error response data:', errorData);
+          console.log('Error response data:', JSON.stringify(errorData, null, 2));
+          console.log('Error message from API:', errorData.error);
+          console.log('Error details from API:', errorData.details);
           errorMessage = errorData.error || errorMessage;
-          details = errorData.details ? `\n\nDetails: ${errorData.details}` : '';
+          details = errorData.details ? `\n\n${errorData.details}` : '';
         } catch (e) {
           console.error('Failed to parse error response:', e);
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
