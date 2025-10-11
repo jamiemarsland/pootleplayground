@@ -55,9 +55,17 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData.error || 'Failed to generate blueprint';
-        const details = errorData.details ? `\n\nDetails: ${errorData.details}` : '';
+        let errorMessage = 'Failed to generate blueprint';
+        let details = '';
+
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+          details = errorData.details ? `\n\nDetails: ${errorData.details}` : '';
+        } catch (e) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        }
+
         throw new Error(errorMessage + details);
       }
 
