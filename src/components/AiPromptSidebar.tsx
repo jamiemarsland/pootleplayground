@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Loader2, AlertCircle } from 'lucide-react';
+import { getContext } from '../utils/contextCache';
 
 interface AiPromptSidebarProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [context, setContext] = useState<string>('');
 
   const examplePrompts = [
     "Create a simple blog with 5 posts about technology",
@@ -19,6 +21,14 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
     "Create an online magazine with multiple categories and 10 articles",
     "Build a restaurant website with menu, gallery, and reservation info"
   ];
+
+  useEffect(() => {
+    if (isOpen && !context) {
+      getContext().then(setContext).catch(err => {
+        console.error('Failed to load context:', err);
+      });
+    }
+  }, [isOpen, context]);
 
   const handleSubmit = async () => {
     if (!prompt.trim()) {
@@ -38,7 +48,10 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: prompt.trim() }),
+        body: JSON.stringify({
+          prompt: prompt.trim(),
+          context: context
+        }),
       });
 
       if (!response.ok) {

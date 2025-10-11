@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface BlueprintRequest {
   prompt: string;
+  context?: string;
 }
 
 interface StepType {
@@ -33,7 +34,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { prompt }: BlueprintRequest = await req.json();
+    const { prompt, context }: BlueprintRequest = await req.json();
 
     if (!prompt || prompt.trim().length === 0) {
       return new Response(
@@ -56,7 +57,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const systemPrompt = `You are an expert WordPress Blueprint generator for the Pootle Playground tool. Your task is to convert user descriptions into step configurations.
+    const systemPrompt = context || `You are an expert WordPress Blueprint generator for the Pootle Playground tool. Your task is to convert user descriptions into step configurations.
 
 IMPORTANT: Generate steps in the Pootle format with id, type, and data fields. The frontend will convert them to WordPress Playground format.
 
