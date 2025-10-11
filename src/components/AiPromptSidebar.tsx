@@ -42,6 +42,8 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
     try {
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-blueprint`;
 
+      console.log('Calling edge function:', apiUrl);
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -54,18 +56,23 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
         }),
       });
 
+      console.log('Response status:', response.status, response.statusText);
+
       if (!response.ok) {
         let errorMessage = 'Failed to generate blueprint';
         let details = '';
 
         try {
           const errorData = await response.json();
+          console.log('Error response data:', errorData);
           errorMessage = errorData.error || errorMessage;
           details = errorData.details ? `\n\nDetails: ${errorData.details}` : '';
         } catch (e) {
+          console.error('Failed to parse error response:', e);
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         }
 
+        console.error('Final error message:', errorMessage + details);
         throw new Error(errorMessage + details);
       }
 
