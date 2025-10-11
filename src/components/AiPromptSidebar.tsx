@@ -56,7 +56,9 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate blueprint');
+        const errorMessage = errorData.error || 'Failed to generate blueprint';
+        const details = errorData.details ? `\n\nDetails: ${errorData.details}` : '';
+        throw new Error(errorMessage + details);
       }
 
       const blueprintData = await response.json();
@@ -144,9 +146,16 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-red-800">Error</p>
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800 mb-1">Error Generating Blueprint</p>
+                <p className="text-sm text-red-600 whitespace-pre-line">{error}</p>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isLoading}
+                  className="mt-3 text-sm text-red-700 hover:text-red-900 font-medium underline"
+                >
+                  Try Again
+                </button>
               </div>
             </div>
           )}
