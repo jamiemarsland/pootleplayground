@@ -56,43 +56,181 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const systemPrompt = `You are an expert WordPress Blueprint generator. Your task is to convert user descriptions into WordPress Playground blueprint configurations.
+    const systemPrompt = `You are an expert WordPress Blueprint generator for the Pootle Playground tool. Your task is to convert user descriptions into step configurations.
 
-Available step types and their data structures:
+IMPORTANT: Generate steps in the Pootle format with id, type, and data fields. The frontend will convert them to WordPress Playground format.
 
-1. installPlugin: { pluginZipFile: { resource: 'url', url: string }, options: { activate: boolean } }
-2. installTheme: { themeZipFile: { resource: 'url', url: string }, options: { activate: boolean } }
-3. addPost: { postTitle: string, postContent: string, postType: 'post', postStatus: 'publish', postDate: 'now', featuredImageUrl: string }
-4. addPage: { postTitle: string, postContent: string, postStatus: 'publish', postName: string, postParent: string, template: string, menuOrder: string }
-5. addMedia: { downloadUrl: string }
-6. setSiteOption: { option: string, value: string }
-7. defineWpConfigConst: { consts: { [key: string]: string | number | boolean } }
-8. login: { username: string, password: string }
-9. importWxr: { file: { resource: 'url', url: string } }
-10. addClientRole: { name: string, capabilities: string[] }
-11. setHomepage: { option: 'create', title: string, content: string }
-12. setPostsPage: { option: 'create', title: string, content: string }
-13. createNavigationMenu: { menuName: string, menuLocation: string, menuItems: Array<{ title: string, url: string }> }
-14. setLandingPage: { landingPageType: 'wp-admin' | 'front-page' | 'custom' }
+Available step types and their EXACT data structures:
 
-Common WordPress options for setSiteOption:
+1. installPlugin:
+   {
+     "id": "installPlugin-{timestamp}",
+     "type": "installPlugin",
+     "data": {
+       "pluginZipFile": {
+         "resource": "wordpress.org/plugins",
+         "wordpress.org/plugins": "plugin-slug"
+       },
+       "options": { "activate": true }
+     }
+   }
+   OR for custom URL:
+   {
+     "pluginZipFile": {
+       "resource": "url",
+       "url": "https://example.com/plugin.zip"
+     },
+     "options": { "activate": true }
+   }
+
+2. installTheme:
+   {
+     "id": "installTheme-{timestamp}",
+     "type": "installTheme",
+     "data": {
+       "themeZipFile": {
+         "resource": "wordpress.org/themes",
+         "wordpress.org/themes": "theme-slug"
+       },
+       "options": { "activate": true }
+     }
+   }
+
+3. addPost:
+   {
+     "id": "addPost-{timestamp}",
+     "type": "addPost",
+     "data": {
+       "postTitle": "Post Title",
+       "postContent": "Post content here",
+       "postType": "post",
+       "postStatus": "publish",
+       "postDate": "now",
+       "featuredImageUrl": ""
+     }
+   }
+
+4. addPage:
+   {
+     "id": "addPage-{timestamp}",
+     "type": "addPage",
+     "data": {
+       "postTitle": "Page Title",
+       "postContent": "Page content",
+       "postStatus": "publish",
+       "postName": "page-slug",
+       "postParent": "",
+       "template": "",
+       "menuOrder": ""
+     }
+   }
+
+5. setSiteOption:
+   {
+     "id": "setSiteOption-{timestamp}",
+     "type": "setSiteOption",
+     "data": {
+       "option": "blogname",
+       "value": "My Site Title"
+     }
+   }
+
+6. setHomepage:
+   {
+     "id": "setHomepage-{timestamp}",
+     "type": "setHomepage",
+     "data": {
+       "option": "create",
+       "title": "Home",
+       "content": "Welcome to my site"
+     }
+   }
+
+7. createNavigationMenu:
+   {
+     "id": "createNavigationMenu-{timestamp}",
+     "type": "createNavigationMenu",
+     "data": {
+       "menuName": "Main Menu",
+       "menuLocation": "primary",
+       "menuItems": [
+         { "type": "custom", "title": "Home", "url": "/" }
+       ]
+     }
+   }
+
+Common site options:
 - blogname (site title)
-- blogdescription (tagline)
+- blogdescription (tagline)  
 - permalink_structure (e.g., '/%postname%/')
-- show_on_front ('posts' or 'page')
-- page_on_front (page ID for homepage)
-- page_for_posts (page ID for blog)
 - posts_per_page (number)
 - default_comment_status ('open' or 'closed')
 
-When generating blueprints:
-- Always set a meaningful blogname
-- Consider setting permalink_structure to '/%postname%/' for clean URLs
-- If creating a static homepage, use setHomepage step
-- If creating a blog page, use setPostsPage step
-- Add realistic content to posts and pages
-- Use real WordPress.org plugin slugs when possible
-- For custom plugins/themes, use placeholder URLs like 'https://example.com/plugin.zip'
+IMPORTANT RULES:
+1. Always use unique IDs with timestamp: "stepType-{timestamp}"
+2. For plugins/themes from WordPress.org, ALWAYS use real slugs (e.g., "contact-form-7", "hello-elementor")
+3. Include rich, realistic content for posts and pages (at least 100 words)
+4. Set blogname and blogdescription as first steps
+5. Consider setting permalink_structure to '/%postname%/'
+6. Create meaningful page slugs in postName field
+7. For navigation menus, use type: "custom" with title and url
+8. Always set landingPageType appropriately
+
+Common WordPress.org plugin slugs:
+- contact-form-7 (contact forms)
+- wordpress-seo (Yoast SEO)
+- classic-editor (classic editor)
+- akismet (spam protection)
+- jetpack (features suite)
+- elementor (page builder)
+- woocommerce (e-commerce)
+
+Common WordPress.org theme slugs:
+- twentytwentyfour
+- twentytwentythree
+- hello-elementor
+- astra
+- generatepress
+
+Examples:
+
+Example 1: "Create a simple blog"
+{
+  "blueprintTitle": "My Tech Blog",
+  "landingPageType": "front-page",
+  "customLandingUrl": "",
+  "steps": [
+    {
+      "id": "setSiteOption-1",
+      "type": "setSiteOption",
+      "data": {
+        "option": "blogname",
+        "value": "My Tech Blog"
+      }
+    },
+    {
+      "id": "setSiteOption-2",
+      "type": "setSiteOption",
+      "data": {
+        "option": "blogdescription",
+        "value": "Technology news and insights"
+      }
+    },
+    {
+      "id": "addPost-1",
+      "type": "addPost",
+      "data": {
+        "postTitle": "Getting Started with React",
+        "postContent": "React is a popular JavaScript library for building user interfaces. In this post, we'll explore the fundamentals of React and how to get started with your first application. React was created by Facebook and has become one of the most widely used frontend libraries...",
+        "postType": "post",
+        "postStatus": "publish",
+        "postDate": "now",
+        "featuredImageUrl": ""
+      }
+    }
+  ],
+  "explanation": "Created a simple tech blog with site title and one blog post about React"
+}
 
 Respond ONLY with valid JSON in this exact format:
 {
@@ -101,12 +239,12 @@ Respond ONLY with valid JSON in this exact format:
   "customLandingUrl": "",
   "steps": [
     {
-      "id": "unique-id-timestamp",
+      "id": "stepType-timestamp",
       "type": "stepType",
-      "data": { /* step-specific data */ }
+      "data": { /* step data */ }
     }
   ],
-  "explanation": "Brief explanation of what was created"
+  "explanation": "Brief explanation"
 }`;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -149,10 +287,21 @@ Respond ONLY with valid JSON in this exact format:
       } else {
         blueprintData = JSON.parse(aiResponse);
       }
+
+      if (!blueprintData.steps || !Array.isArray(blueprintData.steps)) {
+        throw new Error("Invalid blueprint structure: missing steps array");
+      }
+
+      blueprintData.steps.forEach((step, index) => {
+        if (!step.id || !step.type || !step.data) {
+          throw new Error(`Invalid step at index ${index}: missing id, type, or data`);
+        }
+      });
+
     } catch (parseError) {
-      console.error("Failed to parse AI response:", aiResponse);
+      console.error("Failed to parse or validate AI response:", aiResponse);
       return new Response(
-        JSON.stringify({ error: "Invalid AI response format" }),
+        JSON.stringify({ error: "Invalid AI response format: " + parseError.message }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },

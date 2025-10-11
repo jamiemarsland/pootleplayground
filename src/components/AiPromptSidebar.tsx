@@ -48,6 +48,16 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
 
       const blueprintData = await response.json();
 
+      if (!blueprintData || !blueprintData.steps || !Array.isArray(blueprintData.steps)) {
+        throw new Error('Invalid blueprint data received from AI');
+      }
+
+      if (blueprintData.steps.length === 0) {
+        throw new Error('AI generated an empty blueprint. Please try a more detailed prompt.');
+      }
+
+      console.log('AI generated blueprint:', blueprintData);
+
       onGenerateBlueprint(blueprintData);
       setPrompt('');
       onClose();
