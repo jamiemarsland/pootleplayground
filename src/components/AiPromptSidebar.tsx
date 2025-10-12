@@ -40,14 +40,13 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
     setError(null);
 
     try {
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-blueprint`;
+      const apiUrl = '/.netlify/functions/generate-blueprint';
 
-      console.log('Calling edge function:', apiUrl);
+      console.log('Calling Netlify function:', apiUrl);
 
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
