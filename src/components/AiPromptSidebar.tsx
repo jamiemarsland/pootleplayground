@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Sparkles, Loader2, AlertCircle } from 'lucide-react';
-import { getContext } from '../utils/contextCache';
-import { generateBlueprint } from '../services/openaiService';
 
 interface AiPromptSidebarProps {
   isOpen: boolean;
@@ -13,7 +11,6 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [context, setContext] = useState<string>('');
 
   const examplePrompts = [
     "Create a simple blog with 5 posts about technology",
@@ -22,14 +19,6 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
     "Create an online magazine with multiple categories and 10 articles",
     "Build a restaurant website with menu, gallery, and reservation info"
   ];
-
-  useEffect(() => {
-    if (isOpen && !context) {
-      getContext().then(setContext).catch(err => {
-        console.error('Failed to load context:', err);
-      });
-    }
-  }, [isOpen, context]);
 
   const handleSubmit = async () => {
     if (!prompt.trim()) {
@@ -41,51 +30,23 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
     setError(null);
 
     try {
-      const isDevelopment = import.meta.env.DEV || window.location.hostname === 'localhost';
-      let blueprintData;
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-blueprint`;
 
-      if (isDevelopment) {
-        console.log('Using direct OpenAI API (development mode)');
-        blueprintData = await generateBlueprint(prompt.trim(), context);
-      } else {
-        const apiUrl = '/.netlify/functions/generate-blueprint';
-        console.log('Calling Netlify function:', apiUrl);
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: prompt.trim() }),
+      });
 
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            prompt: prompt.trim(),
-            context: context
-          }),
-        });
-
-        console.log('Response status:', response.status, response.statusText);
-
-        if (!response.ok) {
-          let errorMessage = 'Failed to generate blueprint';
-          let details = '';
-
-          try {
-            const errorData = await response.json();
-            console.log('Error response data:', JSON.stringify(errorData, null, 2));
-            console.log('Error message from API:', errorData.error);
-            console.log('Error details from API:', errorData.details);
-            errorMessage = errorData.error || errorMessage;
-            details = errorData.details ? `\n\n${errorData.details}` : '';
-          } catch (e) {
-            console.error('Failed to parse error response:', e);
-            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          }
-
-          console.error('Final error message:', errorMessage + details);
-          throw new Error(errorMessage + details);
-        }
-
-        blueprintData = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate blueprint');
       }
+
+      const blueprintData = await response.json();
 
       if (!blueprintData || !blueprintData.steps || !Array.isArray(blueprintData.steps)) {
         throw new Error('Invalid blueprint data received from AI');
@@ -170,16 +131,9 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
           {error && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-red-800 mb-1">Error Generating Blueprint</p>
-                <p className="text-sm text-red-600 whitespace-pre-line">{error}</p>
-                <button
-                  onClick={handleSubmit}
-                  disabled={isLoading}
-                  className="mt-3 text-sm text-red-700 hover:text-red-900 font-medium underline"
-                >
-                  Try Again
-                </button>
+              <div>
+                <p className="text-sm font-medium text-red-800">Error</p>
+                <p className="text-sm text-red-600">{error}</p>
               </div>
             </div>
           )}

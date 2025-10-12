@@ -8,7 +8,6 @@ const corsHeaders = {
 
 interface BlueprintRequest {
   prompt: string;
-  context?: string;
 }
 
 interface StepType {
@@ -25,38 +24,6 @@ interface BlueprintResponse {
   explanation: string;
 }
 
-function extractAndParseJSON(text: string): BlueprintResponse {
-  let jsonString = text.trim();
-
-  const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlockMatch) {
-    jsonString = codeBlockMatch[1].trim();
-  }
-
-  const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    jsonString = jsonMatch[0];
-  }
-
-  jsonString = jsonString.replace(/^[^{]*/, '').replace(/[^}]*$/, '');
-
-  try {
-    return JSON.parse(jsonString);
-  } catch (firstError) {
-    const singleLineJson = jsonString.replace(/\n\s*/g, ' ');
-    try {
-      return JSON.parse(singleLineJson);
-    } catch (secondError) {
-      const cleanedJson = jsonString
-        .replace(/,(\s*[}\]])/g, '$1')
-        .replace(/'/g, '"')
-        .replace(/\\'/g, "'");
-
-      return JSON.parse(cleanedJson);
-    }
-  }
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -66,7 +33,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { prompt, context }: BlueprintRequest = await req.json();
+    const { prompt }: BlueprintRequest = await req.json();
 
     if (!prompt || prompt.trim().length === 0) {
       return new Response(
@@ -80,12 +47,8 @@ Deno.serve(async (req: Request) => {
 
     const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiApiKey) {
-      console.error("OPENAI_API_KEY environment variable is not set");
       return new Response(
-        JSON.stringify({
-          error: "AI service not configured. Please add your OPENAI_API_KEY to Supabase Edge Functions secrets.",
-          details: "Go to Supabase Dashboard > Edge Functions > Secrets and add OPENAI_API_KEY"
-        }),
+        JSON.stringify({ error: "AI service not configured" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -93,13 +56,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const systemPrompt = context || `You are an expert WordPress Blueprint generator for the Pootle Playground tool. Your task is to convert user descriptions into step configurations.
-
-CRITICAL INSTRUCTIONS:
-1. You MUST respond with ONLY valid JSON - no markdown, no code blocks, no explanations outside the JSON
-2. Do NOT wrap your response in markdown code blocks like \`\`\`json
-3. Do NOT include any text before or after the JSON object
-4. Your entire response must be a single, valid JSON object that starts with { and ends with }
+    const systemPrompt = `You are an expert WordPress Blueprint generator for the Pootle Playground tool. Your task is to convert user descriptions into step configurations.
 
 IMPORTANT: Generate steps in the Pootle format with id, type, and data fields. The frontend will convert them to WordPress Playground format.
 
@@ -275,7 +232,7 @@ Example 1: "Create a simple blog"
   "explanation": "Created a simple tech blog with site title and one blog post about React"
 }
 
-RESPONSE FORMAT - Your response must be ONLY this JSON structure with NO additional text:
+Respond ONLY with valid JSON in this exact format:
 {
   "blueprintTitle": "Site Name",
   "landingPageType": "wp-admin" | "front-page" | "custom",
@@ -288,9 +245,7 @@ RESPONSE FORMAT - Your response must be ONLY this JSON structure with NO additio
     }
   ],
   "explanation": "Brief explanation"
-}
-
-Remember: Output ONLY the JSON object. No markdown formatting, no explanations, no code blocks.`;
+}`;
 
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -306,7 +261,6 @@ Remember: Output ONLY the JSON object. No markdown formatting, no explanations, 
         ],
         temperature: 0.7,
         max_tokens: 4000,
-        response_format: { type: "json_object" }
       }),
     });
 
@@ -327,7 +281,12 @@ Remember: Output ONLY the JSON object. No markdown formatting, no explanations, 
 
     let blueprintData: BlueprintResponse;
     try {
-      blueprintData = extractAndParseJSON(aiResponse);
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        blueprintData = JSON.parse(jsonMatch[0]);
+      } else {
+        blueprintData = JSON.parse(aiResponse);
+      }
 
       if (!blueprintData.steps || !Array.isArray(blueprintData.steps)) {
         throw new Error("Invalid blueprint structure: missing steps array");
@@ -340,14 +299,9 @@ Remember: Output ONLY the JSON object. No markdown formatting, no explanations, 
       });
 
     } catch (parseError) {
-      console.error("Failed to parse or validate AI response. Error:", parseError.message);
-      console.error("AI response preview:", aiResponse.substring(0, 500));
-
+      console.error("Failed to parse or validate AI response:", aiResponse);
       return new Response(
-        JSON.stringify({
-          error: "Failed to parse AI response. The AI may have returned invalid JSON. Please try rephrasing your prompt or simplifying your request.",
-          details: parseError.message
-        }),
+        JSON.stringify({ error: "Invalid AI response format: " + parseError.message }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
