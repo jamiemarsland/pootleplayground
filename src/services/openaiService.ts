@@ -45,10 +45,13 @@ function extractAndParseJSON(text: string): BlueprintResponse {
 }
 
 export async function generateBlueprint(prompt: string, context?: string): Promise<BlueprintResponse> {
-  const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  // Try multiple sources for the API key
+  const openaiApiKey = import.meta.env.VITE_OPENAI_API_KEY ||
+                        import.meta.env.OPENAI_API_KEY ||
+                        (window as any).ENV?.OPENAI_API_KEY;
 
-  if (!openaiApiKey) {
-    throw new Error('OpenAI API key is not configured. Please add VITE_OPENAI_API_KEY to your environment variables.');
+  if (!openaiApiKey || openaiApiKey === '$OPENAI_API_KEY') {
+    throw new Error('OpenAI API key is not configured. Please add your OpenAI API key to the project secrets in Bolt settings.');
   }
 
   const systemPrompt = context || `You are an expert WordPress Blueprint generator for the Pootle Playground tool. Your task is to convert user descriptions into step configurations.
