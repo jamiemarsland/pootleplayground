@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
@@ -7,6 +7,7 @@ import { BlueprintGallery } from './components/BlueprintGallery';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { AlertModal } from './components/AlertModal';
 import { AiPromptSidebar } from './components/AiPromptSidebar';
+import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
@@ -28,6 +29,19 @@ function App() {
     message: string;
     type: 'warning' | 'danger' | 'info' | 'success';
   }>({ isOpen: false, title: '', message: '', type: 'info' });
+  const [showVersionAnnouncement, setShowVersionAnnouncement] = useState(false);
+
+  useEffect(() => {
+    const hasSeenAnnouncement = localStorage.getItem('hasSeenV15Announcement');
+    if (!hasSeenAnnouncement) {
+      setShowVersionAnnouncement(true);
+    }
+  }, []);
+
+  const handleCloseVersionAnnouncement = () => {
+    localStorage.setItem('hasSeenV15Announcement', 'true');
+    setShowVersionAnnouncement(false);
+  };
 
 
   const addStep = (type: StepType) => {
@@ -275,6 +289,10 @@ function App() {
         onClose={() => setShowAiSidebar(false)}
         onGenerateBlueprint={handleAiGenerateBlueprint}
       />
+
+      {showVersionAnnouncement && (
+        <VersionAnnouncementModal onClose={handleCloseVersionAnnouncement} />
+      )}
     </div>
   );
 }
