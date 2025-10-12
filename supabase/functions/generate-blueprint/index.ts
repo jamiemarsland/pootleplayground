@@ -6,6 +6,30 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+async function loadContext(): Promise<string> {
+  try {
+    const contextPath = new URL("./pootle-context.md", import.meta.url).pathname;
+    return await Deno.readTextFile(contextPath);
+  } catch (error) {
+    console.error("Failed to load context file, using fallback:", error);
+    return `You must generate WordPress blueprints in Pootle format with id, type, and data fields.
+
+Available step types: installPlugin, installTheme, addPost, addPage, addMedia, setSiteOption, defineWpConfigConst, login, importWxr, addClientRole, setHomepage, setPostsPage, createNavigationMenu, setLandingPage
+
+CRITICAL RULES:
+1. Use unique IDs with format: stepType-timestamp
+2. For plugins/themes use REAL wordpress.org slugs (e.g., contact-form-7, twentytwentyfour)
+3. Write realistic, detailed content (100+ words minimum for posts/pages)
+4. Set blogname and blogdescription first
+5. Use Gutenberg block format for content
+6. Include permalink_structure setting
+7. For menus: use type "custom" with title and url, or type "page" with pageSlug
+
+Common plugins: contact-form-7, wordpress-seo, classic-editor, elementor, woocommerce
+Common themes: twentytwentyfour, astra, generatepress, hello-elementor, neve`;
+  }
+}
+
 interface BlueprintRequest {
   prompt: string;
 }
@@ -56,20 +80,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    let contextContent = "";
-    try {
-      const contextPath = new URL("./pootle-context.md", import.meta.url).pathname;
-      contextContent = await Deno.readTextFile(contextPath);
-    } catch (error) {
-      console.error("Failed to load context file:", error);
-      return new Response(
-        JSON.stringify({ error: "Failed to load AI context configuration" }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    const contextContent = await loadContext();
 
     const systemPrompt = `You are an expert WordPress Blueprint generator for the Pootle Playground tool.
 
