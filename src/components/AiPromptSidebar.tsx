@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Loader2, AlertCircle } from 'lucide-react';
 import { getContext } from '../utils/contextCache';
+import { generateBlueprint } from '../services/openaiService';
 
 interface AiPromptSidebarProps {
   isOpen: boolean;
@@ -40,44 +41,51 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
     setError(null);
 
     try {
-      const apiUrl = '/.netlify/functions/generate-blueprint';
+      const isDevelopment = import.meta.env.DEV || window.location.hostname === 'localhost';
+      let blueprintData;
 
-      console.log('Calling Netlify function:', apiUrl);
+      if (isDevelopment) {
+        console.log('Using direct OpenAI API (development mode)');
+        blueprintData = await generateBlueprint(prompt.trim(), context);
+      } else {
+        const apiUrl = '/.netlify/functions/generate-blueprint';
+        console.log('Calling Netlify function:', apiUrl);
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: prompt.trim(),
-          context: context
-        }),
-      });
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            prompt: prompt.trim(),
+            context: context
+          }),
+        });
 
-      console.log('Response status:', response.status, response.statusText);
+        console.log('Response status:', response.status, response.statusText);
 
-      if (!response.ok) {
-        let errorMessage = 'Failed to generate blueprint';
-        let details = '';
+        if (!response.ok) {
+          let errorMessage = 'Failed to generate blueprint';
+          let details = '';
 
-        try {
-          const errorData = await response.json();
-          console.log('Error response data:', JSON.stringify(errorData, null, 2));
-          console.log('Error message from API:', errorData.error);
-          console.log('Error details from API:', errorData.details);
-          errorMessage = errorData.error || errorMessage;
-          details = errorData.details ? `\n\n${errorData.details}` : '';
-        } catch (e) {
-          console.error('Failed to parse error response:', e);
-          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          try {
+            const errorData = await response.json();
+            console.log('Error response data:', JSON.stringify(errorData, null, 2));
+            console.log('Error message from API:', errorData.error);
+            console.log('Error details from API:', errorData.details);
+            errorMessage = errorData.error || errorMessage;
+            details = errorData.details ? `\n\n${errorData.details}` : '';
+          } catch (e) {
+            console.error('Failed to parse error response:', e);
+            errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          }
+
+          console.error('Final error message:', errorMessage + details);
+          throw new Error(errorMessage + details);
         }
 
-        console.error('Final error message:', errorMessage + details);
-        throw new Error(errorMessage + details);
+        blueprintData = await response.json();
       }
-
-      const blueprintData = await response.json();
 
       if (!blueprintData || !blueprintData.steps || !Array.isArray(blueprintData.steps)) {
         throw new Error('Invalid blueprint data received from AI');
