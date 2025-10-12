@@ -192,29 +192,26 @@ export function Header({
 
             <button
               onClick={onImportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Import WordPress Playground blueprint"
             >
               <Upload className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Import</span>
             </button>
 
             <button
               onClick={onExportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               title="Export as WordPress Playground blueprint"
             >
               <Download className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Export</span>
             </button>
 
             <button
               onClick={onOpenAiSidebar}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
+              className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
               title="Generate blueprint with AI"
             >
               <Sparkles className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">AI Generate</span>
             </button>
 
             <button
