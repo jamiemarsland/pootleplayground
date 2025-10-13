@@ -112,7 +112,7 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
 
         <div className="p-6 space-y-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-blueprint-text mb-2">
               Describe your WordPress site
             </label>
             <textarea
@@ -120,10 +120,10 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="E.g., Create a photography portfolio with a gallery, about page, and contact form..."
-              className="w-full h-40 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-gray-900 bg-white placeholder:text-gray-500"
+              className="w-full h-40 px-4 py-3 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-blueprint-text bg-white/50"
               disabled={isLoading}
             />
-            <p className="text-xs text-gray-700 mt-2 font-medium">
+            <p className="text-xs text-blueprint-text/60 mt-2">
               Press Cmd/Ctrl + Enter to generate
             </p>
           </div>
@@ -139,14 +139,14 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
           )}
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">Example Prompts</h3>
+            <h3 className="text-sm font-medium text-blueprint-text mb-3">Example Prompts</h3>
             <div className="space-y-2">
               {examplePrompts.map((example, index) => (
                 <button
                   key={index}
                   onClick={() => handleExampleClick(example)}
                   disabled={isLoading}
-                  className="w-full text-left px-4 py-3 border-2 border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-400 transition-all text-sm text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-left px-4 py-3 border border-blueprint-accent/20 rounded-lg hover:bg-blueprint-accent/5 hover:border-blueprint-accent/40 transition-all text-sm text-blueprint-text/80 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {example}
                 </button>
