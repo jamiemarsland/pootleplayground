@@ -120,7 +120,7 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="E.g., Create a photography portfolio with a gallery, about page, and contact form..."
-              className="w-full h-40 px-4 py-3 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-blueprint-text bg-white/50"
+              className="w-full h-40 px-4 py-3 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-white bg-slate-600 placeholder:text-slate-300"
               disabled={isLoading}
             />
             <p className="text-xs text-blueprint-text/60 mt-2">
