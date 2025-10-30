@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
@@ -13,10 +14,10 @@ import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
 import './App.css';
 
-function App() {
+function Builder() {
+  const navigate = useNavigate();
   const [steps, setSteps] = useState<Step[]>([]);
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
-  const [showGallery, setShowGallery] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showAiSidebar, setShowAiSidebar] = useState(false);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
@@ -35,6 +36,22 @@ function App() {
     const hasSeenAnnouncement = localStorage.getItem('hasSeenV15Announcement');
     if (!hasSeenAnnouncement) {
       setShowVersionAnnouncement(true);
+    }
+
+    const savedBlueprint = localStorage.getItem('loadBlueprint');
+    if (savedBlueprint) {
+      try {
+        const blueprintData = JSON.parse(savedBlueprint);
+        setBlueprintTitle(blueprintData.blueprintTitle || 'My WordPress Site');
+        setLandingPageType(blueprintData.landingPageType || 'wp-admin');
+        setCustomLandingUrl(blueprintData.customLandingUrl || '');
+        setSteps(blueprintData.steps || []);
+        setSelectedStep(null);
+        localStorage.removeItem('loadBlueprint');
+      } catch (error) {
+        console.error('Error loading blueprint from localStorage:', error);
+        localStorage.removeItem('loadBlueprint');
+      }
     }
   }, []);
 
@@ -160,15 +177,6 @@ function App() {
     reader.readAsText(file);
   };
 
-  const handleSelectBlueprint = (blueprintData: any) => {
-    setBlueprintTitle(blueprintData.blueprintTitle || 'My WordPress Site');
-    setLandingPageType(blueprintData.landingPageType || 'wp-admin');
-    setCustomLandingUrl(blueprintData.customLandingUrl || '');
-    setSteps(blueprintData.steps || []);
-    setSelectedStep(null);
-    setShowGallery(false);
-  };
-
   const handleSaveSuccess = () => {
     setAlertState({
       isOpen: true,
@@ -211,16 +219,6 @@ function App() {
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
 
-  if (showGallery) {
-    return (
-      <BlueprintGallery
-        onSelectBlueprint={handleSelectBlueprint}
-        onBack={() => setShowGallery(false)}
-      />
-    );
-  }
-
-
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       <Header
@@ -229,7 +227,7 @@ function App() {
         stepCount={steps.length}
         onExportBlueprint={handleExportBlueprint}
         onImportBlueprint={triggerLoadBlueprint}
-        onShowGallery={() => setShowGallery(true)}
+        onShowGallery={() => navigate('/gallery')}
         onSaveBlueprint={() => setShowSaveModal(true)}
         onReset={handleReset}
         onOpenAiSidebar={() => setShowAiSidebar(true)}
@@ -366,6 +364,31 @@ function getDefaultStepData(type: StepType): any {
   };
   
   return defaults[type] || {};
+}
+
+function GalleryPage() {
+  const navigate = useNavigate();
+
+  const handleSelectBlueprint = (blueprintData: any) => {
+    localStorage.setItem('loadBlueprint', JSON.stringify(blueprintData));
+    navigate('/');
+  };
+
+  return (
+    <BlueprintGallery
+      onSelectBlueprint={handleSelectBlueprint}
+      onBack={() => navigate('/')}
+    />
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Builder />} />
+      <Route path="/gallery" element={<GalleryPage />} />
+    </Routes>
+  );
 }
 
 export default App;
