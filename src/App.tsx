@@ -5,7 +5,6 @@ import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
 import { BlueprintGallery } from './components/BlueprintGallery';
-import { BlueprintDetail } from './components/BlueprintDetail';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { AlertModal } from './components/AlertModal';
 import { AiPromptSidebar } from './components/AiPromptSidebar';
@@ -388,7 +387,6 @@ function App() {
     <Routes>
       <Route path="/" element={<Builder />} />
       <Route path="/gallery" element={<GalleryPage />} />
-      <Route path="/blueprint/:id" element={<BlueprintDetail />} />
     </Routes>
   );
 }
