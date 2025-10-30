@@ -11,7 +11,7 @@ interface ShareLinkModalProps {
 
 export function ShareLinkModal({ isOpen, onClose, shortUrl, shortCode, isGenerating = false }: ShareLinkModalProps) {
   const [copied, setCopied] = useState(false);
-  const displayUrl = `pootleplayground/${shortCode}`;
+  const displayUrl = `pootleplayground.com/${shortCode}`;
 
   useEffect(() => {
     if (!isOpen) {
@@ -98,17 +98,15 @@ export function ShareLinkModal({ isOpen, onClose, shortUrl, shortCode, isGenerat
 
               <div className="flex items-center gap-2 text-xs text-blueprint-text/60 p-3 bg-blueprint-grid/10 rounded-lg">
                 <Share2 className="w-4 h-4" />
-                <span>Anyone with this link can launch your blueprint in WordPress Playground</span>
+                <span>Share this branded link to direct anyone to your WordPress Playground setup</span>
               </div>
 
-              <div className="pt-4 border-t border-blueprint-grid/30">
-                <button
-                  onClick={handleOpenLink}
-                  className="w-full px-4 py-3 blueprint-button rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Test Link</span>
-                </button>
+              <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg text-sm text-blueprint-text">
+                <p className="font-medium mb-1">About this link:</p>
+                <p className="text-xs text-blueprint-text/70">
+                  This link is stored in your database with the short code <span className="font-mono font-medium">{shortCode}</span>.
+                  To make it fully functional, you'll need to set up domain routing to redirect visitors to the WordPress Playground URL.
+                </p>
               </div>
             </>
           )}

@@ -3,7 +3,7 @@ import { getUserId } from './userManager';
 
 const CHARACTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const SHORT_CODE_LENGTH = 7;
-const BASE_DOMAIN = window.location.origin;
+const BRANDED_DOMAIN = 'pootleplayground.com';
 
 function generateShortCode(): string {
   let result = '';
@@ -50,7 +50,7 @@ export async function createShortLink(
         };
       }
 
-      const shortUrl = `${BASE_DOMAIN}/p/${shortCode}`;
+      const shortUrl = `https://${BRANDED_DOMAIN}/${shortCode}`;
       return { success: true, shortCode, shortUrl };
     } catch (error) {
       console.error('Error creating short link:', error);
