@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, Share2 } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
+import { ShareLinkModal } from './ShareLinkModal';
+import { createShortLink } from '../utils/urlShortener';
 
 interface HeaderProps {
   blueprint: Blueprint;
@@ -26,6 +28,7 @@ export function Header({
   onOpenAiSidebar
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
+  const [shareModal, setShareModal] = useState<{ isOpen: boolean; shortUrl: string; shortCode: string; isGenerating: boolean }>({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false });
 
   const unicodeSafeBase64Encode = (str: string): string => {
     // Convert string to UTF-8 bytes
@@ -134,6 +137,45 @@ export function Header({
     URL.revokeObjectURL(url);
   };
 
+  const handleShare = async () => {
+    setShareModal({ isOpen: true, shortUrl: '', shortCode: '', isGenerating: true });
+
+    try {
+      const validSteps = blueprint.steps.filter(step => step.step);
+      const playgroundBlueprint = {
+        landingPage: blueprint.landingPage,
+        preferredVersions: {
+          php: "8.2",
+          wp: "latest"
+        },
+        phpExtensionBundles: ["kitchen-sink"],
+        steps: validSteps
+      };
+
+      const blueprintJson = JSON.stringify(playgroundBlueprint);
+      const compressed = btoa(blueprintJson);
+      const fullUrl = `https://playground.wordpress.net/#${compressed}`;
+
+      const result = await createShortLink(fullUrl, undefined, { blueprintTitle: title, steps: validSteps });
+
+      if (result.success && result.shortUrl && result.shortCode) {
+        setShareModal({
+          isOpen: true,
+          shortUrl: result.shortUrl,
+          shortCode: result.shortCode,
+          isGenerating: false,
+        });
+      } else {
+        setShareModal({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false });
+        alert(result.error || 'Failed to create share link');
+      }
+    } catch (error) {
+      console.error('Error sharing blueprint:', error);
+      setShareModal({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false });
+      alert('Failed to create share link');
+    }
+  };
+
   return (
     <header className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
       <div className="px-4 lg:px-6 py-4">
@@ -207,6 +249,15 @@ export function Header({
             </button>
 
             <button
+              onClick={handleShare}
+              disabled={stepCount === 0}
+              className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Share your blueprint"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+
+            <button
               onClick={onOpenAiSidebar}
               className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
               title="Generate blueprint with AI"
@@ -258,6 +309,15 @@ export function Header({
             </button>
 
             <button
+              onClick={handleShare}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Share"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+
+            <button
               onClick={onOpenAiSidebar}
               className="lg:hidden flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all text-sm"
               title="AI Generate"
@@ -285,6 +345,14 @@ export function Header({
           </div>
         </div>
       </div>
+
+      <ShareLinkModal
+        isOpen={shareModal.isOpen}
+        onClose={() => setShareModal({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false })}
+        shortUrl={shareModal.shortUrl}
+        shortCode={shareModal.shortCode}
+        isGenerating={shareModal.isGenerating}
+      />
     </header>
   );
 }

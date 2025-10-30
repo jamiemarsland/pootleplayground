@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Share2 } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
+import { ShareLinkModal } from './ShareLinkModal';
 import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
+import { createShortLink } from '../utils/urlShortener';
 
 interface BlueprintTemplate {
   id: string;
@@ -699,6 +701,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [isAdmin, setIsAdmin] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; blueprintId: string | null; event: React.MouseEvent | null }>({ isOpen: false, blueprintId: null, event: null });
   const [alertState, setAlertState] = useState<{ isOpen: boolean; title: string; message: string; type: 'warning' | 'danger' | 'info' | 'success' }>({ isOpen: false, title: '', message: '', type: 'info' });
+  const [shareModal, setShareModal] = useState<{ isOpen: boolean; shortUrl: string; shortCode: string; isGenerating: boolean }>({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false });
 
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
@@ -865,6 +868,41 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     return localStorage.getItem(`voted_${blueprintId}`) !== null;
   };
 
+  const handleShareBlueprint = async (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    setShareModal({ isOpen: true, shortUrl: '', shortCode: '', isGenerating: true });
+
+    const nativeBlueprint = generateBlueprint(
+      blueprint.blueprint_data.steps,
+      blueprint.blueprint_data.blueprintTitle,
+      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+    );
+
+    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const compressed = btoa(blueprintJson);
+    const fullUrl = `https://playground.wordpress.net/#${compressed}`;
+
+    const result = await createShortLink(fullUrl, blueprint.id, blueprint.blueprint_data);
+
+    if (result.success && result.shortUrl && result.shortCode) {
+      setShareModal({
+        isOpen: true,
+        shortUrl: result.shortUrl,
+        shortCode: result.shortCode,
+        isGenerating: false,
+      });
+    } else {
+      setShareModal({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false });
+      setAlertState({
+        isOpen: true,
+        title: 'Share Failed',
+        message: result.error || 'Failed to create share link. Please try again.',
+        type: 'danger',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       {/* Header */}
@@ -1004,6 +1042,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     </div>
                     <div className="flex items-center gap-1">
                       <button
+                        onClick={(e) => handleShareBlueprint(blueprint, e)}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
+                        title="Share this blueprint"
+                      >
+                        <Share2 className="w-3 h-3" />
+                      </button>
+                      <button
                         onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                         title="Launch in WordPress Playground"
@@ -1087,6 +1132,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     </div>
                     <div className="flex items-center gap-1">
                       <button
+                        onClick={(e) => handleShareBlueprint(blueprint, e)}
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
+                        title="Share this blueprint"
+                      >
+                        <Share2 className="w-3 h-3" />
+                      </button>
+                      <button
                         onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                         title="Launch in WordPress Playground"
@@ -1141,6 +1193,14 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         message={alertState.message}
         type={alertState.type}
         onClose={() => setAlertState({ ...alertState, isOpen: false })}
+      />
+
+      <ShareLinkModal
+        isOpen={shareModal.isOpen}
+        onClose={() => setShareModal({ isOpen: false, shortUrl: '', shortCode: '', isGenerating: false })}
+        shortUrl={shareModal.shortUrl}
+        shortCode={shareModal.shortCode}
+        isGenerating={shareModal.isGenerating}
       />
     </div>
   );
