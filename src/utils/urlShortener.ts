@@ -39,11 +39,15 @@ export async function createShortLink(
         .single();
 
       if (error) {
+        console.error('Database error details:', error);
         if (error.code === '23505') {
           attempts++;
           continue;
         }
-        throw error;
+        return {
+          success: false,
+          error: `Database error: ${error.message || 'Unknown error'}`
+        };
       }
 
       const shortUrl = `${BASE_DOMAIN}/p/${shortCode}`;
