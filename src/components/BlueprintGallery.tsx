@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Share2, Check } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
+import { generateShareableUrl, copyToClipboard } from '../utils/blueprintSharing';
 
 interface BlueprintTemplate {
   id: string;
@@ -699,6 +700,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [isAdmin, setIsAdmin] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; blueprintId: string | null; event: React.MouseEvent | null }>({ isOpen: false, blueprintId: null, event: null });
   const [alertState, setAlertState] = useState<{ isOpen: boolean; title: string; message: string; type: 'warning' | 'danger' | 'info' | 'success' }>({ isOpen: false, title: '', message: '', type: 'info' });
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
@@ -706,7 +708,27 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
   useEffect(() => {
     loadBlueprints();
+    checkUrlParams();
   }, []);
+
+  const checkUrlParams = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const blueprintId = urlParams.get('blueprint');
+
+    if (blueprintId) {
+      setActiveTab('community');
+      setTimeout(() => {
+        const element = document.getElementById(`blueprint-${blueprintId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.classList.add('ring-4', 'ring-blueprint-accent', 'ring-opacity-50');
+          setTimeout(() => {
+            element.classList.remove('ring-4', 'ring-blueprint-accent', 'ring-opacity-50');
+          }, 3000);
+        }
+      }, 500);
+    }
+  };
 
   const loadBlueprints = async () => {
     try {
@@ -865,6 +887,31 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     return localStorage.getItem(`voted_${blueprintId}`) !== null;
   };
 
+  const handleCopyLink = async (blueprintId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const shareableUrl = generateShareableUrl(blueprintId);
+    const success = await copyToClipboard(shareableUrl);
+
+    if (success) {
+      setCopiedId(blueprintId);
+      setTimeout(() => setCopiedId(null), 2000);
+      setAlertState({
+        isOpen: true,
+        title: 'Link Copied!',
+        message: 'The shareable link has been copied to your clipboard.',
+        type: 'success'
+      });
+    } else {
+      setAlertState({
+        isOpen: true,
+        title: 'Copy Failed',
+        message: 'Failed to copy the link. Please try again.',
+        type: 'danger'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       {/* Header */}
@@ -958,6 +1005,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
               myBlueprints.map((blueprint) => (
                 <div
                   key={blueprint.id}
+                  id={`blueprint-${blueprint.id}`}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
                   className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
                 >
@@ -1004,6 +1052,17 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     </div>
                     <div className="flex items-center gap-1">
                       <button
+                        onClick={(e) => handleCopyLink(blueprint.id, e)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                          copiedId === blueprint.id
+                            ? 'bg-green-500/20 text-green-600'
+                            : 'blueprint-button hover:bg-blueprint-accent/10'
+                        }`}
+                        title={copiedId === blueprint.id ? 'Link copied!' : 'Copy shareable link'}
+                      >
+                        {copiedId === blueprint.id ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
+                      </button>
+                      <button
                         onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                         title="Launch in WordPress Playground"
@@ -1039,6 +1098,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
               communityBlueprints.map((blueprint) => (
                 <div
                   key={blueprint.id}
+                  id={`blueprint-${blueprint.id}`}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
                   className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
                 >
@@ -1086,6 +1146,17 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       </div>
                     </div>
                     <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => handleCopyLink(blueprint.id, e)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                          copiedId === blueprint.id
+                            ? 'bg-green-500/20 text-green-600'
+                            : 'blueprint-button hover:bg-blueprint-accent/10'
+                        }`}
+                        title={copiedId === blueprint.id ? 'Link copied!' : 'Copy shareable link'}
+                      >
+                        {copiedId === blueprint.id ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
+                      </button>
                       <button
                         onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                         className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
