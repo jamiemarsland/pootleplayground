@@ -1029,58 +1029,33 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
                   className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
                 >
-                  {blueprint.screenshot_url ? (
-                    <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/5">
-                      <img
-                        src={blueprint.screenshot_url}
-                        alt={blueprint.title}
-                        className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center"><svg class="w-8 h-8 text-blueprint-accent/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div></div>';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
-                        <button
-                          onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
-                          className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
-                          title="Edit screenshot"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                          className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
-                          title="Delete your blueprint"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                  <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/5">
+                    <img
+                      src={blueprint.screenshot_url || '/ChatGPT Image Nov 18, 2025, 04_39_51 AM.png'}
+                      alt={blueprint.title}
+                      className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = '/ChatGPT Image Nov 18, 2025, 04_39_51 AM.png';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                      <button
+                        onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
+                        className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
+                        title="Edit screenshot"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                        className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
+                        title="Delete your blueprint"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                  ) : (
-                    <div className="relative w-full aspect-video bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/10 flex items-center justify-center">
-                      <div className="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center">
-                        <User className="w-8 h-8 text-blueprint-accent/40" />
-                      </div>
-                      <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
-                        <button
-                          onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
-                          className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
-                          title="Add screenshot"
-                        >
-                          <Camera className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                          className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
-                          title="Delete your blueprint"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
 
                   <div className="p-6">
                     <div className="mb-4">
@@ -1147,62 +1122,35 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
                   className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
                 >
-                  {blueprint.screenshot_url ? (
-                    <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/5">
-                      <img
-                        src={blueprint.screenshot_url}
-                        alt={blueprint.title}
-                        className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center"><svg class="w-8 h-8 text-blueprint-accent/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div></div>';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      {isAdmin && (
-                        <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
-                            className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
-                            title="Edit screenshot"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                            className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
-                            title="Delete blueprint"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="relative w-full aspect-video bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/10 flex items-center justify-center">
-                      <div className="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center">
-                        <Database className="w-8 h-8 text-blueprint-accent/40" />
+                  <div className="relative w-full aspect-video overflow-hidden bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/5">
+                    <img
+                      src={blueprint.screenshot_url || '/ChatGPT Image Nov 18, 2025, 04_39_51 AM.png'}
+                      alt={blueprint.title}
+                      className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
+                      onError={(e) => {
+                        e.currentTarget.src = '/ChatGPT Image Nov 18, 2025, 04_39_51 AM.png';
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {isAdmin && (
+                      <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
+                          className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
+                          title="Edit screenshot"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                          className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
+                          title="Delete blueprint"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                      {isAdmin && (
-                        <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
-                          <button
-                            onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
-                            className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
-                            title="Add screenshot"
-                          >
-                            <Camera className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                            className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
-                            title="Delete blueprint"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   <div className="p-6">
                     <div className="mb-4">
