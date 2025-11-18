@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Edit } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
+import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
 interface BlueprintTemplate {
   id: string;
@@ -699,6 +700,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [isAdmin, setIsAdmin] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; blueprintId: string | null; event: React.MouseEvent | null }>({ isOpen: false, blueprintId: null, event: null });
   const [alertState, setAlertState] = useState<{ isOpen: boolean; title: string; message: string; type: 'warning' | 'danger' | 'info' | 'success' }>({ isOpen: false, title: '', message: '', type: 'info' });
+  const [editingScreenshotId, setEditingScreenshotId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
@@ -865,6 +868,71 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     return localStorage.getItem(`voted_${blueprintId}`) !== null;
   };
 
+  const handleEditScreenshotClick = (blueprintId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setEditingScreenshotId(blueprintId);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleScreenshotFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !editingScreenshotId) return;
+
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setAlertState({
+        isOpen: true,
+        title: 'Invalid File',
+        message: validation.error || 'Invalid file',
+        type: 'danger'
+      });
+      setEditingScreenshotId(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    try {
+      const screenshotUrl = await uploadScreenshot(file);
+
+      const { error } = await supabase
+        .from('blueprints')
+        .update({ screenshot_url: screenshotUrl })
+        .eq('id', editingScreenshotId);
+
+      if (error) throw error;
+
+      const updateScreenshot = (bps: BlueprintRecord[]) =>
+        bps.map(bp => bp.id === editingScreenshotId ? { ...bp, screenshot_url: screenshotUrl } : bp);
+
+      setMyBlueprints(updateScreenshot(myBlueprints));
+      setCommunityBlueprints(updateScreenshot(communityBlueprints));
+
+      setAlertState({
+        isOpen: true,
+        title: 'Screenshot Updated',
+        message: 'Blueprint screenshot has been updated successfully.',
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Error updating screenshot:', error);
+      setAlertState({
+        isOpen: true,
+        title: 'Update Failed',
+        message: 'Failed to update screenshot. Please try again.',
+        type: 'danger'
+      });
+    } finally {
+      setEditingScreenshotId(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       {/* Header */}
@@ -973,26 +1041,44 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      <button
-                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                        className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
-                        title="Delete your blueprint"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
+                          className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
+                          title="Edit screenshot"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                          className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
+                          title="Delete your blueprint"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="relative w-full aspect-video bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/10 flex items-center justify-center">
                       <div className="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center">
                         <User className="w-8 h-8 text-blueprint-accent/40" />
                       </div>
-                      <button
-                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                        className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
-                        title="Delete your blueprint"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
+                          className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
+                          title="Add screenshot"
+                        >
+                          <Camera className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                          className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
+                          title="Delete your blueprint"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -1074,13 +1160,22 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       {isAdmin && (
-                        <button
-                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                          className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
-                          title="Delete blueprint"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                          <button
+                            onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
+                            className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
+                            title="Edit screenshot"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                            className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
+                            title="Delete blueprint"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   ) : (
@@ -1089,13 +1184,22 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         <Database className="w-8 h-8 text-blueprint-accent/40" />
                       </div>
                       {isAdmin && (
-                        <button
-                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                          className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
-                          title="Delete blueprint"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                          <button
+                            onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
+                            className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
+                            title="Add screenshot"
+                          >
+                            <Camera className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                            className="w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all"
+                            title="Delete blueprint"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       )}
                     </div>
                   )}
@@ -1163,6 +1267,14 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
           </div>
         </div>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+        onChange={handleScreenshotFileChange}
+        style={{ display: 'none' }}
+      />
 
       <ConfirmModal
         isOpen={confirmDelete.isOpen}
