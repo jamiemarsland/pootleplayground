@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
@@ -1028,12 +1028,10 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       <div className="flex items-center gap-1">
                         <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
-                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-600/10 hover:text-blue-600 text-xs transition-all"
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                           title="Launch in WordPress Playground"
                         >
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.158 12.786l-2.698 7.84c.47.07.94.1 1.41.1 2.15 0 4.16-.75 5.74-2.01l-.56-3.45-3.9-2.484zm-2.454-1.194L2.85 8.892c-.47.64-.87 1.33-1.19 2.07l6.23 2.49 1.814-1.87zm10.103 1.935l-5.23-3.32-3.72 3.84 1.86 1.18 7.09 4.5c.33-.6.59-1.24.79-1.91l-.79-4.29zm.33-1.77l.79-4.29c-.2-.67-.46-1.31-.79-1.91l-7.08 4.5-1.85 1.17 3.68 3.82 5.24-3.3zm-7.256-8.19L4.78 2.2C3.21 3.48 2 5.19 1.5 7.13l6.23 2.49 5.17-5.02zm4.63 3.57l.56-3.45C17.04.75 15.02 0 12.87 0c-.47 0-.94.03-1.41.09l2.7 7.84 3.88-2.48z"/>
-                          </svg>
+                          <Rocket className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
@@ -1134,12 +1132,10 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       <div className="flex items-center gap-1">
                         <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
-                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-600/10 hover:text-blue-600 text-xs transition-all"
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                           title="Launch in WordPress Playground"
                         >
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.158 12.786l-2.698 7.84c.47.07.94.1 1.41.1 2.15 0 4.16-.75 5.74-2.01l-.56-3.45-3.9-2.484zm-2.454-1.194L2.85 8.892c-.47.64-.87 1.33-1.19 2.07l6.23 2.49 1.814-1.87zm10.103 1.935l-5.23-3.32-3.72 3.84 1.86 1.18 7.09 4.5c.33-.6.59-1.24.79-1.91l-.79-4.29zm.33-1.77l.79-4.29c-.2-.67-.46-1.31-.79-1.91l-7.08 4.5-1.85 1.17 3.68 3.82 5.24-3.3zm-7.256-8.19L4.78 2.2C3.21 3.48 2 5.19 1.5 7.13l6.23 2.49 5.17-5.02zm4.63 3.57l.56-3.45C17.04.75 15.02 0 12.87 0c-.47 0-.94.03-1.41.09l2.7 7.84 3.88-2.48z"/>
-                          </svg>
+                          <Rocket className="w-3 h-3" />
                         </button>
                       </div>
                     </div>
