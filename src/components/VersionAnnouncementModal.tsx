@@ -16,7 +16,7 @@ export function VersionAnnouncementModal({ onClose }: VersionAnnouncementModalPr
                 <Sparkles className="w-6 h-6 text-blueprint-paper" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-blueprint-text">New in Version 1.5</h2>
+                <h2 className="text-xl font-bold text-blueprint-text">New in Version 1.6</h2>
                 <p className="text-sm text-blueprint-text/60">Exciting new features!</p>
               </div>
             </div>

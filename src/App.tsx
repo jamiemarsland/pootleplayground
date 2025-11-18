@@ -33,7 +33,7 @@ function Builder() {
   const [showVersionAnnouncement, setShowVersionAnnouncement] = useState(false);
 
   useEffect(() => {
-    const hasSeenAnnouncement = localStorage.getItem('hasSeenV15Announcement');
+    const hasSeenAnnouncement = localStorage.getItem('hasSeenV16Announcement');
     if (!hasSeenAnnouncement) {
       setShowVersionAnnouncement(true);
     }
@@ -56,7 +56,7 @@ function Builder() {
   }, []);
 
   const handleCloseVersionAnnouncement = () => {
-    localStorage.setItem('hasSeenV15Announcement', 'true');
+    localStorage.setItem('hasSeenV16Announcement', 'true');
     setShowVersionAnnouncement(false);
   };
 
