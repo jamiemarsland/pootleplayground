@@ -959,63 +959,82 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                 <div
                   key={blueprint.id}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
-                  className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
+                  className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
-                      <User className="w-6 h-6 text-blueprint-paper" />
-                    </div>
-                    <button
-                      onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                      className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all z-10"
-                      title="Delete your blueprint"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="mb-4">
-                    <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
-                      {blueprint.title}
-                    </h3>
-                    <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
-                      {blueprint.description || 'No description provided'}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
-                    <div className="flex items-center gap-3">
+                  {blueprint.screenshot_url ? (
+                    <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/5">
+                      <img
+                        src={blueprint.screenshot_url}
+                        alt={blueprint.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center"><svg class="w-8 h-8 text-blueprint-accent/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div></div>';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <button
-                        onClick={(e) => handleUpvote(blueprint.id, e)}
-                        disabled={hasVoted(blueprint.id)}
-                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
-                          hasVoted(blueprint.id)
-                            ? 'bg-blueprint-accent/20 text-blueprint-accent cursor-not-allowed'
-                            : 'blueprint-button hover:bg-blueprint-accent/10'
-                        }`}
-                        title={hasVoted(blueprint.id) ? 'Already voted' : 'Upvote this blueprint'}
+                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                        className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
+                        title="Delete your blueprint"
                       >
-                        <ThumbsUp className={`w-3 h-3 ${hasVoted(blueprint.id) ? 'fill-current' : ''}`} />
-                        <span>{blueprint.votes}</span>
+                        <Trash2 className="w-4 h-4" />
                       </button>
-                      <div className="text-xs text-blueprint-text/60">
-                        {blueprint.step_count} steps
+                    </div>
+                  ) : (
+                    <div className="relative w-full h-48 bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/10 flex items-center justify-center">
+                      <div className="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center">
+                        <User className="w-8 h-8 text-blueprint-accent/40" />
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                        className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
+                        title="Delete your blueprint"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
+                        {blueprint.title}
+                      </h3>
+                      <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
+                        {blueprint.description || 'No description provided'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={(e) => handleUpvote(blueprint.id, e)}
+                          disabled={hasVoted(blueprint.id)}
+                          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                            hasVoted(blueprint.id)
+                              ? 'bg-blueprint-accent/20 text-blueprint-accent cursor-not-allowed'
+                              : 'blueprint-button hover:bg-blueprint-accent/10'
+                          }`}
+                          title={hasVoted(blueprint.id) ? 'Already voted' : 'Upvote this blueprint'}
+                        >
+                          <ThumbsUp className={`w-3 h-3 ${hasVoted(blueprint.id) ? 'fill-current' : ''}`} />
+                          <span>{blueprint.votes}</span>
+                        </button>
+                        <div className="text-xs text-blueprint-text/60">
+                          {blueprint.step_count} steps
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => handleLaunchBlueprint(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
+                          title="Launch in WordPress Playground"
+                        >
+                          <Rocket className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => handleLaunchBlueprint(blueprint, e)}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
-                        title="Launch in WordPress Playground"
-                      >
-                        <Rocket className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-2 right-2 w-16 h-8 blueprint-grid/20 rounded-lg opacity-50"></div>
-                    <div className="absolute bottom-2 left-2 w-8 h-4 blueprint-grid/20 rounded opacity-30"></div>
                   </div>
                 </div>
               ))
@@ -1040,65 +1059,86 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                 <div
                   key={blueprint.id}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
-                  className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
+                  className="blueprint-component border-2 border-blueprint-grid/50 hover:border-blueprint-accent/70 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl group backdrop-blur-sm relative"
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 group-hover:scale-110 transition-transform">
-                      <Database className="w-6 h-6 text-blueprint-paper" />
+                  {blueprint.screenshot_url ? (
+                    <div className="relative w-full h-48 overflow-hidden bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/5">
+                      <img
+                        src={blueprint.screenshot_url}
+                        alt={blueprint.title}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center"><svg class="w-8 h-8 text-blueprint-accent/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></div></div>';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
+                          title="Delete blueprint"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
-                    {isAdmin && (
-                      <button
-                        onClick={(e) => handleDeleteClick(blueprint.id, e)}
-                        className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-10"
-                        title="Delete blueprint"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
+                  ) : (
+                    <div className="relative w-full h-48 bg-gradient-to-br from-blueprint-grid/10 to-blueprint-accent/10 flex items-center justify-center">
+                      <div className="w-16 h-16 blueprint-accent/20 rounded-xl flex items-center justify-center">
+                        <Database className="w-8 h-8 text-blueprint-accent/40" />
+                      </div>
+                      {isAdmin && (
+                        <button
+                          onClick={(e) => handleDeleteClick(blueprint.id, e)}
+                          className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 hover:bg-red-600 text-white flex items-center justify-center transition-all z-10 opacity-0 group-hover:opacity-100"
+                          title="Delete blueprint"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="mb-4">
-                    <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
-                      {blueprint.title}
-                    </h3>
-                    <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
-                      {blueprint.description || 'No description provided'}
-                    </p>
-                  </div>
+                  <div className="p-6">
+                    <div className="mb-4">
+                      <h3 className="text-lg font-bold text-blueprint-text mb-2 group-hover:text-blueprint-accent transition-colors">
+                        {blueprint.title}
+                      </h3>
+                      <p className="text-sm text-blueprint-text/70 leading-relaxed line-clamp-2">
+                        {blueprint.description || 'No description provided'}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={(e) => handleUpvote(blueprint.id, e)}
-                        disabled={hasVoted(blueprint.id)}
-                        className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
-                          hasVoted(blueprint.id)
-                            ? 'bg-blueprint-accent/20 text-blueprint-accent cursor-not-allowed'
-                            : 'blueprint-button hover:bg-blueprint-accent/10'
-                        }`}
-                        title={hasVoted(blueprint.id) ? 'Already voted' : 'Upvote this blueprint'}
-                      >
-                        <ThumbsUp className={`w-3 h-3 ${hasVoted(blueprint.id) ? 'fill-current' : ''}`} />
-                        <span>{blueprint.votes}</span>
-                      </button>
-                      <div className="text-xs text-blueprint-text/60">
-                        {blueprint.step_count} steps
+                    <div className="flex items-center justify-between pt-4 border-t border-blueprint-grid/30">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={(e) => handleUpvote(blueprint.id, e)}
+                          disabled={hasVoted(blueprint.id)}
+                          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all ${
+                            hasVoted(blueprint.id)
+                              ? 'bg-blueprint-accent/20 text-blueprint-accent cursor-not-allowed'
+                              : 'blueprint-button hover:bg-blueprint-accent/10'
+                          }`}
+                          title={hasVoted(blueprint.id) ? 'Already voted' : 'Upvote this blueprint'}
+                        >
+                          <ThumbsUp className={`w-3 h-3 ${hasVoted(blueprint.id) ? 'fill-current' : ''}`} />
+                          <span>{blueprint.votes}</span>
+                        </button>
+                        <div className="text-xs text-blueprint-text/60">
+                          {blueprint.step_count} steps
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => handleLaunchBlueprint(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
+                          title="Launch in WordPress Playground"
+                        >
+                          <Rocket className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => handleLaunchBlueprint(blueprint, e)}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
-                        title="Launch in WordPress Playground"
-                      >
-                        <Rocket className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-2 right-2 w-16 h-8 blueprint-grid/20 rounded-lg opacity-50"></div>
-                    <div className="absolute bottom-2 left-2 w-8 h-4 blueprint-grid/20 rounded opacity-30"></div>
                   </div>
                 </div>
               ))

@@ -34,4 +34,5 @@ export interface BlueprintRecord {
   created_by: string;
   votes: number;
   user_id: string;
+  screenshot_url?: string | null;
 }

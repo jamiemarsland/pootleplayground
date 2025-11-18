@@ -18,6 +18,7 @@ interface SaveBlueprintModalProps {
 export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }: SaveBlueprintModalProps) {
   const [title, setTitle] = useState(blueprintData.blueprintTitle || '');
   const [description, setDescription] = useState('');
+  const [screenshotUrl, setScreenshotUrl] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -52,6 +53,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
         .insert({
           title: title.trim(),
           description: description.trim(),
+          screenshot_url: screenshotUrl.trim() || null,
           blueprint_data: blueprintData,
           landing_page_type: blueprintData.landingPageType,
           step_count: blueprintData.steps.length,
@@ -77,6 +79,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
   const resetForm = () => {
     setTitle(blueprintData.blueprintTitle || '');
     setDescription('');
+    setScreenshotUrl('');
     setIsPublic(true);
     setError('');
     setShowConfirm(false);
@@ -136,6 +139,23 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
               rows={4}
               disabled={saving}
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-blueprint-text mb-2">
+              Screenshot URL (optional)
+            </label>
+            <input
+              type="url"
+              value={screenshotUrl}
+              onChange={(e) => setScreenshotUrl(e.target.value)}
+              className="w-full px-4 py-2 bg-blueprint-paper border border-blueprint-grid/50 rounded-lg focus:border-blueprint-accent focus:outline-none text-blueprint-text"
+              placeholder="https://images.pexels.com/..."
+              disabled={saving}
+            />
+            <p className="text-xs text-blueprint-text/60 mt-1">
+              Add a visual preview from Pexels, Unsplash, or any image URL
+            </p>
           </div>
 
           <div className="flex items-center justify-between p-4 bg-blueprint-accent/5 rounded-lg border border-blueprint-accent/20">
