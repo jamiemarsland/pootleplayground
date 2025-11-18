@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { X, Save, Loader2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Save, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
 import { getUserId } from '../utils/userManager';
+import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
 interface SaveBlueprintModalProps {
   isOpen: boolean;
@@ -19,10 +20,14 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
   const [title, setTitle] = useState(blueprintData.blueprintTitle || '');
   const [description, setDescription] = useState('');
   const [screenshotUrl, setScreenshotUrl] = useState('');
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string>('');
+  const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
@@ -40,20 +45,62 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
     handleSave();
   };
 
-  const handleSave = async () => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      setError(validation.error || 'Invalid file');
+      return;
+    }
+
+    setScreenshotFile(file);
+    setError('');
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setScreenshotPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveScreenshot = () => {
+    setScreenshotFile(null);
+    setScreenshotPreview('');
+    setScreenshotUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleSave = async () => {
     setSaving(true);
     setError('');
 
     try {
       const userId = getUserId();
+      let finalScreenshotUrl = screenshotUrl.trim() || null;
+
+      if (screenshotFile) {
+        setUploadingScreenshot(true);
+        try {
+          finalScreenshotUrl = await uploadScreenshot(screenshotFile);
+        } catch (uploadError) {
+          console.error('Screenshot upload error:', uploadError);
+          setError('Failed to upload screenshot. Saving blueprint without image.');
+          finalScreenshotUrl = null;
+        } finally {
+          setUploadingScreenshot(false);
+        }
+      }
 
       const { data: savedBlueprint, error: saveError } = await supabase
         .from('blueprints')
         .insert({
           title: title.trim(),
           description: description.trim(),
-          screenshot_url: screenshotUrl.trim() || null,
+          screenshot_url: finalScreenshotUrl,
           blueprint_data: blueprintData,
           landing_page_type: blueprintData.landingPageType,
           step_count: blueprintData.steps.length,
@@ -80,9 +127,14 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
     setTitle(blueprintData.blueprintTitle || '');
     setDescription('');
     setScreenshotUrl('');
+    setScreenshotFile(null);
+    setScreenshotPreview('');
     setIsPublic(true);
     setError('');
     setShowConfirm(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleClose = () => {
@@ -143,18 +195,72 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
 
           <div>
             <label className="block text-sm font-medium text-blueprint-text mb-2">
-              Screenshot URL (optional)
+              Screenshot (optional)
             </label>
-            <input
-              type="url"
-              value={screenshotUrl}
-              onChange={(e) => setScreenshotUrl(e.target.value)}
-              className="w-full px-4 py-2 bg-blueprint-paper border border-blueprint-grid/50 rounded-lg focus:border-blueprint-accent focus:outline-none text-blueprint-text"
-              placeholder="https://images.pexels.com/..."
-              disabled={saving}
-            />
-            <p className="text-xs text-blueprint-text/60 mt-1">
-              Add a visual preview from Pexels, Unsplash, or any image URL
+
+            {screenshotPreview || screenshotUrl ? (
+              <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-blueprint-grid/50 mb-3 group">
+                <img
+                  src={screenshotPreview || screenshotUrl}
+                  alt="Screenshot preview"
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveScreenshot}
+                  className="absolute top-2 right-2 w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  disabled={saving}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : null}
+
+            <div className="space-y-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={saving}
+              />
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full px-4 py-3 border-2 border-dashed border-blueprint-grid/50 hover:border-blueprint-accent/50 rounded-lg transition-colors flex items-center justify-center gap-2 text-blueprint-text/70 hover:text-blueprint-accent"
+                disabled={saving}
+              >
+                <Upload className="w-5 h-5" />
+                <span className="font-medium">Upload Screenshot</span>
+              </button>
+
+              <div className="relative flex items-center gap-2">
+                <div className="flex-1 border-t border-blueprint-grid/30"></div>
+                <span className="text-xs text-blueprint-text/50">or</span>
+                <div className="flex-1 border-t border-blueprint-grid/30"></div>
+              </div>
+
+              <input
+                type="url"
+                value={screenshotUrl}
+                onChange={(e) => {
+                  setScreenshotUrl(e.target.value);
+                  if (e.target.value) {
+                    setScreenshotFile(null);
+                    setScreenshotPreview('');
+                  }
+                }}
+                className="w-full px-4 py-2 bg-blueprint-paper border border-blueprint-grid/50 rounded-lg focus:border-blueprint-accent focus:outline-none text-blueprint-text text-sm"
+                placeholder="Or paste image URL (Pexels, Unsplash, etc.)"
+                disabled={saving || !!screenshotFile}
+              />
+            </div>
+
+            <p className="text-xs text-blueprint-text/60 mt-2 flex items-start gap-1">
+              <ImageIcon className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              <span>Upload an image or paste a URL. Max 5MB. JPG, PNG, WebP, or GIF.</span>
             </p>
           </div>
 
@@ -203,7 +309,7 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
             {saving ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
+                <span>{uploadingScreenshot ? 'Uploading...' : 'Saving...'}</span>
               </>
             ) : (
               <>
