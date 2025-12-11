@@ -59,8 +59,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const baseUrl = url.origin + url.pathname.replace(/\/store$/, "");
-      const blueprintUrl = `${baseUrl}/get/${data.id}`;
+      const supabaseUrlBase = supabaseUrl.replace(/\/$/, "");
+      const blueprintUrl = `${supabaseUrlBase}/functions/v1/serve-blueprint/get/${data.id}`;
 
       return new Response(
         JSON.stringify({ id: data.id, url: blueprintUrl }),
