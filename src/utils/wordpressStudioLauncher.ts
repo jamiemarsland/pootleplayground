@@ -21,7 +21,7 @@ export async function uploadBlueprintAndGetStudioUrl(blueprint: any): Promise<st
     console.log('Opening WordPress Studio with URL:', url);
 
     const encodedUrl = encodeURIComponent(url);
-    const deepLink = `https://wordpress.com/start/wpcc?ref=wpcc-plugin&blueprint-url=${encodedUrl}`;
+    const deepLink = `wpstudio://create?blueprint-url=${encodedUrl}`;
     console.log('Final deep link:', deepLink);
 
     return deepLink;
