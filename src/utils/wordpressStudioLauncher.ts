@@ -17,8 +17,14 @@ export async function uploadBlueprintAndGetStudioUrl(blueprint: any): Promise<st
 
     const { url } = await response.json();
 
+    console.log('Blueprint stored at:', url);
+    console.log('Opening WordPress Studio with URL:', url);
+
     const encodedUrl = encodeURIComponent(url);
-    return `https://wp.com/open?deep_link=add-site%3Fblueprint_url%3D${encodedUrl}`;
+    const deepLink = `https://playground.wordpress.net/?blueprint-url=${encodedUrl}`;
+    console.log('Final deep link:', deepLink);
+
+    return deepLink;
   } catch (error) {
     console.error('Error uploading blueprint:', error);
     throw error;
