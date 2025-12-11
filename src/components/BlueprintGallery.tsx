@@ -7,6 +7,8 @@ import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
+import { WordPressIcon } from './icons/WordPressIcon';
+import { generateWordPressStudioUrl } from '../utils/wordpressStudioLauncher';
 
 interface BlueprintTemplate {
   id: string;
@@ -763,6 +765,23 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     window.open(playgroundUrl, '_blank');
   };
 
+  const handleLaunchInWordPressStudio = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const nativeBlueprint = generateBlueprint(
+      blueprint.blueprint_data.steps,
+      blueprint.blueprint_data.blueprintTitle,
+      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+    );
+
+    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const compressed = btoa(blueprintJson);
+    const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
+
+    const studioUrl = generateWordPressStudioUrl(playgroundUrl);
+    window.open(studioUrl, '_blank');
+  };
+
   const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setConfirmDelete({ isOpen: true, blueprintId, event });
@@ -1094,6 +1113,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         >
                           <Rocket className="w-3 h-3" />
                         </button>
+                        <button
+                          onClick={(e) => handleLaunchInWordPressStudio(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
+                          title="Launch in WordPress Studio"
+                        >
+                          <WordPressIcon className="w-3 h-3" size={12} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1188,6 +1214,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                           title="Launch in WordPress Playground"
                         >
                           <Rocket className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={(e) => handleLaunchInWordPressStudio(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
+                          title="Launch in WordPress Studio"
+                        >
+                          <WordPressIcon className="w-3 h-3" size={12} />
                         </button>
                       </div>
                     </div>
