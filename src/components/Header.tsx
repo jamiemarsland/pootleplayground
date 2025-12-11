@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
-import { WordPressIcon } from './icons/WordPressIcon';
-import { uploadBlueprintAndGetStudioUrl } from '../utils/wordpressStudioLauncher';
 
 interface HeaderProps {
   blueprint: Blueprint;
@@ -28,7 +26,6 @@ export function Header({
   onOpenAiSidebar
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
-  const [isLaunchingStudio, setIsLaunchingStudio] = useState(false);
 
   const unicodeSafeBase64Encode = (str: string): string => {
     // Convert string to UTF-8 bytes
@@ -122,54 +119,6 @@ export function Header({
     const url = createPlaygroundUrl();
     window.open(url, '_blank');
     setTimeout(() => setIsLaunching(false), 2000);
-  };
-
-  const handleLaunchInWordPressStudio = async () => {
-    setIsLaunchingStudio(true);
-    try {
-      const validSteps = blueprint.steps.filter(step => {
-        switch (step.step) {
-          case 'installPlugin':
-            return step.pluginData && (step.pluginData.url || step.pluginData.slug);
-          case 'installTheme':
-            return step.themeData && (step.themeData.url || step.themeData.slug);
-          case 'wp-cli':
-            return step.command && step.command.trim();
-          case 'addMedia':
-            return step.command && step.command.includes('wp media import');
-          case 'setSiteOptions':
-            return step.options && Object.keys(step.options).length > 0;
-          case 'defineWpConfigConst':
-            return step.consts && Object.keys(step.consts).length > 0;
-          case 'importWxr':
-            return step.file && step.file.url;
-          case 'login':
-            return step.username;
-          case 'addClientRole':
-            return step.name && step.capabilities && step.capabilities.length > 0;
-          default:
-            return true;
-        }
-      });
-
-      const playgroundBlueprint = {
-        landingPage: blueprint.landingPage,
-        preferredVersions: {
-          php: "8.2",
-          wp: "latest"
-        },
-        phpExtensionBundles: ["kitchen-sink"],
-        steps: validSteps
-      };
-
-      const studioUrl = await uploadBlueprintAndGetStudioUrl(playgroundBlueprint);
-      window.open(studioUrl, '_blank');
-    } catch (error) {
-      console.error('Error launching WordPress Studio:', error);
-      alert('Failed to launch WordPress Studio. Please try again.');
-    } finally {
-      setTimeout(() => setIsLaunchingStudio(false), 2000);
-    }
   };
 
   const handleDownload = () => {
@@ -316,44 +265,23 @@ export function Header({
               <Sparkles className="w-4 h-4" />
             </button>
 
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleLaunch}
-                disabled={stepCount === 0 || isLaunching}
-                className="flex items-center gap-2 px-4 lg:px-6 py-2 blueprint-accent font-medium rounded-l-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm lg:text-base"
-                title="Launch in WordPress Playground"
-              >
-                {isLaunching ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
-                    <span>Launching...</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4" />
-                    <span>Launch</span>
-                  </>
-                )}
-              </button>
-              <button
-                onClick={handleLaunchInWordPressStudio}
-                disabled={stepCount === 0 || isLaunchingStudio}
-                className="flex items-center gap-2 px-4 lg:px-6 py-2 blueprint-accent font-medium rounded-r-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm lg:text-base"
-                title="Launch in WordPress Studio"
-              >
-                {isLaunchingStudio ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
-                    <span className="hidden lg:inline">Studio...</span>
-                  </>
-                ) : (
-                  <>
-                    <WordPressIcon className="w-4 h-4" size={16} />
-                    <span className="hidden lg:inline">Studio</span>
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              onClick={handleLaunch}
+              disabled={stepCount === 0 || isLaunching}
+              className="flex items-center gap-2 px-4 lg:px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm lg:text-base"
+            >
+              {isLaunching ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
+                  <span>Launching...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  <span>Launch</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
