@@ -8,7 +8,7 @@ import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 import { WordPressIcon } from './icons/WordPressIcon';
-import { generateWordPressStudioUrl } from '../utils/wordpressStudioLauncher';
+import { uploadBlueprintAndGetStudioUrl } from '../utils/wordpressStudioLauncher';
 
 interface BlueprintTemplate {
   id: string;
@@ -765,21 +765,27 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     window.open(playgroundUrl, '_blank');
   };
 
-  const handleLaunchInWordPressStudio = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+  const handleLaunchInWordPressStudio = async (blueprint: BlueprintRecord, event: React.MouseEvent) => {
     event.stopPropagation();
 
-    const nativeBlueprint = generateBlueprint(
-      blueprint.blueprint_data.steps,
-      blueprint.blueprint_data.blueprintTitle,
-      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
-    );
+    try {
+      const nativeBlueprint = generateBlueprint(
+        blueprint.blueprint_data.steps,
+        blueprint.blueprint_data.blueprintTitle,
+        blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+      );
 
-    const blueprintJson = JSON.stringify(nativeBlueprint);
-    const compressed = btoa(blueprintJson);
-    const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
-
-    const studioUrl = generateWordPressStudioUrl(playgroundUrl);
-    window.open(studioUrl, '_blank');
+      const studioUrl = await uploadBlueprintAndGetStudioUrl(nativeBlueprint);
+      window.open(studioUrl, '_blank');
+    } catch (error) {
+      console.error('Error launching WordPress Studio:', error);
+      setAlertState({
+        isOpen: true,
+        title: 'Launch Failed',
+        message: 'Failed to launch WordPress Studio. Please try again.',
+        type: 'danger'
+      });
+    }
   };
 
   const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {

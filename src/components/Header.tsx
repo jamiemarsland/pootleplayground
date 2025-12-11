@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 import { WordPressIcon } from './icons/WordPressIcon';
-import { generateWordPressStudioUrl } from '../utils/wordpressStudioLauncher';
+import { uploadBlueprintAndGetStudioUrl } from '../utils/wordpressStudioLauncher';
 
 interface HeaderProps {
   blueprint: Blueprint;
@@ -124,12 +124,52 @@ export function Header({
     setTimeout(() => setIsLaunching(false), 2000);
   };
 
-  const handleLaunchInWordPressStudio = () => {
+  const handleLaunchInWordPressStudio = async () => {
     setIsLaunchingStudio(true);
-    const playgroundUrl = createPlaygroundUrl();
-    const studioUrl = generateWordPressStudioUrl(playgroundUrl);
-    window.open(studioUrl, '_blank');
-    setTimeout(() => setIsLaunchingStudio(false), 2000);
+    try {
+      const validSteps = blueprint.steps.filter(step => {
+        switch (step.step) {
+          case 'installPlugin':
+            return step.pluginData && (step.pluginData.url || step.pluginData.slug);
+          case 'installTheme':
+            return step.themeData && (step.themeData.url || step.themeData.slug);
+          case 'wp-cli':
+            return step.command && step.command.trim();
+          case 'addMedia':
+            return step.command && step.command.includes('wp media import');
+          case 'setSiteOptions':
+            return step.options && Object.keys(step.options).length > 0;
+          case 'defineWpConfigConst':
+            return step.consts && Object.keys(step.consts).length > 0;
+          case 'importWxr':
+            return step.file && step.file.url;
+          case 'login':
+            return step.username;
+          case 'addClientRole':
+            return step.name && step.capabilities && step.capabilities.length > 0;
+          default:
+            return true;
+        }
+      });
+
+      const playgroundBlueprint = {
+        landingPage: blueprint.landingPage,
+        preferredVersions: {
+          php: "8.2",
+          wp: "latest"
+        },
+        phpExtensionBundles: ["kitchen-sink"],
+        steps: validSteps
+      };
+
+      const studioUrl = await uploadBlueprintAndGetStudioUrl(playgroundBlueprint);
+      window.open(studioUrl, '_blank');
+    } catch (error) {
+      console.error('Error launching WordPress Studio:', error);
+      alert('Failed to launch WordPress Studio. Please try again.');
+    } finally {
+      setTimeout(() => setIsLaunchingStudio(false), 2000);
+    }
   };
 
   const handleDownload = () => {
