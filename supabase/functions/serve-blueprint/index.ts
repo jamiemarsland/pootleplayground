@@ -1,22 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-const blueprintCache = new Map<string, { blueprint: any; timestamp: number }>();
-const CACHE_DURATION = 5 * 60 * 1000;
-
-function cleanupExpiredBlueprints() {
-  const now = Date.now();
-  for (const [id, data] of blueprintCache.entries()) {
-    if (now - data.timestamp > CACHE_DURATION) {
-      blueprintCache.delete(id);
-    }
-  }
-}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -27,6 +16,10 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const url = new URL(req.url);
     const pathname = url.pathname;
 
@@ -46,19 +39,31 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const id = crypto.randomUUID();
-      blueprintCache.set(id, {
-        blueprint,
-        timestamp: Date.now(),
-      });
+      const { data, error } = await supabase
+        .from("wordpress_studio_blueprints")
+        .insert({ blueprint_data: blueprint })
+        .select("id")
+        .single();
 
-      cleanupExpiredBlueprints();
+      if (error) {
+        console.error("Database error:", error);
+        return new Response(
+          JSON.stringify({ error: "Failed to store blueprint" }),
+          {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
 
       const baseUrl = url.origin + url.pathname.replace(/\/store$/, "");
-      const blueprintUrl = `${baseUrl}/get/${id}`;
+      const blueprintUrl = `${baseUrl}/get/${data.id}`;
 
       return new Response(
-        JSON.stringify({ id, url: blueprintUrl }),
+        JSON.stringify({ id: data.id, url: blueprintUrl }),
         {
           status: 200,
           headers: {
@@ -85,8 +90,28 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      const cached = blueprintCache.get(id);
-      if (!cached) {
+      const { data, error } = await supabase
+        .from("wordpress_studio_blueprints")
+        .select("blueprint_data")
+        .eq("id", id)
+        .gt("expires_at", new Date().toISOString())
+        .maybeSingle();
+
+      if (error) {
+        console.error("Database error:", error);
+        return new Response(
+          JSON.stringify({ error: "Failed to retrieve blueprint" }),
+          {
+            status: 500,
+            headers: {
+              ...corsHeaders,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
+      if (!data) {
         return new Response(
           JSON.stringify({ error: "Blueprint not found or expired" }),
           {
@@ -99,10 +124,8 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      cleanupExpiredBlueprints();
-
       return new Response(
-        JSON.stringify(cached.blueprint),
+        JSON.stringify(data.blueprint_data),
         {
           status: 200,
           headers: {
