@@ -156,3 +156,58 @@ html {
 .blueprint-template-card:hover::before {
   opacity: 1;
 }
+
+/* Mobile-specific improvements */
+@media (max-width: 1024px) {
+  /* Prevent text selection on interactive elements */
+  .touch-manipulation {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Better touch targets */
+  button, a, input, select, textarea {
+    -webkit-tap-highlight-color: rgba(79, 195, 247, 0.2);
+  }
+
+  /* Smooth scrolling for mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="url"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: max(0px)) {
+  .mobile-safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+}
+
+/* Improved scrollbar for mobile */
+@media (max-width: 1024px) {
+  *::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgba(79, 195, 247, 0.3);
+    border-radius: 2px;
+  }
+}

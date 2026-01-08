@@ -937,24 +937,25 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       {/* Header */}
       <div className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
-        <div className="px-4 lg:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        <div className="px-3 lg:px-6 py-3 lg:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 lg:gap-4 min-w-0 flex-1">
               <button
                 onClick={onBack}
-                className="flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+                className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-2 blueprint-button rounded-lg transition-colors text-sm flex-shrink-0"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Builder
+                <span className="hidden sm:inline">Back to Builder</span>
+                <span className="sm:hidden">Back</span>
               </button>
-              <div>
-                <h1 className="text-lg lg:text-xl font-bold text-blueprint-text">Blueprint Gallery</h1>
-                <p className="text-xs lg:text-sm text-blueprint-text/70">Choose a template to get started</p>
+              <div className="min-w-0">
+                <h1 className="text-base lg:text-xl font-bold text-blueprint-text truncate">Blueprint Gallery</h1>
+                <p className="text-xs text-blueprint-text/70 hidden sm:block">Choose a template to get started</p>
               </div>
             </div>
             <button
               onClick={handleAdminToggle}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+              className={`flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-2 rounded-lg transition-colors text-sm flex-shrink-0 ${
                 isAdmin
                   ? 'bg-green-500/20 text-green-600 hover:bg-green-500/30'
                   : 'blueprint-button'
@@ -962,49 +963,51 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
               title={isAdmin ? 'Admin mode active' : 'Enable admin mode'}
             >
               <Shield className="w-4 h-4" />
-              {isAdmin ? 'Admin' : 'Login'}
+              <span className="hidden lg:inline">{isAdmin ? 'Admin' : 'Login'}</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Gallery Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl lg:text-3xl font-bold text-blueprint-text mb-4">
+      <div className="container mx-auto px-3 lg:px-4 py-6 lg:py-8">
+        <div className="text-center mb-6 lg:mb-8">
+          <h2 className="text-xl lg:text-3xl font-bold text-blueprint-text mb-2 lg:mb-4">
             Blueprint Gallery
           </h2>
-          <p className="text-blueprint-text/80 max-w-2xl mx-auto">
+          <p className="text-sm lg:text-base text-blueprint-text/80 max-w-2xl mx-auto px-4">
             Select from our collection or browse community blueprints
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-4 mb-8">
+        <div className="flex justify-center gap-2 lg:gap-4 mb-6 lg:mb-8 px-2">
           <button
             onClick={() => setActiveTab('my')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+            className={`flex-1 lg:flex-initial px-4 lg:px-6 py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
               activeTab === 'my'
                 ? 'blueprint-accent text-blueprint-paper shadow-lg'
                 : 'blueprint-button'
             }`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <User className="w-4 h-4" />
-              My Blueprints ({myBlueprints.length})
+              <span className="hidden sm:inline">My Blueprints ({myBlueprints.length})</span>
+              <span className="sm:hidden">Mine ({myBlueprints.length})</span>
             </div>
           </button>
           <button
             onClick={() => setActiveTab('community')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all ${
+            className={`flex-1 lg:flex-initial px-4 lg:px-6 py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
               activeTab === 'community'
                 ? 'blueprint-accent text-blueprint-paper shadow-lg'
                 : 'blueprint-button'
             }`}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2">
               <Database className="w-4 h-4" />
-              Community ({communityBlueprints.length})
+              <span className="hidden sm:inline">Community ({communityBlueprints.length})</span>
+              <span className="sm:hidden">Community ({communityBlueprints.length})</span>
             </div>
           </button>
         </div>
@@ -1198,9 +1201,9 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
           </div>
         )}
 
-        <div className="text-center mt-12">
-          <div className="blueprint-component border rounded-xl p-6 max-w-2xl mx-auto">
-            <h3 className="text-lg font-semibold text-blueprint-text mb-2">
+        <div className="text-center mt-8 lg:mt-12 px-4">
+          <div className="blueprint-component border rounded-xl p-6 lg:p-8 max-w-2xl mx-auto">
+            <h3 className="text-base lg:text-lg font-semibold text-blueprint-text mb-2">
               Can't find what you're looking for?
             </h3>
             <p className="text-sm text-blueprint-text/70 mb-4">
@@ -1208,7 +1211,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
             </p>
             <button
               onClick={onBack}
-              className="blueprint-button px-6 py-2 rounded-lg font-medium transition-colors"
+              className="blueprint-button px-6 py-3 rounded-lg font-medium transition-colors text-sm lg:text-base touch-manipulation"
             >
               Start from Scratch
             </button>

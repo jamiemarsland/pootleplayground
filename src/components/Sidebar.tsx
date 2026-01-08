@@ -83,16 +83,15 @@ export function Sidebar({
             type="text"
             value={blueprintTitle}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="w-full px-3 py-2 blueprint-input rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
+            className="w-full px-4 py-3 blueprint-input rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
             placeholder="My WordPress Site"
           />
         </div>
-
       </div>
 
       {/* Add Steps */}
-      <div className="flex-1 blueprint-component/30 overflow-hidden lg:overflow-auto">
-        <div className="p-4 pb-6 lg:pb-4">
+      <div className="flex-1 blueprint-component/30 overflow-auto pb-20 lg:pb-4">
+        <div className="p-4">
           <div className="space-y-4">
             {STEP_CATEGORIES.map(category => (
               <div key={category.name}>
@@ -106,9 +105,9 @@ export function Sidebar({
                       <button
                         key={stepType}
                         onClick={() => onAddStep(stepType)}
-                        className="w-full flex items-center gap-3 px-3 py-3 text-sm rounded-lg blueprint-button blueprint-transition transform hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full flex items-center gap-3 px-4 py-4 text-base rounded-lg blueprint-button blueprint-transition transform hover:scale-[1.02] active:scale-[0.98] touch-manipulation"
                       >
-                        <Icon size={16} />
+                        <Icon size={20} className="flex-shrink-0" />
                         <span className="font-medium text-blueprint-text">{STEP_LABELS[stepType]}</span>
                       </button>
                     );
