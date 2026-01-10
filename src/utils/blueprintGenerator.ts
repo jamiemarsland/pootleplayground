@@ -23,20 +23,15 @@ export function sanitizeJsonString(jsonStr: string): string {
   });
 }
 
-// Deep clean object to remove control characters from all string values
+// Deep clean object to remove ALL control characters from all string values
 export function deepCleanObject(obj: any): any {
   if (typeof obj === 'string') {
-    // Remove or escape control characters from strings
-    return obj.replace(/[\x00-\x1F\x7F-\x9F]/g, (char) => {
-      const code = char.charCodeAt(0);
-      // Keep commonly used control characters but escape them properly
-      switch (code) {
-        case 0x09: return '\t'; // tab
-        case 0x0A: return '\n'; // newline
-        case 0x0D: return '\r'; // carriage return
-        default: return ''; // Remove other control characters
-      }
-    });
+    // Aggressively remove ALL control characters - no exceptions
+    // Replace them with spaces and clean up
+    return obj
+      .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace all control chars with space
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim();
   } else if (Array.isArray(obj)) {
     return obj.map(item => deepCleanObject(item));
   } else if (obj !== null && typeof obj === 'object') {
@@ -59,11 +54,22 @@ export function safeJsonStringify(obj: unknown): string {
   // Then stringify with native JSON.stringify
   const jsonStr = JSON.stringify(cleanedObj);
 
-  // Final verification - check for any remaining control characters
-  const hasControlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/.test(jsonStr);
-  if (hasControlChars) {
-    console.warn('Control characters still detected after cleaning, applying final sanitization...');
+  // Final verification - check for any remaining RAW control characters (not escaped ones)
+  // This regex looks for literal control characters, not the escaped versions like \n or \t
+  const controlCharMatches = jsonStr.match(/[\x00-\x1F\x7F-\x9F]/g);
+  if (controlCharMatches) {
+    console.warn('⚠️ Raw control characters detected in JSON:',
+      controlCharMatches.map(c => `0x${c.charCodeAt(0).toString(16)}`).join(', '));
+    console.warn('Applying final sanitization...');
     return sanitizeJsonString(jsonStr);
+  }
+
+  // Validate that the JSON is parseable
+  try {
+    JSON.parse(jsonStr);
+  } catch (e) {
+    console.error('❌ Generated invalid JSON:', e.message);
+    throw new Error('Generated invalid JSON: ' + e.message);
   }
 
   return jsonStr;
