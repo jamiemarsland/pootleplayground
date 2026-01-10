@@ -1,7 +1,7 @@
 import { Step, Blueprint, BlueprintStep } from '../types/blueprint';
 
 // UTF-8 safe base64 encoding function
-function unicodeSafeBase64Encode(str: string): string {
+export function unicodeSafeBase64Encode(str: string): string {
   // First encode the string to UTF-8 bytes using encodeURIComponent and escape
   const utf8Bytes = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
     return String.fromCharCode(parseInt(p1, 16));
