@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 import { unicodeSafeBase64Encode, safeJsonStringify } from '../utils/blueprintGenerator';
@@ -31,11 +31,30 @@ export function Header({
   showMobileSidebar
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
+  const [showLaunchMenu, setShowLaunchMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const createPlaygroundUrl = () => {
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowLaunchMenu(false);
+      }
+    };
+
+    if (showLaunchMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLaunchMenu]);
+
+  const createPlaygroundUrl = (isStudio: boolean = false) => {
     try {
+      console.log('Creating URL for:', isStudio ? 'WordPress Studio' : 'WordPress Playground');
       console.log('Original blueprint steps:', blueprint.steps);
-      
+
       const validSteps = blueprint.steps.filter(step => {
         console.log('Validating step:', step);
         switch (step.step) {
@@ -55,7 +74,7 @@ export function Header({
             const mediaValid = step.command && step.command.includes('wp media import');
             console.log('Media step valid:', mediaValid, step);
             return mediaValid;
-          case 'setSiteOptions': 
+          case 'setSiteOptions':
             const optionsValid = step.options && Object.keys(step.options).length > 0;
             console.log('Site options step valid:', optionsValid, step);
             return optionsValid;
@@ -80,9 +99,9 @@ export function Header({
             return true;
         }
       });
-      
+
       console.log('Valid steps after filtering:', validSteps);
-      
+
       const playgroundBlueprint = {
         landingPage: blueprint.landingPage,
         preferredVersions: {
@@ -92,25 +111,36 @@ export function Header({
         phpExtensionBundles: ["kitchen-sink"],
         steps: validSteps
       };
-      
+
       console.log('Final playground blueprint:', playgroundBlueprint);
 
       const blueprintJson = safeJsonStringify(playgroundBlueprint);
-      console.log('Blueprint JSON:', blueprintJson);
+      console.log('Blueprint JSON length:', blueprintJson.length);
+
+      // Verify JSON is valid before encoding
+      try {
+        JSON.parse(blueprintJson);
+      } catch (e) {
+        throw new Error('Invalid JSON generated: ' + e.message);
+      }
+
       const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
       console.log('Encoded blueprint length:', encodedBlueprint.length);
-      
-      return `https://playground.wordpress.net/#${encodedBlueprint}`;
+
+      const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
+      return `${baseUrl}#${encodedBlueprint}`;
     } catch (error) {
       console.error('Error creating playground URL:', error);
       alert('Error creating playground URL: ' + error.message);
-      return 'https://playground.wordpress.net/';
+      const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
+      return baseUrl;
     }
   };
 
-  const handleLaunch = () => {
+  const handleLaunch = (isStudio: boolean = false) => {
     setIsLaunching(true);
-    const url = createPlaygroundUrl();
+    setShowLaunchMenu(false);
+    const url = createPlaygroundUrl(isStudio);
     window.open(url, '_blank');
     setTimeout(() => setIsLaunching(false), 2000);
   };
@@ -218,23 +248,54 @@ export function Header({
               <Grid3x3 className="w-4 h-4" />
             </button>
 
-            <button
-              onClick={handleLaunch}
-              disabled={stepCount === 0 || isLaunching}
-              className="flex items-center gap-1 lg:gap-2 px-3 lg:px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm"
-            >
-              {isLaunching ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
-                  <span className="hidden sm:inline">Launching...</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
-                  <span>Launch</span>
-                </>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => handleLaunch(false)}
+                disabled={stepCount === 0 || isLaunching}
+                className="flex items-center gap-1 lg:gap-2 px-3 lg:px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm"
+              >
+                {isLaunching ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
+                    <span className="hidden sm:inline">Launching...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" />
+                    <span>Launch</span>
+                  </>
+                )}
+              </button>
+
+              {!isLaunching && stepCount > 0 && (
+                <button
+                  onClick={() => setShowLaunchMenu(!showLaunchMenu)}
+                  disabled={stepCount === 0}
+                  className="absolute -bottom-8 left-0 right-0 text-xs text-blueprint-accent hover:underline disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                >
+                  Launch in Studio
+                </button>
               )}
-            </button>
+
+              {showLaunchMenu && (
+                <div className="absolute top-full mt-2 right-0 bg-white border border-blueprint-accent/30 rounded-lg shadow-lg overflow-hidden z-50 min-w-[200px]">
+                  <button
+                    onClick={() => handleLaunch(false)}
+                    className="w-full text-left px-4 py-3 hover:bg-blueprint-accent/10 transition-colors border-b border-blueprint-accent/10"
+                  >
+                    <div className="font-medium text-sm">WordPress Playground</div>
+                    <div className="text-xs text-blueprint-text/60 mt-0.5">Standard environment</div>
+                  </button>
+                  <button
+                    onClick={() => handleLaunch(true)}
+                    className="w-full text-left px-4 py-3 hover:bg-blueprint-accent/10 transition-colors"
+                  >
+                    <div className="font-medium text-sm">WordPress Studio</div>
+                    <div className="text-xs text-blueprint-text/60 mt-0.5">Enhanced features</div>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

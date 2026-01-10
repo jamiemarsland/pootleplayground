@@ -23,24 +23,19 @@ export function sanitizeJsonString(jsonStr: string): string {
   });
 }
 
-// Safe JSON stringify that handles control characters
+// Safe JSON stringify that properly handles ALL control characters for WordPress Studio
 export function safeJsonStringify(obj: unknown): string {
-  const jsonStr = JSON.stringify(obj, (key, value) => {
-    if (typeof value === 'string') {
-      return value.replace(/[\x00-\x1F\x7F]/g, (char) => {
-        const code = char.charCodeAt(0);
-        switch (code) {
-          case 0x08: return '\b';
-          case 0x09: return '\t';
-          case 0x0A: return '\n';
-          case 0x0C: return '\f';
-          case 0x0D: return '\r';
-          default: return '';
-        }
-      });
-    }
-    return value;
-  });
+  // Use native JSON.stringify which properly escapes all control characters
+  // No custom replacer needed - JSON.stringify handles control characters correctly
+  const jsonStr = JSON.stringify(obj);
+
+  // Verify no unescaped control characters remain (belt and suspenders approach)
+  const hasControlChars = /[\x00-\x1F\x7F]/.test(jsonStr);
+  if (hasControlChars) {
+    console.warn('Control characters detected in JSON output, sanitizing...');
+    return sanitizeJsonString(jsonStr);
+  }
+
   return jsonStr;
 }
 
