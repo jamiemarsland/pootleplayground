@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Edit } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Edit, MonitorPlay } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
@@ -763,6 +763,22 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     window.open(playgroundUrl, '_blank');
   };
 
+  const handleOpenInStudio = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const nativeBlueprint = generateBlueprint(
+      blueprint.blueprint_data.steps,
+      blueprint.blueprint_data.blueprintTitle,
+      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+    );
+
+    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const encoded = btoa(blueprintJson);
+    const studioUrl = `https://wp.com/open?deep_link=add-site%3Fblueprint%3D${encoded}`;
+
+    window.open(studioUrl, '_blank');
+  };
+
   const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setConfirmDelete({ isOpen: true, blueprintId, event });
@@ -1091,6 +1107,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       </div>
                       <div className="flex items-center gap-1">
                         <button
+                          onClick={(e) => handleOpenInStudio(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
+                          title="Open in WordPress Studio"
+                        >
+                          <MonitorPlay className="w-3 h-3" />
+                        </button>
+                        <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                           className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                           title="Launch in WordPress Playground"
@@ -1185,6 +1208,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => handleOpenInStudio(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
+                          title="Open in WordPress Studio"
+                        >
+                          <MonitorPlay className="w-3 h-3" />
+                        </button>
                         <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                           className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
