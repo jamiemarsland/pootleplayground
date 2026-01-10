@@ -52,55 +52,37 @@ export function Header({
 
   const createPlaygroundUrl = (isStudio: boolean = false) => {
     try {
-      console.log('Creating URL for:', isStudio ? 'WordPress Studio' : 'WordPress Playground');
+      console.log('==========================================');
+      console.log('🚀 Creating URL for:', isStudio ? 'WordPress Studio' : 'WordPress Playground');
+      console.log('==========================================');
       console.log('Original blueprint steps:', blueprint.steps);
 
       const validSteps = blueprint.steps.filter(step => {
-        console.log('Validating step:', step);
         switch (step.step) {
           case 'installPlugin':
-            const pluginValid = step.pluginData && (step.pluginData.url || step.pluginData.slug);
-            console.log('Plugin step valid:', pluginValid, step);
-            return pluginValid;
+            return step.pluginData && (step.pluginData.url || step.pluginData.slug);
           case 'installTheme':
-            const themeValid = step.themeData && (step.themeData.url || step.themeData.slug);
-            console.log('Theme step valid:', themeValid, step);
-            return themeValid;
+            return step.themeData && (step.themeData.url || step.themeData.slug);
           case 'wp-cli':
-            const cliValid = step.command && step.command.trim();
-            console.log('WP-CLI step valid:', cliValid, step);
-            return cliValid;
+            return step.command && step.command.trim();
           case 'addMedia':
-            const mediaValid = step.command && step.command.includes('wp media import');
-            console.log('Media step valid:', mediaValid, step);
-            return mediaValid;
+            return step.command && step.command.includes('wp media import');
           case 'setSiteOptions':
-            const optionsValid = step.options && Object.keys(step.options).length > 0;
-            console.log('Site options step valid:', optionsValid, step);
-            return optionsValid;
+            return step.options && Object.keys(step.options).length > 0;
           case 'defineWpConfigConst':
-            const constsValid = step.consts && Object.keys(step.consts).length > 0;
-            console.log('WP Config step valid:', constsValid, step);
-            return constsValid;
+            return step.consts && Object.keys(step.consts).length > 0;
           case 'importWxr':
-            const wxrValid = step.file && step.file.url;
-            console.log('WXR step valid:', wxrValid, step);
-            return wxrValid;
+            return step.file && step.file.url;
           case 'login':
-            const loginValid = step.username;
-            console.log('Login step valid:', loginValid, step);
-            return loginValid;
+            return step.username;
           case 'addClientRole':
-            const roleValid = step.name && step.capabilities && step.capabilities.length > 0;
-            console.log('Client role step valid:', roleValid, step);
-            return roleValid;
+            return step.name && step.capabilities && step.capabilities.length > 0;
           default:
-            console.log('Default step valid:', true, step);
             return true;
         }
       });
 
-      console.log('Valid steps after filtering:', validSteps);
+      console.log('✓ Filtered to', validSteps.length, 'valid steps');
 
       const playgroundBlueprint = {
         landingPage: blueprint.landingPage,
@@ -112,25 +94,40 @@ export function Header({
         steps: validSteps
       };
 
-      console.log('Final playground blueprint:', playgroundBlueprint);
-
+      console.log('📦 Stringifying blueprint with safeJsonStringify...');
       const blueprintJson = safeJsonStringify(playgroundBlueprint);
-      console.log('Blueprint JSON length:', blueprintJson.length);
+      console.log('✓ JSON string created, length:', blueprintJson.length);
+
+      // Check for control characters in the JSON
+      const controlCharMatch = blueprintJson.match(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/);
+      if (controlCharMatch) {
+        const position = blueprintJson.indexOf(controlCharMatch[0]);
+        console.error('❌ Control character found at position', position, 'char code:', controlCharMatch[0].charCodeAt(0));
+        throw new Error(`Control character found at position ${position}`);
+      }
+      console.log('✓ No invalid control characters detected');
 
       // Verify JSON is valid before encoding
       try {
         JSON.parse(blueprintJson);
+        console.log('✓ JSON is valid and parseable');
       } catch (e) {
+        console.error('❌ Invalid JSON generated:', e.message);
         throw new Error('Invalid JSON generated: ' + e.message);
       }
 
       const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
-      console.log('Encoded blueprint length:', encodedBlueprint.length);
+      console.log('✓ Base64 encoded, length:', encodedBlueprint.length);
 
       const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
-      return `${baseUrl}#${encodedBlueprint}`;
+      const finalUrl = `${baseUrl}#${encodedBlueprint}`;
+
+      console.log('✓ Final URL created for', isStudio ? '🎨 WordPress Studio' : '🎪 WordPress Playground');
+      console.log('==========================================\n');
+
+      return finalUrl;
     } catch (error) {
-      console.error('Error creating playground URL:', error);
+      console.error('❌ Error creating playground URL:', error);
       alert('Error creating playground URL: ' + error.message);
       const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
       return baseUrl;

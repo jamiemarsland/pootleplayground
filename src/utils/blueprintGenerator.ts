@@ -23,16 +23,46 @@ export function sanitizeJsonString(jsonStr: string): string {
   });
 }
 
+// Deep clean object to remove control characters from all string values
+function deepCleanObject(obj: any): any {
+  if (typeof obj === 'string') {
+    // Remove or escape control characters from strings
+    return obj.replace(/[\x00-\x1F\x7F-\x9F]/g, (char) => {
+      const code = char.charCodeAt(0);
+      // Keep commonly used control characters but escape them properly
+      switch (code) {
+        case 0x09: return '\t'; // tab
+        case 0x0A: return '\n'; // newline
+        case 0x0D: return '\r'; // carriage return
+        default: return ''; // Remove other control characters
+      }
+    });
+  } else if (Array.isArray(obj)) {
+    return obj.map(item => deepCleanObject(item));
+  } else if (obj !== null && typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cleaned[key] = deepCleanObject(obj[key]);
+      }
+    }
+    return cleaned;
+  }
+  return obj;
+}
+
 // Safe JSON stringify that properly handles ALL control characters for WordPress Studio
 export function safeJsonStringify(obj: unknown): string {
-  // Use native JSON.stringify which properly escapes all control characters
-  // No custom replacer needed - JSON.stringify handles control characters correctly
-  const jsonStr = JSON.stringify(obj);
+  // First, deep clean the object to remove control characters from all strings
+  const cleanedObj = deepCleanObject(obj);
 
-  // Verify no unescaped control characters remain (belt and suspenders approach)
-  const hasControlChars = /[\x00-\x1F\x7F]/.test(jsonStr);
+  // Then stringify with native JSON.stringify
+  const jsonStr = JSON.stringify(cleanedObj);
+
+  // Final verification - check for any remaining control characters
+  const hasControlChars = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/.test(jsonStr);
   if (hasControlChars) {
-    console.warn('Control characters detected in JSON output, sanitizing...');
+    console.warn('Control characters still detected after cleaning, applying final sanitization...');
     return sanitizeJsonString(jsonStr);
   }
 
