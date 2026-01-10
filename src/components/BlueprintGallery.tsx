@@ -5,7 +5,7 @@ import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '..
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
-import { generateBlueprint, unicodeSafeBase64Encode, safeJsonStringify } from '../utils/blueprintGenerator';
+import { generateBlueprint, unicodeSafeBase64Encode, safeJsonStringify, deepCleanObject } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
 interface BlueprintTemplate {
@@ -743,17 +743,24 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
 
   const handleSelectSavedBlueprint = (blueprint: BlueprintRecord) => {
-    localStorage.setItem('loadBlueprint', JSON.stringify(blueprint.blueprint_data));
-    onSelectBlueprint(blueprint.blueprint_data);
+    // Clean any control characters from the blueprint data before using it
+    const cleanedBlueprintData = deepCleanObject(blueprint.blueprint_data);
+    console.log('🧹 Cleaned blueprint data loaded from database');
+
+    localStorage.setItem('loadBlueprint', JSON.stringify(cleanedBlueprintData));
+    onSelectBlueprint(cleanedBlueprintData);
   };
 
   const handleLaunchBlueprint = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
     event.stopPropagation();
 
+    // Clean the blueprint data before using it
+    const cleanedData = deepCleanObject(blueprint.blueprint_data);
+
     const nativeBlueprint = generateBlueprint(
-      blueprint.blueprint_data.steps,
-      blueprint.blueprint_data.blueprintTitle,
-      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+      cleanedData.steps,
+      cleanedData.blueprintTitle,
+      cleanedData.landingPageType as 'wp-admin' | 'front-page'
     );
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);
@@ -766,10 +773,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const handleOpenInStudio = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
     event.stopPropagation();
 
+    // Clean the blueprint data before using it
+    const cleanedData = deepCleanObject(blueprint.blueprint_data);
+
     const nativeBlueprint = generateBlueprint(
-      blueprint.blueprint_data.steps,
-      blueprint.blueprint_data.blueprintTitle,
-      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+      cleanedData.steps,
+      cleanedData.blueprintTitle,
+      cleanedData.landingPageType as 'wp-admin' | 'front-page'
     );
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);

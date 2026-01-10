@@ -24,7 +24,7 @@ export function sanitizeJsonString(jsonStr: string): string {
 }
 
 // Deep clean object to remove control characters from all string values
-function deepCleanObject(obj: any): any {
+export function deepCleanObject(obj: any): any {
   if (typeof obj === 'string') {
     // Remove or escape control characters from strings
     return obj.replace(/[\x00-\x1F\x7F-\x9F]/g, (char) => {

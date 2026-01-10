@@ -10,7 +10,7 @@ import { AlertModal } from './components/AlertModal';
 import { AiPromptSidebar } from './components/AiPromptSidebar';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
 import { Step, StepType } from './types/blueprint';
-import { generateBlueprint } from './utils/blueprintGenerator';
+import { generateBlueprint, deepCleanObject } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
 import './App.css';
 
@@ -46,10 +46,14 @@ function Builder() {
     if (savedBlueprint) {
       try {
         const blueprintData = JSON.parse(savedBlueprint);
-        setBlueprintTitle(blueprintData.blueprintTitle || 'My WordPress Site');
-        setLandingPageType(blueprintData.landingPageType || 'wp-admin');
-        setCustomLandingUrl(blueprintData.customLandingUrl || '');
-        setSteps(blueprintData.steps || []);
+        // Clean any control characters from loaded blueprint data
+        const cleanedData = deepCleanObject(blueprintData);
+        console.log('🧹 Cleaned blueprint data loaded from localStorage');
+
+        setBlueprintTitle(cleanedData.blueprintTitle || 'My WordPress Site');
+        setLandingPageType(cleanedData.landingPageType || 'wp-admin');
+        setCustomLandingUrl(cleanedData.customLandingUrl || '');
+        setSteps(cleanedData.steps || []);
         setSelectedStep(null);
         localStorage.removeItem('loadBlueprint');
       } catch (error) {
