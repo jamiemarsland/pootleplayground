@@ -120,7 +120,7 @@ export function Header({
       console.log('✓ Base64 encoded, length:', encodedBlueprint.length);
 
       const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
-      const finalUrl = `${baseUrl}#${encodedBlueprint}`;
+      const finalUrl = `${baseUrl}#${encodeURIComponent(encodedBlueprint)}`;
 
       console.log('✓ Final URL created for', isStudio ? '🎨 WordPress Studio' : '🎪 WordPress Playground');
       console.log('==========================================\n');

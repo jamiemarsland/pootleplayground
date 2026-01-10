@@ -765,7 +765,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
-    const playgroundUrl = `https://playground.wordpress.net/#${encoded}`;
+    const playgroundUrl = `https://playground.wordpress.net/#${encodeURIComponent(encoded)}`;
 
     window.open(playgroundUrl, '_blank');
   };
@@ -784,7 +784,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
-    const studioUrl = `https://wp.com/open?deep_link=add-site%3Fblueprint%3D${encoded}`;
+    const studioUrl = `https://wp.com/open?deep_link=add-site%3Fblueprint%3D${encodeURIComponent(encoded)}`;
 
     window.open(studioUrl, '_blank');
   };
