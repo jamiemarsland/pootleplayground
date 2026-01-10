@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
+import { unicodeSafeBase64Encode, safeJsonStringify } from '../utils/blueprintGenerator';
 
 interface HeaderProps {
   blueprint: Blueprint;
@@ -30,17 +31,6 @@ export function Header({
   showMobileSidebar
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
-
-  const unicodeSafeBase64Encode = (str: string): string => {
-    // Convert string to UTF-8 bytes
-    const utf8Bytes = new TextEncoder().encode(str);
-    // Convert bytes to binary string
-    const binaryString = Array.from(utf8Bytes)
-      .map(byte => String.fromCharCode(byte))
-      .join('');
-    // Now safely use btoa
-    return btoa(binaryString);
-  };
 
   const createPlaygroundUrl = () => {
     try {
@@ -104,8 +94,8 @@ export function Header({
       };
       
       console.log('Final playground blueprint:', playgroundBlueprint);
-      
-      const blueprintJson = JSON.stringify(playgroundBlueprint);
+
+      const blueprintJson = safeJsonStringify(playgroundBlueprint);
       console.log('Blueprint JSON:', blueprintJson);
       const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
       console.log('Encoded blueprint length:', encodedBlueprint.length);

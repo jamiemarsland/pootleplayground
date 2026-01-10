@@ -5,7 +5,7 @@ import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '..
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
-import { generateBlueprint, unicodeSafeBase64Encode } from '../utils/blueprintGenerator';
+import { generateBlueprint, unicodeSafeBase64Encode, safeJsonStringify } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
 interface BlueprintTemplate {
@@ -756,7 +756,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
     );
 
-    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const blueprintJson = safeJsonStringify(nativeBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
     const playgroundUrl = `https://playground.wordpress.net/#${encoded}`;
 
@@ -772,7 +772,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
     );
 
-    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const blueprintJson = safeJsonStringify(nativeBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
     const studioUrl = `https://wp.com/open?deep_link=add-site%3Fblueprint%3D${encoded}`;
 

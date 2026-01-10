@@ -2,11 +2,46 @@ import { Step, Blueprint, BlueprintStep } from '../types/blueprint';
 
 // UTF-8 safe base64 encoding function
 export function unicodeSafeBase64Encode(str: string): string {
-  // First encode the string to UTF-8 bytes using encodeURIComponent and escape
   const utf8Bytes = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
     return String.fromCharCode(parseInt(p1, 16));
   });
   return btoa(utf8Bytes);
+}
+
+// Sanitize JSON string to ensure all control characters are properly escaped
+export function sanitizeJsonString(jsonStr: string): string {
+  return jsonStr.replace(/[\x00-\x1F\x7F]/g, (char) => {
+    const code = char.charCodeAt(0);
+    switch (code) {
+      case 0x08: return '\\b';
+      case 0x09: return '\\t';
+      case 0x0A: return '\\n';
+      case 0x0C: return '\\f';
+      case 0x0D: return '\\r';
+      default: return '\\u' + code.toString(16).padStart(4, '0');
+    }
+  });
+}
+
+// Safe JSON stringify that handles control characters
+export function safeJsonStringify(obj: unknown): string {
+  const jsonStr = JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'string') {
+      return value.replace(/[\x00-\x1F\x7F]/g, (char) => {
+        const code = char.charCodeAt(0);
+        switch (code) {
+          case 0x08: return '\b';
+          case 0x09: return '\t';
+          case 0x0A: return '\n';
+          case 0x0C: return '\f';
+          case 0x0D: return '\r';
+          default: return '';
+        }
+      });
+    }
+    return value;
+  });
+  return jsonStr;
 }
 
 // Helper function to calculate estimated page ID based on step position
