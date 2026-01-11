@@ -23,15 +23,20 @@ export function sanitizeJsonString(jsonStr: string): string {
   });
 }
 
+// Clean a string to remove control characters
+export function cleanString(str: string): string {
+  if (typeof str !== 'string') return str;
+  // Remove ALL control characters including extended ASCII control chars
+  return str
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace all control chars with space
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .trim();
+}
+
 // Deep clean object to remove ALL control characters from all string values
 export function deepCleanObject(obj: any): any {
   if (typeof obj === 'string') {
-    // Aggressively remove ALL control characters - no exceptions
-    // Replace them with spaces and clean up
-    return obj
-      .replace(/[\x00-\x1F\x7F-\x9F]/g, ' ') // Replace all control chars with space
-      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .trim();
+    return cleanString(obj);
   } else if (Array.isArray(obj)) {
     return obj.map(item => deepCleanObject(item));
   } else if (obj !== null && typeof obj === 'object') {
@@ -95,14 +100,18 @@ function getEstimatedPageId(stepId: string, allSteps: Step[]): number {
 function handleHomepageStep(step: Step, allSteps: Step[]): BlueprintStep | BlueprintStep[] | null {
   const { data } = step;
   const steps: BlueprintStep[] = [];
-  
+
   let homepageId = 0;
-  
+
   if (data.option === 'create' && data.title) {
+    // Clean strings before using in command
+    const cleanTitle = cleanString(data.title);
+    const cleanContent = cleanString(data.content || '');
+
     // Create new homepage
     steps.push({
       step: 'wp-cli',
-      command: `wp post create --post_type=page --post_status=publish --post_title="${data.title}" --post_content="${data.content || ''}" --porcelain`
+      command: `wp post create --post_type=page --post_status=publish --post_title="${cleanTitle.replace(/"/g, '\\"')}" --post_content="${cleanContent.replace(/"/g, '\\"')}" --porcelain`
     });
     
     // Calculate the ID this page will have
@@ -119,9 +128,10 @@ function handleHomepageStep(step: Step, allSteps: Step[]): BlueprintStep | Bluep
     // Use existing page - find it by title using wp-cli
     const selectedStep = allSteps.find(s => s.id === data.stepId);
     if (selectedStep && selectedStep.data.postTitle) {
-      const pageTitle = selectedStep.data.postTitle.replace(/"/g, '\\"');
+      const cleanPageTitle = cleanString(selectedStep.data.postTitle);
+      const pageTitle = cleanPageTitle.replace(/"/g, '\\"');
       steps.push({
-        step: 'wp-cli', 
+        step: 'wp-cli',
         command: `wp eval '$page = get_page_by_title("${pageTitle}", OBJECT, "page"); if ($page) { update_option("show_on_front", "page"); update_option("page_on_front", $page->ID); echo "Homepage set to page ID: " . $page->ID; } else { echo "Page not found: ${pageTitle}"; }'`
       });
       return steps.length > 0 ? steps : null;
@@ -145,14 +155,18 @@ function handleHomepageStep(step: Step, allSteps: Step[]): BlueprintStep | Bluep
 function handleNavigationMenuStep(step: Step, allSteps: Step[]): BlueprintStep[] | null {
   const { data } = step;
   const steps: BlueprintStep[] = [];
-  
+
   if (!data.menuName || !data.menuItems || data.menuItems.length === 0) {
     return null;
   }
+
+  // Clean menu name
+  const cleanMenuName = cleanString(data.menuName);
+
   // Step 1: Create the menu
   steps.push({
     step: 'wp-cli',
-    command: `wp menu create "${data.menuName}"`
+    command: `wp menu create "${cleanMenuName.replace(/"/g, '\\"')}"`
   });
 
   // Step 2: Add menu items using simple commands
@@ -161,28 +175,32 @@ function handleNavigationMenuStep(step: Step, allSteps: Step[]): BlueprintStep[]
       const selectedStep = allSteps.find(s => s.id === item.pageStepId);
       if (selectedStep && selectedStep.data.postTitle) {
         // Use a single wp eval to find page and add to menu
-        const pageTitle = selectedStep.data.postTitle.replace(/"/g, '\\"');
+        const cleanPageTitle = cleanString(selectedStep.data.postTitle);
+        const pageTitle = cleanPageTitle.replace(/"/g, '\\"');
         steps.push({
           step: 'wp-cli',
-          command: `wp eval '$page = get_page_by_title("${pageTitle}", OBJECT, "page"); if ($page) { $menu = get_term_by("name", "${data.menuName}", "nav_menu"); if ($menu) { wp_update_nav_menu_item($menu->term_id, 0, array("menu-item-title" => $page->post_title, "menu-item-object" => "page", "menu-item-object-id" => $page->ID, "menu-item-type" => "post_type", "menu-item-status" => "publish")); echo "Added page to menu"; } }'`
+          command: `wp eval '$page = get_page_by_title("${pageTitle}", OBJECT, "page"); if ($page) { $menu = get_term_by("name", "${cleanMenuName.replace(/"/g, '\\"')}", "nav_menu"); if ($menu) { wp_update_nav_menu_item($menu->term_id, 0, array("menu-item-title" => $page->post_title, "menu-item-object" => "page", "menu-item-object-id" => $page->ID, "menu-item-type" => "post_type", "menu-item-status" => "publish")); echo "Added page to menu"; } }'`
         });
       }
     } else if (item.type === 'custom' && item.title && item.url) {
       // Add custom link using wp eval
-      const linkTitle = item.title.replace(/"/g, '\\"');
-      const linkUrl = item.url.replace(/"/g, '\\"');
+      const cleanLinkTitle = cleanString(item.title);
+      const cleanLinkUrl = cleanString(item.url);
+      const linkTitle = cleanLinkTitle.replace(/"/g, '\\"');
+      const linkUrl = cleanLinkUrl.replace(/"/g, '\\"');
       steps.push({
         step: 'wp-cli',
-        command: `wp eval '$menu = get_term_by("name", "${data.menuName}", "nav_menu"); if ($menu) { wp_update_nav_menu_item($menu->term_id, 0, array("menu-item-title" => "${linkTitle}", "menu-item-url" => "${linkUrl}", "menu-item-type" => "custom", "menu-item-status" => "publish")); echo "Added custom link to menu"; }'`
+        command: `wp eval '$menu = get_term_by("name", "${cleanMenuName.replace(/"/g, '\\"')}", "nav_menu"); if ($menu) { wp_update_nav_menu_item($menu->term_id, 0, array("menu-item-title" => "${linkTitle}", "menu-item-url" => "${linkUrl}", "menu-item-type" => "custom", "menu-item-status" => "publish")); echo "Added custom link to menu"; }'`
       });
     }
   });
 
   // Step 3: Assign menu to location
   if (data.menuLocation) {
+    const cleanMenuLocation = cleanString(data.menuLocation);
     steps.push({
       step: 'wp-cli',
-      command: `wp eval '$menu = get_term_by("name", "${data.menuName}", "nav_menu"); if ($menu) { $locations = get_theme_mod("nav_menu_locations", array()); $locations["${data.menuLocation}"] = $menu->term_id; set_theme_mod("nav_menu_locations", $locations); echo "Menu assigned"; }'`
+      command: `wp eval '$menu = get_term_by("name", "${cleanMenuName.replace(/"/g, '\\"')}", "nav_menu"); if ($menu) { $locations = get_theme_mod("nav_menu_locations", array()); $locations["${cleanMenuLocation.replace(/"/g, '\\"')}"] = $menu->term_id; set_theme_mod("nav_menu_locations", $locations); echo "Menu assigned"; }'`
     });
   }
 
@@ -193,14 +211,18 @@ function handleNavigationMenuStep(step: Step, allSteps: Step[]): BlueprintStep[]
 function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | BlueprintStep[] | null {
   const { data } = step;
   const steps: BlueprintStep[] = [];
-  
+
   let postsPageId = 0;
-  
+
   if (data.option === 'create' && data.title) {
+    // Clean strings before using in command
+    const cleanTitle = cleanString(data.title);
+    const cleanContent = cleanString(data.content || '');
+
     // Create new posts page
     steps.push({
       step: 'wp-cli',
-      command: `wp post create --post_type=page --post_status=publish --post_title="${data.title}" --post_content="${data.content || ''}" --porcelain`
+      command: `wp post create --post_type=page --post_status=publish --post_title="${cleanTitle.replace(/"/g, '\\"')}" --post_content="${cleanContent.replace(/"/g, '\\"')}" --porcelain`
     });
     
     // Calculate the ID this page will have
@@ -217,7 +239,8 @@ function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | Blue
     // Use existing page - find it by title using wp-cli
     const selectedStep = allSteps.find(s => s.id === data.stepId);
     if (selectedStep && selectedStep.data.postTitle) {
-      const pageTitle = selectedStep.data.postTitle.replace(/"/g, '\\"');
+      const cleanPageTitle = cleanString(selectedStep.data.postTitle);
+      const pageTitle = cleanPageTitle.replace(/"/g, '\\"');
       steps.push({
         step: 'wp-cli',
         command: `wp eval '$page = get_page_by_title("${pageTitle}", OBJECT, "page"); if ($page) { update_option("page_for_posts", $page->ID); echo "Posts page set to page ID: " . $page->ID; } else { echo "Page not found: ${pageTitle}"; }'`
@@ -276,10 +299,11 @@ export function generateBlueprint(allSteps: Step[], title: string, landingPageTy
   
   // Add site title as the first step if title is provided
   if (title && title !== 'My WordPress Site') {
+    const cleanTitle = cleanString(title);
     blueprint.steps.push({
       step: 'setSiteOptions',
       options: {
-        blogname: title
+        blogname: cleanTitle
       }
     });
   }
@@ -387,26 +411,26 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
 
     case 'addPost': {
       if (!data.postTitle) return null;
-      
+
       const steps: BlueprintStep[] = [];
-      
-      // Escape title for wp-cli command
-      const escapedTitle = (data.postTitle || '').replace(/"/g, '\\"');
-      
-      // For Gutenberg blocks, use a different approach to preserve structure
-      const content = data.postContent || '';
+
+      // Clean and escape title for wp-cli command
+      const cleanTitle = cleanString(data.postTitle || '');
+      const escapedTitle = cleanTitle.replace(/"/g, '\\"');
+
+      // Clean content first to remove control characters
+      const content = cleanString(data.postContent || '');
       const hasGutenbergBlocks = content.includes('<!-- wp:');
-      
+
       if (hasGutenbergBlocks) {
         // Use wp eval for Gutenberg content to preserve block structure
-        const jsContent = content.replace(/'/g, "\\'").replace(/\n/g, '\\n');
         steps.push({
           step: 'wp-cli',
           command: `wp eval '$content = base64_decode("${unicodeSafeBase64Encode(content)}"); $post_data = array("post_title" => "${escapedTitle}", "post_content" => $content, "post_status" => "${data.postStatus || 'publish'}", "post_type" => "${data.postType || 'post'}"); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created post ID: " . $post_id; }'`
         });
       } else {
-        // Use regular wp-cli for simple content
-        const escapedContent = content.replace(/"/g, '\\"').replace(/\n/g, '\\n');
+        // Use regular wp-cli for simple content - escape properly
+        const escapedContent = content.replace(/"/g, '\\"').replace(/\n/g, ' ');
         steps.push({
           step: 'wp-cli',
           command: `wp post create --post_type=${data.postType || 'post'} --post_status=${data.postStatus || 'publish'} --post_title="${escapedTitle}" --post_content="${escapedContent}" --porcelain`
@@ -415,16 +439,19 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
       
       // If featured image URL is provided, import it and set as featured image
       if (data.featuredImageUrl && data.featuredImageUrl.trim()) {
+        const cleanImageUrl = cleanString(data.featuredImageUrl);
+        const cleanImageTitle = cleanString(`${data.postTitle} Featured Image`);
+
         // Import the media file and get its ID
         steps.push({
           step: 'wp-cli',
-          command: `wp media import "${data.featuredImageUrl}" --title="${data.postTitle} Featured Image" --porcelain`
+          command: `wp media import "${cleanImageUrl.replace(/"/g, '\\"')}" --title="${cleanImageTitle.replace(/"/g, '\\"')}" --porcelain`
         });
-        
+
         // Set the featured image using a more reliable PHP approach
         steps.push({
           step: 'wp-cli',
-          command: `wp eval '$post = get_page_by_title("${data.postTitle}", OBJECT, "${data.postType || 'post'}"); if ($post) { $attachments = get_posts(array("post_type" => "attachment", "posts_per_page" => 1, "orderby" => "date", "order" => "DESC")); if (!empty($attachments)) { $result = set_post_thumbnail($post->ID, $attachments[0]->ID); echo $result ? "Featured image set for post " . $post->ID : "Failed to set featured image"; } else { echo "No attachments found"; } } else { echo "Post not found: ${data.postTitle}"; }'`
+          command: `wp eval '$post = get_page_by_title("${cleanTitle.replace(/"/g, '\\"')}", OBJECT, "${data.postType || 'post'}"); if ($post) { $attachments = get_posts(array("post_type" => "attachment", "posts_per_page" => 1, "orderby" => "date", "order" => "DESC")); if (!empty($attachments)) { $result = set_post_thumbnail($post->ID, $attachments[0]->ID); echo $result ? "Featured image set for post " . $post->ID : "Failed to set featured image"; } else { echo "No attachments found"; } } else { echo "Post not found: ${cleanTitle.replace(/"/g, '\\"')}"; }'`
         });
       }
       
@@ -433,21 +460,24 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
 
     case 'addPage':
       if (!data.postTitle) return null;
-      
-      // Always use wp eval for pages to handle all attributes consistently
-      const pageContent = data.postContent || '';
-      
+
+      // Clean all string inputs first
+      const pageContent = cleanString(data.postContent || '');
+      const cleanPageTitle = cleanString(data.postTitle || '');
+      const cleanPostName = data.postName ? cleanString(data.postName) : '';
+      const cleanTemplate = data.template ? cleanString(data.template.trim()) : '';
+
       // Build post data array
       const postDataParts = [
-        `"post_title" => "${(data.postTitle || '').replace(/"/g, '\\"')}"`,
+        `"post_title" => "${cleanPageTitle.replace(/"/g, '\\"')}"`,
         `"post_content" => $content`,
         `"post_status" => "${data.postStatus || 'publish'}"`,
         `"post_type" => "page"`
       ];
-      
+
       // Add optional fields
-      if (data.postName) {
-        postDataParts.push(`"post_name" => "${data.postName.replace(/"/g, '\\"')}"`);
+      if (cleanPostName) {
+        postDataParts.push(`"post_name" => "${cleanPostName.replace(/"/g, '\\"')}"`);
       }
       if (data.postParent) {
         postDataParts.push(`"post_parent" => ${data.postParent}`);
@@ -455,17 +485,17 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
       if (data.menuOrder) {
         postDataParts.push(`"menu_order" => ${data.menuOrder}`);
       }
-      
+
       // Build meta input array for page template
       const metaInputParts = [];
-      if (data.template && data.template.trim()) {
-        metaInputParts.push(`"_wp_page_template" => "${data.template.replace(/"/g, '\\"')}"`);
+      if (cleanTemplate) {
+        metaInputParts.push(`"_wp_page_template" => "${cleanTemplate.replace(/"/g, '\\"')}"`);
       }
-      
-      const metaInputParam = metaInputParts.length > 0 
-        ? `, "meta_input" => array(${metaInputParts.join(', ')})` 
+
+      const metaInputParam = metaInputParts.length > 0
+        ? `, "meta_input" => array(${metaInputParts.join(', ')})`
         : '';
-      
+
       return {
         step: 'wp-cli',
         command: `wp eval '$content = base64_decode("${unicodeSafeBase64Encode(pageContent)}"); $post_data = array(${postDataParts.join(', ')}${metaInputParam}); $post_id = wp_insert_post($post_data); if (is_wp_error($post_id)) { echo "Error: " . $post_id->get_error_message(); } else { echo "Created page ID: " . $post_id; }'`
@@ -473,11 +503,12 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
 
     case 'addMedia':
       if (!data.downloadUrl) return null;
-      
-      // Use wp-cli to import media files
-      const escapedUrl = data.downloadUrl.replace(/"/g, '\\"');
+
+      // Clean and escape URL for wp-cli command
+      const cleanUrl = cleanString(data.downloadUrl);
+      const escapedUrl = cleanUrl.replace(/"/g, '\\"');
       const command = `wp media import "${escapedUrl}"`;
-      
+
       return {
         step: 'wp-cli',
         command: command
