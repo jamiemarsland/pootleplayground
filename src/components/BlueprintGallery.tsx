@@ -784,7 +784,10 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
-    const studioUrl = `https://wp.com/open?deep_link=add-site%3Fblueprint%3D${encodeURIComponent(encoded)}`;
+
+    // Build the deep_link value first, then encode it once
+    const deepLinkValue = `add-site?blueprint=${encoded}`;
+    const studioUrl = `https://wp.com/open?deep_link=${encodeURIComponent(deepLinkValue)}`;
 
     window.open(studioUrl, '_blank');
   };

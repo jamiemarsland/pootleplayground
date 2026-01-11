@@ -119,8 +119,15 @@ export function Header({
       const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
       console.log('✓ Base64 encoded, length:', encodedBlueprint.length);
 
-      const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
-      const finalUrl = `${baseUrl}#${encodeURIComponent(encodedBlueprint)}`;
+      let finalUrl: string;
+      if (isStudio) {
+        // WordPress Studio uses wp.com/open deep link format
+        const deepLinkValue = `add-site?blueprint=${encodedBlueprint}`;
+        finalUrl = `https://wp.com/open?deep_link=${encodeURIComponent(deepLinkValue)}`;
+      } else {
+        // WordPress Playground uses hash fragment format
+        finalUrl = `https://playground.wordpress.net/#${encodeURIComponent(encodedBlueprint)}`;
+      }
 
       console.log('✓ Final URL created for', isStudio ? '🎨 WordPress Studio' : '🎪 WordPress Playground');
       console.log('==========================================\n');
@@ -129,7 +136,7 @@ export function Header({
     } catch (error) {
       console.error('❌ Error creating playground URL:', error);
       alert('Error creating playground URL: ' + error.message);
-      const baseUrl = isStudio ? 'https://playground.wordpress.net/studio/' : 'https://playground.wordpress.net/';
+      const baseUrl = isStudio ? 'https://developer.wordpress.com/studio/' : 'https://playground.wordpress.net/';
       return baseUrl;
     }
   };
