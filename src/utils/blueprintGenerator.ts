@@ -1,7 +1,40 @@
 import { Step, Blueprint, BlueprintStep } from '../types/blueprint';
 
+// Validate that a string doesn't contain raw control characters
+export function validateNoControlCharacters(str: string, context: string = 'string'): void {
+  const controlCharRegex = /[\x00-\x08\x0B-\x0C\x0E-\x1F]/;
+  const matches = str.match(controlCharRegex);
+
+  if (matches) {
+    const charCodes = matches.map(c => `0x${c.charCodeAt(0).toString(16)}`).join(', ');
+    console.error(`❌ Raw control characters found in ${context}:`, charCodes);
+    throw new Error(`Control characters detected in ${context}. Data must be cleaned before encoding. Found: ${charCodes}`);
+  }
+}
+
 // UTF-8 safe base64 encoding function
 export function unicodeSafeBase64Encode(str: string): string {
+  // Validate that there are no raw control characters before encoding
+  try {
+    validateNoControlCharacters(str, 'base64 input');
+  } catch (error) {
+    // If control characters are detected, log the error but continue
+    // The data should have been cleaned by this point, so this is a safety check
+    console.error('Control characters detected during base64 encoding:', error);
+    console.warn('Attempting to sanitize the input before encoding...');
+
+    // Apply sanitization as a last resort
+    str = sanitizeJsonString(str);
+
+    // Validate again after sanitization
+    try {
+      validateNoControlCharacters(str, 'sanitized base64 input');
+    } catch (secondError) {
+      console.error('❌ Control characters still present after sanitization');
+      throw secondError;
+    }
+  }
+
   const utf8Bytes = encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
     return String.fromCharCode(parseInt(p1, 16));
   });
@@ -72,12 +105,23 @@ export function safeJsonStringify(obj: unknown): string {
   // Validate that the JSON is parseable
   try {
     JSON.parse(jsonStr);
+    return jsonStr;
   } catch (e) {
-    console.error('❌ Generated invalid JSON:', e.message);
-    throw new Error('Generated invalid JSON: ' + e.message);
-  }
+    // If JSON.parse fails, apply sanitization as a fallback
+    console.warn('⚠️ JSON validation failed, applying sanitization fallback:', e instanceof Error ? e.message : 'Unknown error');
+    const sanitizedJson = sanitizeJsonString(jsonStr);
 
-  return jsonStr;
+    // Try to parse the sanitized version
+    try {
+      JSON.parse(sanitizedJson);
+      console.log('✅ Sanitization fallback successful');
+      return sanitizedJson;
+    } catch (sanitizeError) {
+      // If even sanitization doesn't work, throw a detailed error
+      console.error('❌ Generated invalid JSON even after sanitization:', sanitizeError instanceof Error ? sanitizeError.message : 'Unknown error');
+      throw new Error('Generated invalid JSON even after sanitization: ' + (sanitizeError instanceof Error ? sanitizeError.message : 'Unknown error'));
+    }
+  }
 }
 
 // Helper function to calculate estimated page ID based on step position

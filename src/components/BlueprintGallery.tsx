@@ -732,8 +732,19 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       if (communityError) throw communityError;
 
-      setMyBlueprints(myData || []);
-      setCommunityBlueprints(communityData || []);
+      // Clean blueprint data immediately after loading to remove any control characters
+      const cleanMyData = (myData || []).map(bp => ({
+        ...bp,
+        blueprint_data: deepCleanObject(bp.blueprint_data)
+      }));
+
+      const cleanCommunityData = (communityData || []).map(bp => ({
+        ...bp,
+        blueprint_data: deepCleanObject(bp.blueprint_data)
+      }));
+
+      setMyBlueprints(cleanMyData);
+      setCommunityBlueprints(cleanCommunityData);
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
