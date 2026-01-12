@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Edit, MonitorPlay } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Edit } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
-import { generateBlueprint, unicodeSafeBase64Encode, safeJsonStringify, deepCleanObject, validateBlueprintStep } from '../utils/blueprintGenerator';
+import { generateBlueprint } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
 interface BlueprintTemplate {
@@ -732,19 +732,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       if (communityError) throw communityError;
 
-      // Clean blueprint data immediately after loading to remove any control characters
-      const cleanMyData = (myData || []).map(bp => ({
-        ...bp,
-        blueprint_data: deepCleanObject(bp.blueprint_data)
-      }));
-
-      const cleanCommunityData = (communityData || []).map(bp => ({
-        ...bp,
-        blueprint_data: deepCleanObject(bp.blueprint_data)
-      }));
-
-      setMyBlueprints(cleanMyData);
-      setCommunityBlueprints(cleanCommunityData);
+      setMyBlueprints(myData || []);
+      setCommunityBlueprints(communityData || []);
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
@@ -754,89 +743,24 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
 
   const handleSelectSavedBlueprint = (blueprint: BlueprintRecord) => {
-    // Clean any control characters from the blueprint data before using it
-    const cleanedBlueprintData = deepCleanObject(blueprint.blueprint_data);
-    console.log('🧹 Cleaned blueprint data loaded from database');
-
-    localStorage.setItem('loadBlueprint', JSON.stringify(cleanedBlueprintData));
-    onSelectBlueprint(cleanedBlueprintData);
+    localStorage.setItem('loadBlueprint', JSON.stringify(blueprint.blueprint_data));
+    onSelectBlueprint(blueprint.blueprint_data);
   };
 
   const handleLaunchBlueprint = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
     event.stopPropagation();
 
-    // Clean the blueprint data before using it
-    const cleanedData = deepCleanObject(blueprint.blueprint_data);
-
     const nativeBlueprint = generateBlueprint(
-      cleanedData.steps,
-      cleanedData.blueprintTitle,
-      cleanedData.landingPageType as 'wp-admin' | 'front-page' | 'custom',
-      cleanedData.customLandingUrl
+      blueprint.blueprint_data.steps,
+      blueprint.blueprint_data.blueprintTitle,
+      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
     );
 
-    // Validate steps before launching
-    const validSteps = nativeBlueprint.steps.filter(validateBlueprintStep);
-
-    const playgroundBlueprint = {
-      landingPage: nativeBlueprint.landingPage,
-      preferredVersions: {
-        wp: "latest",
-        php: "8.2"
-      },
-      phpExtensionBundles: ['kitchen-sink'],
-      steps: validSteps
-    };
-
-    console.log('🎯 Generated Playground Blueprint:', JSON.stringify(playgroundBlueprint, null, 2));
-
-    const blueprintJson = safeJsonStringify(playgroundBlueprint);
-    const encoded = unicodeSafeBase64Encode(blueprintJson);
-    const playgroundUrl = `https://playground.wordpress.net/#${encodeURIComponent(encoded)}`;
-
-    console.log('🔗 Playground URL length:', playgroundUrl.length);
+    const blueprintJson = JSON.stringify(nativeBlueprint);
+    const compressed = btoa(blueprintJson);
+    const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
 
     window.open(playgroundUrl, '_blank');
-  };
-
-  const handleOpenInStudio = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
-    event.stopPropagation();
-
-    // Clean the blueprint data before using it
-    const cleanedData = deepCleanObject(blueprint.blueprint_data);
-
-    const nativeBlueprint = generateBlueprint(
-      cleanedData.steps,
-      cleanedData.blueprintTitle,
-      cleanedData.landingPageType as 'wp-admin' | 'front-page' | 'custom',
-      cleanedData.customLandingUrl
-    );
-
-    // Validate steps before launching
-    const validSteps = nativeBlueprint.steps.filter(validateBlueprintStep);
-
-    const playgroundBlueprint = {
-      landingPage: nativeBlueprint.landingPage,
-      preferredVersions: {
-        wp: "latest",
-        php: "8.2"
-      },
-      phpExtensionBundles: ['kitchen-sink'],
-      steps: validSteps
-    };
-
-    console.log('🎯 Generated Studio Blueprint:', JSON.stringify(playgroundBlueprint, null, 2));
-
-    const blueprintJson = safeJsonStringify(playgroundBlueprint);
-    const encoded = unicodeSafeBase64Encode(blueprintJson);
-
-    // Build the deep_link value first, then encode it once
-    const deepLinkValue = `add-site?blueprint=${encoded}`;
-    const studioUrl = `https://wp.com/open?deep_link=${encodeURIComponent(deepLinkValue)}`;
-
-    console.log('🔗 Studio URL length:', studioUrl.length);
-
-    window.open(studioUrl, '_blank');
   };
 
   const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {
@@ -1013,25 +937,24 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       {/* Header */}
       <div className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
-        <div className="px-3 lg:px-6 py-3 lg:py-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 lg:gap-4 min-w-0 flex-1">
+        <div className="px-4 lg:px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
-                className="flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-2 blueprint-button rounded-lg transition-colors text-sm flex-shrink-0"
+                className="flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline">Back to Builder</span>
-                <span className="sm:hidden">Back</span>
+                Back to Builder
               </button>
-              <div className="min-w-0">
-                <h1 className="text-base lg:text-xl font-bold text-blueprint-text truncate">Blueprint Gallery</h1>
-                <p className="text-xs text-blueprint-text/70 hidden sm:block">Choose a template to get started</p>
+              <div>
+                <h1 className="text-lg lg:text-xl font-bold text-blueprint-text">Blueprint Gallery</h1>
+                <p className="text-xs lg:text-sm text-blueprint-text/70">Choose a template to get started</p>
               </div>
             </div>
             <button
               onClick={handleAdminToggle}
-              className={`flex items-center gap-1 lg:gap-2 px-2 lg:px-3 py-2 rounded-lg transition-colors text-sm flex-shrink-0 ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
                 isAdmin
                   ? 'bg-green-500/20 text-green-600 hover:bg-green-500/30'
                   : 'blueprint-button'
@@ -1039,51 +962,49 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
               title={isAdmin ? 'Admin mode active' : 'Enable admin mode'}
             >
               <Shield className="w-4 h-4" />
-              <span className="hidden lg:inline">{isAdmin ? 'Admin' : 'Login'}</span>
+              {isAdmin ? 'Admin' : 'Login'}
             </button>
           </div>
         </div>
       </div>
 
       {/* Gallery Content */}
-      <div className="container mx-auto px-3 lg:px-4 py-6 lg:py-8">
-        <div className="text-center mb-6 lg:mb-8">
-          <h2 className="text-xl lg:text-3xl font-bold text-blueprint-text mb-2 lg:mb-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl lg:text-3xl font-bold text-blueprint-text mb-4">
             Blueprint Gallery
           </h2>
-          <p className="text-sm lg:text-base text-blueprint-text/80 max-w-2xl mx-auto px-4">
+          <p className="text-blueprint-text/80 max-w-2xl mx-auto">
             Select from our collection or browse community blueprints
           </p>
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-2 lg:gap-4 mb-6 lg:mb-8 px-2">
+        <div className="flex justify-center gap-4 mb-8">
           <button
             onClick={() => setActiveTab('my')}
-            className={`flex-1 lg:flex-initial px-4 lg:px-6 py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
               activeTab === 'my'
                 ? 'blueprint-accent text-blueprint-paper shadow-lg'
                 : 'blueprint-button'
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
               <User className="w-4 h-4" />
-              <span className="hidden sm:inline">My Blueprints ({myBlueprints.length})</span>
-              <span className="sm:hidden">Mine ({myBlueprints.length})</span>
+              My Blueprints ({myBlueprints.length})
             </div>
           </button>
           <button
             onClick={() => setActiveTab('community')}
-            className={`flex-1 lg:flex-initial px-4 lg:px-6 py-3 rounded-lg font-medium transition-all text-sm lg:text-base ${
+            className={`px-6 py-3 rounded-lg font-medium transition-all ${
               activeTab === 'community'
                 ? 'blueprint-accent text-blueprint-paper shadow-lg'
                 : 'blueprint-button'
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center gap-2">
               <Database className="w-4 h-4" />
-              <span className="hidden sm:inline">Community ({communityBlueprints.length})</span>
-              <span className="sm:hidden">Community ({communityBlueprints.length})</span>
+              Community ({communityBlueprints.length})
             </div>
           </button>
         </div>
@@ -1166,13 +1087,6 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <button
-                          onClick={(e) => handleOpenInStudio(blueprint, e)}
-                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
-                          title="Open in WordPress Studio"
-                        >
-                          <MonitorPlay className="w-3 h-3" />
-                        </button>
                         <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                           className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
@@ -1269,13 +1183,6 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       </div>
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={(e) => handleOpenInStudio(blueprint, e)}
-                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
-                          title="Open in WordPress Studio"
-                        >
-                          <MonitorPlay className="w-3 h-3" />
-                        </button>
-                        <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                           className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                           title="Launch in WordPress Playground"
@@ -1291,9 +1198,9 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
           </div>
         )}
 
-        <div className="text-center mt-8 lg:mt-12 px-4">
-          <div className="blueprint-component border rounded-xl p-6 lg:p-8 max-w-2xl mx-auto">
-            <h3 className="text-base lg:text-lg font-semibold text-blueprint-text mb-2">
+        <div className="text-center mt-12">
+          <div className="blueprint-component border rounded-xl p-6 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-blueprint-text mb-2">
               Can't find what you're looking for?
             </h3>
             <p className="text-sm text-blueprint-text/70 mb-4">
@@ -1301,7 +1208,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
             </p>
             <button
               onClick={onBack}
-              className="blueprint-button px-6 py-3 rounded-lg font-medium transition-colors text-sm lg:text-base touch-manipulation"
+              className="blueprint-button px-6 py-2 rounded-lg font-medium transition-colors"
             >
               Start from Scratch
             </button>

@@ -6,32 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-// Deep clean object to remove control characters from all string values
-function deepCleanObject(obj: any): any {
-  if (typeof obj === 'string') {
-    return obj.replace(/[\x00-\x1F\x7F-\x9F]/g, (char) => {
-      const code = char.charCodeAt(0);
-      switch (code) {
-        case 0x09: return '\t';
-        case 0x0A: return '\n';
-        case 0x0D: return '\r';
-        default: return '';
-      }
-    });
-  } else if (Array.isArray(obj)) {
-    return obj.map(item => deepCleanObject(item));
-  } else if (obj !== null && typeof obj === 'object') {
-    const cleaned: any = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        cleaned[key] = deepCleanObject(obj[key]);
-      }
-    }
-    return cleaned;
-  }
-  return obj;
-}
-
 interface BlueprintRequest {
   prompt: string;
 }
@@ -313,10 +287,6 @@ Respond ONLY with valid JSON in this exact format:
       } else {
         blueprintData = JSON.parse(aiResponse);
       }
-
-      // Clean any control characters from the AI-generated content
-      blueprintData = deepCleanObject(blueprintData);
-      console.log('🧹 Cleaned AI-generated blueprint data');
 
       if (!blueprintData.steps || !Array.isArray(blueprintData.steps)) {
         throw new Error("Invalid blueprint structure: missing steps array");

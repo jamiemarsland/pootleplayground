@@ -23,10 +23,10 @@ export function PostForm({ data, onChange }: PostFormProps) {
   };
 
   return (
-    <div className="p-4 lg:p-6">
-      <h2 className="text-base lg:text-lg font-semibold text-blueprint-text mb-4 lg:mb-6">Add Post</h2>
-
-      <div className="space-y-4 lg:space-y-6">
+    <div className="p-6">
+      <h2 className="text-lg font-semibold text-blueprint-text mb-6">Add Post</h2>
+      
+      <div className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-blueprint-text mb-2">
             Post Title *
@@ -35,7 +35,7 @@ export function PostForm({ data, onChange }: PostFormProps) {
             type="text"
             value={postData.postTitle}
             onChange={(e) => updateField('postTitle', e.target.value)}
-            className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             placeholder="Enter post title"
           />
         </div>
@@ -48,12 +48,12 @@ export function PostForm({ data, onChange }: PostFormProps) {
             value={postData.postContent}
             onChange={(e) => updateField('postContent', e.target.value)}
             rows={8}
-            className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base resize-y min-h-[120px]"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             placeholder="Enter post content (HTML supported)"
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-blueprint-text mb-2">
               Post Type
@@ -61,7 +61,7 @@ export function PostForm({ data, onChange }: PostFormProps) {
             <select
               value={postData.postType}
               onChange={(e) => updateField('postType', e.target.value)}
-              className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             >
               <option value="post">Post</option>
               <option value="page">Page</option>
@@ -76,7 +76,7 @@ export function PostForm({ data, onChange }: PostFormProps) {
             <select
               value={postData.postStatus}
               onChange={(e) => updateField('postStatus', e.target.value)}
-              className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
+              className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             >
               <option value="publish">Published</option>
               <option value="draft">Draft</option>
@@ -93,7 +93,7 @@ export function PostForm({ data, onChange }: PostFormProps) {
             type="text"
             value={postData.postDate}
             onChange={(e) => updateField('postDate', e.target.value)}
-            className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             placeholder="now, YYYY-MM-DD, or YYYY-MM-DD HH:MM:SS"
           />
           <p className="text-xs text-blueprint-text/60 mt-1">
@@ -109,7 +109,7 @@ export function PostForm({ data, onChange }: PostFormProps) {
             type="url"
             value={postData.featuredImageUrl}
             onChange={(e) => updateField('featuredImageUrl', e.target.value)}
-            className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             placeholder="https://example.com/image.jpg"
           />
           <p className="text-xs text-blueprint-text/60 mt-1">
@@ -124,7 +124,7 @@ export function PostForm({ data, onChange }: PostFormProps) {
             type="number"
             value={postData.postAuthor || ''}
             onChange={(e) => updateField('postAuthor', e.target.value ? parseInt(e.target.value) : undefined)}
-            className="w-full px-4 py-3 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent text-base"
+            className="w-full px-3 py-2 blueprint-input rounded-md focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
             placeholder="Leave empty for default author"
           />
         </div>

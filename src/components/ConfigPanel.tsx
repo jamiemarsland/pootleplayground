@@ -20,13 +20,12 @@ interface ConfigPanelProps {
   selectedStep: Step | null;
   onUpdateStep: (stepId: string, data: any) => void;
   allSteps: Step[];
-  onBack?: () => void;
 }
 
-export function ConfigPanel({ selectedStep, onUpdateStep, allSteps, onBack }: ConfigPanelProps) {
+export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPanelProps) {
   if (!selectedStep) {
     return (
-      <div className="flex flex-1 items-center justify-center p-4">
+      <div className="hidden lg:flex flex-1 items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border">
             <Settings className="w-8 h-8 text-blueprint-accent" />
@@ -35,16 +34,8 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps, onBack }: Co
             Select a Step to Configure
           </h3>
           <p className="text-blueprint-text/70 max-w-sm">
-            Choose a step from the steps list to configure its settings and content.
+            Choose a step from the sidebar to configure its settings and content.
           </p>
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="mt-4 px-4 py-2 blueprint-button rounded-lg text-sm"
-            >
-              Back to Steps
-            </button>
-          )}
         </div>
       </div>
     );
@@ -91,23 +82,8 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps, onBack }: Co
   };
 
   return (
-    <div className="flex-1 flex flex-col blueprint-component lg:rounded-tl-2xl lg:rounded-tr-none shadow-xl border lg:m-4 overflow-hidden backdrop-blur-sm">
-      {onBack && (
-        <div className="lg:hidden flex items-center gap-2 p-4 border-b border-blueprint-accent/30">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg text-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Back to Steps</span>
-          </button>
-        </div>
-      )}
-      <div className="flex-1 overflow-auto">
-        {renderForm()}
-      </div>
+    <div className="flex-1 blueprint-component rounded-t-2xl lg:rounded-tl-2xl lg:rounded-tr-none shadow-xl border m-2 lg:m-4 overflow-hidden backdrop-blur-sm">
+      {renderForm()}
     </div>
   );
 }

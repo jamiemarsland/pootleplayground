@@ -10,11 +10,9 @@ import { AlertModal } from './components/AlertModal';
 import { AiPromptSidebar } from './components/AiPromptSidebar';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
 import { Step, StepType } from './types/blueprint';
-import { generateBlueprint, deepCleanObject } from './utils/blueprintGenerator';
+import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
 import './App.css';
-
-type MobileView = 'steps' | 'add' | 'config';
 
 function Builder() {
   const navigate = useNavigate();
@@ -33,8 +31,6 @@ function Builder() {
     type: 'warning' | 'danger' | 'info' | 'success';
   }>({ isOpen: false, title: '', message: '', type: 'info' });
   const [showVersionAnnouncement, setShowVersionAnnouncement] = useState(false);
-  const [mobileView, setMobileView] = useState<MobileView>('steps');
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   useEffect(() => {
     const hasSeenAnnouncement = localStorage.getItem('hasSeenV16Announcement');
@@ -46,14 +42,10 @@ function Builder() {
     if (savedBlueprint) {
       try {
         const blueprintData = JSON.parse(savedBlueprint);
-        // Clean any control characters from loaded blueprint data
-        const cleanedData = deepCleanObject(blueprintData);
-        console.log('🧹 Cleaned blueprint data loaded from localStorage');
-
-        setBlueprintTitle(cleanedData.blueprintTitle || 'My WordPress Site');
-        setLandingPageType(cleanedData.landingPageType || 'wp-admin');
-        setCustomLandingUrl(cleanedData.customLandingUrl || '');
-        setSteps(cleanedData.steps || []);
+        setBlueprintTitle(blueprintData.blueprintTitle || 'My WordPress Site');
+        setLandingPageType(blueprintData.landingPageType || 'wp-admin');
+        setCustomLandingUrl(blueprintData.customLandingUrl || '');
+        setSteps(blueprintData.steps || []);
         setSelectedStep(null);
         localStorage.removeItem('loadBlueprint');
       } catch (error) {
@@ -77,8 +69,6 @@ function Builder() {
     };
     setSteps([...steps, newStep]);
     setSelectedStep(newStep);
-    setMobileView('config');
-    setShowMobileSidebar(false);
   };
 
   const updateStep = (stepId: string, data: any) => {
@@ -229,13 +219,8 @@ function Builder() {
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
 
-  const handleSelectStep = (step: Step) => {
-    setSelectedStep(step);
-    setMobileView('config');
-  };
-
   return (
-    <div className="min-h-screen bg-blueprint-paper blueprint-grid relative flex flex-col">
+    <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
       <Header
         blueprint={blueprint}
         title={blueprintTitle}
@@ -246,114 +231,27 @@ function Builder() {
         onSaveBlueprint={() => setShowSaveModal(true)}
         onReset={handleReset}
         onOpenAiSidebar={() => setShowAiSidebar(true)}
-        onToggleMobileSidebar={() => setShowMobileSidebar(!showMobileSidebar)}
-        showMobileSidebar={showMobileSidebar}
       />
-
-      <div className="flex-1 flex flex-col lg:flex-row relative z-10 overflow-hidden">
-        {/* Desktop Layout */}
-        <div className="hidden lg:flex lg:flex-row flex-1">
-          <Sidebar
-            onAddStep={addStep}
-            blueprintTitle={blueprintTitle}
-            onTitleChange={setBlueprintTitle}
-          />
-
-          <ConfigPanel
-            selectedStep={selectedStep}
-            onUpdateStep={updateStep}
-            allSteps={steps}
-          />
-
-          <StepsList
-            steps={steps}
-            selectedStep={selectedStep}
-            onSelectStep={setSelectedStep}
-            onRemoveStep={removeStep}
-          />
-        </div>
-
-        {/* Mobile Layout */}
-        <div className="flex lg:hidden flex-col flex-1 overflow-hidden">
-          {mobileView === 'steps' && (
-            <StepsList
-              steps={steps}
-              selectedStep={selectedStep}
-              onSelectStep={handleSelectStep}
-              onRemoveStep={removeStep}
-            />
-          )}
-
-          {mobileView === 'add' && (
-            <div className="flex-1 overflow-auto">
-              <Sidebar
-                onAddStep={addStep}
-                blueprintTitle={blueprintTitle}
-                onTitleChange={setBlueprintTitle}
-              />
-            </div>
-          )}
-
-          {mobileView === 'config' && (
-            <div className="flex-1 overflow-auto">
-              <ConfigPanel
-                selectedStep={selectedStep}
-                onUpdateStep={updateStep}
-                allSteps={steps}
-                onBack={() => setMobileView('steps')}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 blueprint-paper border-t border-blueprint-accent/30 backdrop-blur-lg z-50">
-        <div className="grid grid-cols-3 gap-1 p-2">
-          <button
-            onClick={() => setMobileView('steps')}
-            className={`flex flex-col items-center gap-1 py-3 px-2 rounded-lg transition-all ${
-              mobileView === 'steps'
-                ? 'blueprint-accent text-blueprint-paper'
-                : 'text-blueprint-text/70 hover:text-blueprint-accent'
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <span className="text-xs font-medium">Steps</span>
-          </button>
-
-          <button
-            onClick={() => setMobileView('add')}
-            className={`flex flex-col items-center gap-1 py-3 px-2 rounded-lg transition-all ${
-              mobileView === 'add'
-                ? 'blueprint-accent text-blueprint-paper'
-                : 'text-blueprint-text/70 hover:text-blueprint-accent'
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span className="text-xs font-medium">Add</span>
-          </button>
-
-          <button
-            onClick={() => setMobileView('config')}
-            disabled={!selectedStep}
-            className={`flex flex-col items-center gap-1 py-3 px-2 rounded-lg transition-all ${
-              mobileView === 'config'
-                ? 'blueprint-accent text-blueprint-paper'
-                : 'text-blueprint-text/70 hover:text-blueprint-accent disabled:opacity-30 disabled:cursor-not-allowed'
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="text-xs font-medium">Config</span>
-          </button>
-        </div>
+      
+      <div className="flex flex-col lg:flex-row relative z-10">
+        <Sidebar 
+          onAddStep={addStep}
+          blueprintTitle={blueprintTitle}
+          onTitleChange={setBlueprintTitle}
+        />
+        
+        <ConfigPanel 
+          selectedStep={selectedStep}
+          onUpdateStep={updateStep}
+          allSteps={steps}
+        />
+        
+        <StepsList
+          steps={steps}
+          selectedStep={selectedStep}
+          onSelectStep={setSelectedStep}
+          onRemoveStep={removeStep}
+        />
       </div>
       
       <input

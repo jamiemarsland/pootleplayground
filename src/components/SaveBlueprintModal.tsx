@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
 import { getUserId } from '../utils/userManager';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
-import { deepCleanObject } from '../utils/blueprintGenerator';
 
 interface SaveBlueprintModalProps {
   isOpen: boolean;
@@ -94,19 +93,15 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
         }
       }
 
-      // Clean any control characters from blueprint data before saving
-      const cleanedBlueprintData = deepCleanObject(blueprintData);
-      console.log('🧹 Cleaned blueprint data before saving to database');
-
       const { data: savedBlueprint, error: saveError } = await supabase
         .from('blueprints')
         .insert({
           title: title.trim(),
           description: description.trim(),
           screenshot_url: finalScreenshotUrl,
-          blueprint_data: cleanedBlueprintData,
-          landing_page_type: cleanedBlueprintData.landingPageType,
-          step_count: cleanedBlueprintData.steps.length,
+          blueprint_data: blueprintData,
+          landing_page_type: blueprintData.landingPageType,
+          step_count: blueprintData.steps.length,
           is_public: isPublic,
           user_id: userId,
         })

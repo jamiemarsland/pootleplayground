@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
-import { unicodeSafeBase64Encode, safeJsonStringify, validateBlueprintStep } from '../utils/blueprintGenerator';
 
 interface HeaderProps {
   blueprint: Blueprint;
@@ -13,8 +12,6 @@ interface HeaderProps {
   onSaveBlueprint: () => void;
   onReset: () => void;
   onOpenAiSidebar: () => void;
-  onToggleMobileSidebar?: () => void;
-  showMobileSidebar?: boolean;
 }
 
 export function Header({
@@ -26,102 +23,100 @@ export function Header({
   onShowGallery,
   onSaveBlueprint,
   onReset,
-  onOpenAiSidebar,
-  onToggleMobileSidebar,
-  showMobileSidebar
+  onOpenAiSidebar
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
-  const [showLaunchMenu, setShowLaunchMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowLaunchMenu(false);
-      }
-    };
+  const unicodeSafeBase64Encode = (str: string): string => {
+    // Convert string to UTF-8 bytes
+    const utf8Bytes = new TextEncoder().encode(str);
+    // Convert bytes to binary string
+    const binaryString = Array.from(utf8Bytes)
+      .map(byte => String.fromCharCode(byte))
+      .join('');
+    // Now safely use btoa
+    return btoa(binaryString);
+  };
 
-    if (showLaunchMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showLaunchMenu]);
-
-  const createPlaygroundUrl = (isStudio: boolean = false) => {
+  const createPlaygroundUrl = () => {
     try {
-      console.log('==========================================');
-      console.log('🚀 Creating URL for:', isStudio ? 'WordPress Studio' : 'WordPress Playground');
-      console.log('==========================================');
       console.log('Original blueprint steps:', blueprint.steps);
-
-      const validSteps = blueprint.steps.filter(validateBlueprintStep);
-
-      console.log('✓ Filtered to', validSteps.length, 'valid steps');
-
+      
+      const validSteps = blueprint.steps.filter(step => {
+        console.log('Validating step:', step);
+        switch (step.step) {
+          case 'installPlugin':
+            const pluginValid = step.pluginData && (step.pluginData.url || step.pluginData.slug);
+            console.log('Plugin step valid:', pluginValid, step);
+            return pluginValid;
+          case 'installTheme':
+            const themeValid = step.themeData && (step.themeData.url || step.themeData.slug);
+            console.log('Theme step valid:', themeValid, step);
+            return themeValid;
+          case 'wp-cli':
+            const cliValid = step.command && step.command.trim();
+            console.log('WP-CLI step valid:', cliValid, step);
+            return cliValid;
+          case 'addMedia':
+            const mediaValid = step.command && step.command.includes('wp media import');
+            console.log('Media step valid:', mediaValid, step);
+            return mediaValid;
+          case 'setSiteOptions': 
+            const optionsValid = step.options && Object.keys(step.options).length > 0;
+            console.log('Site options step valid:', optionsValid, step);
+            return optionsValid;
+          case 'defineWpConfigConst':
+            const constsValid = step.consts && Object.keys(step.consts).length > 0;
+            console.log('WP Config step valid:', constsValid, step);
+            return constsValid;
+          case 'importWxr':
+            const wxrValid = step.file && step.file.url;
+            console.log('WXR step valid:', wxrValid, step);
+            return wxrValid;
+          case 'login':
+            const loginValid = step.username;
+            console.log('Login step valid:', loginValid, step);
+            return loginValid;
+          case 'addClientRole':
+            const roleValid = step.name && step.capabilities && step.capabilities.length > 0;
+            console.log('Client role step valid:', roleValid, step);
+            return roleValid;
+          default:
+            console.log('Default step valid:', true, step);
+            return true;
+        }
+      });
+      
+      console.log('Valid steps after filtering:', validSteps);
+      
       const playgroundBlueprint = {
         landingPage: blueprint.landingPage,
         preferredVersions: {
-          wp: "latest",
-          php: "8.2"
+          php: "8.2",
+          wp: "latest"
         },
-        phpExtensionBundles: ['kitchen-sink'],
+        phpExtensionBundles: ["kitchen-sink"],
         steps: validSteps
       };
-
-      console.log('📦 Stringifying blueprint with safeJsonStringify...');
-      const blueprintJson = safeJsonStringify(playgroundBlueprint);
-      console.log('✓ JSON string created, length:', blueprintJson.length);
-
-      // Check for control characters in the JSON
-      const controlCharMatch = blueprintJson.match(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/);
-      if (controlCharMatch) {
-        const position = blueprintJson.indexOf(controlCharMatch[0]);
-        console.error('❌ Control character found at position', position, 'char code:', controlCharMatch[0].charCodeAt(0));
-        throw new Error(`Control character found at position ${position}`);
-      }
-      console.log('✓ No invalid control characters detected');
-
-      // Verify JSON is valid before encoding
-      try {
-        JSON.parse(blueprintJson);
-        console.log('✓ JSON is valid and parseable');
-      } catch (e) {
-        console.error('❌ Invalid JSON generated:', e.message);
-        throw new Error('Invalid JSON generated: ' + e.message);
-      }
-
+      
+      console.log('Final playground blueprint:', playgroundBlueprint);
+      
+      const blueprintJson = JSON.stringify(playgroundBlueprint);
+      console.log('Blueprint JSON:', blueprintJson);
       const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
-      console.log('✓ Base64 encoded, length:', encodedBlueprint.length);
-
-      let finalUrl: string;
-      if (isStudio) {
-        // WordPress Studio uses wp.com/open deep link format
-        const deepLinkValue = `add-site?blueprint=${encodedBlueprint}`;
-        finalUrl = `https://wp.com/open?deep_link=${encodeURIComponent(deepLinkValue)}`;
-      } else {
-        // WordPress Playground uses hash fragment format
-        finalUrl = `https://playground.wordpress.net/#${encodeURIComponent(encodedBlueprint)}`;
-      }
-
-      console.log('✓ Final URL created for', isStudio ? '🎨 WordPress Studio' : '🎪 WordPress Playground');
-      console.log('==========================================\n');
-
-      return finalUrl;
+      console.log('Encoded blueprint length:', encodedBlueprint.length);
+      
+      return `https://playground.wordpress.net/#${encodedBlueprint}`;
     } catch (error) {
-      console.error('❌ Error creating playground URL:', error);
+      console.error('Error creating playground URL:', error);
       alert('Error creating playground URL: ' + error.message);
-      const baseUrl = isStudio ? 'https://developer.wordpress.com/studio/' : 'https://playground.wordpress.net/';
-      return baseUrl;
+      return 'https://playground.wordpress.net/';
     }
   };
 
-  const handleLaunch = (isStudio: boolean = false) => {
+  const handleLaunch = () => {
     setIsLaunching(true);
-    setShowLaunchMenu(false);
-    const url = createPlaygroundUrl(isStudio);
+    const url = createPlaygroundUrl();
     window.open(url, '_blank');
     setTimeout(() => setIsLaunching(false), 2000);
   };
@@ -141,19 +136,19 @@ export function Header({
 
   return (
     <header className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
-      <div className="px-3 lg:px-6 py-3 lg:py-4">
+      <div className="px-4 lg:px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 lg:gap-4 flex-1 min-w-0">
-            <div className="flex items-center gap-2 lg:gap-3 min-w-0">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50 flex-shrink-0">
-                <Zap className="w-4 h-4 lg:w-5 lg:h-5 text-blueprint-paper" />
+          <div className="flex items-center gap-2 lg:gap-4">
+            <div className="flex items-center gap-2 lg:gap-3">
+              <div className="w-10 h-10 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50">
+                <Zap className="w-5 h-5 text-blueprint-paper" />
               </div>
-              <div className="min-w-0">
-                <h1 className="text-sm lg:text-xl font-bold text-blueprint-text truncate">Pootle Playground</h1>
-                <p className="text-xs text-blueprint-text/70 hidden sm:block">Blueprint Generator v1.6</p>
+              <div>
+                <h1 className="text-lg lg:text-xl font-bold text-blueprint-text">Pootle Playground</h1>
+                <p className="text-xs lg:text-sm text-blueprint-text/70">Blueprint Generator v1.6</p>
               </div>
             </div>
-
+            
             <div className="hidden xl:flex items-center gap-4 ml-8">
               <div className="flex items-center gap-2 px-3 py-1 blueprint-component rounded-full border">
                 <FileText className="w-4 h-4 text-blueprint-accent" />
@@ -165,8 +160,7 @@ export function Header({
             </div>
           </div>
           
-          <div className="flex items-center gap-1 lg:gap-2">
-            {/* Desktop Buttons */}
+          <div className="flex items-center gap-3">
             <button
               onClick={onReset}
               disabled={stepCount === 0}
@@ -220,63 +214,74 @@ export function Header({
               <Sparkles className="w-4 h-4" />
             </button>
 
-            {/* Mobile Buttons - Only essential ones */}
+            <button
+              onClick={onReset}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500/10 hover:text-red-600"
+              title="Reset blueprint"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onSaveBlueprint}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Save to Community"
+            >
+              <Save className="w-4 h-4" />
+            </button>
+
             <button
               onClick={onShowGallery}
-              className="lg:hidden flex items-center gap-2 px-2 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Gallery"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Browse gallery"
             >
               <Grid3x3 className="w-4 h-4" />
             </button>
 
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => handleLaunch(false)}
-                disabled={stepCount === 0 || isLaunching}
-                className="flex items-center gap-1 lg:gap-2 px-3 lg:px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm"
-              >
-                {isLaunching ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
-                    <span className="hidden sm:inline">Launching...</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4" />
-                    <span>Launch</span>
-                  </>
-                )}
-              </button>
+            <button
+              onClick={onImportBlueprint}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+              title="Import blueprint"
+            >
+              <Download className="w-4 h-4" />
+            </button>
 
-              {!isLaunching && stepCount > 0 && (
-                <button
-                  onClick={() => setShowLaunchMenu(!showLaunchMenu)}
-                  disabled={stepCount === 0}
-                  className="absolute -bottom-8 left-0 right-0 text-xs text-blueprint-accent hover:underline disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                >
-                  Launch in Studio
-                </button>
-              )}
+            <button
+              onClick={onExportBlueprint}
+              disabled={stepCount === 0}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Export blueprint"
+            >
+              <Upload className="w-4 h-4" />
+            </button>
 
-              {showLaunchMenu && (
-                <div className="absolute top-full mt-2 right-0 bg-white border border-blueprint-accent/30 rounded-lg shadow-lg overflow-hidden z-50 min-w-[200px]">
-                  <button
-                    onClick={() => handleLaunch(false)}
-                    className="w-full text-left px-4 py-3 hover:bg-blueprint-accent/10 transition-colors border-b border-blueprint-accent/10"
-                  >
-                    <div className="font-medium text-sm">WordPress Playground</div>
-                    <div className="text-xs text-blueprint-text/60 mt-0.5">Standard environment</div>
-                  </button>
-                  <button
-                    onClick={() => handleLaunch(true)}
-                    className="w-full text-left px-4 py-3 hover:bg-blueprint-accent/10 transition-colors"
-                  >
-                    <div className="font-medium text-sm">WordPress Studio</div>
-                    <div className="text-xs text-blueprint-text/60 mt-0.5">Enhanced features</div>
-                  </button>
-                </div>
+            <button
+              onClick={onOpenAiSidebar}
+              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all text-sm"
+              title="AI Generate"
+            >
+              <Sparkles className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={handleLaunch}
+              disabled={stepCount === 0 || isLaunching}
+              className="flex items-center gap-2 px-4 lg:px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm lg:text-base"
+            >
+              {isLaunching ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
+                  <span>Launching...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  <span>Launch</span>
+                </>
               )}
-            </div>
+            </button>
           </div>
         </div>
       </div>

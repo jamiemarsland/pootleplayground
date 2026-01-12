@@ -67,9 +67,9 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: S
   return (
     <div className="w-full lg:w-80 blueprint-paper border-l lg:border-l border-t lg:border-t-0 border-blueprint-accent/30 flex flex-col min-h-auto lg:min-h-[calc(100vh-73px)] backdrop-blur-sm order-last lg:order-none">
       {/* Header */}
-      <div className="p-4 border-b border-blueprint-accent/30 blueprint-component/20">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base lg:text-lg font-bold text-blueprint-text flex items-center gap-2">
+      <div className="p-4 lg:p-4 border-b border-blueprint-accent/30 blueprint-component/20">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold text-blueprint-text flex items-center gap-2">
             Blueprint Steps
             {steps.length > 0 && (
               <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-blueprint-paper blueprint-accent rounded-full">
@@ -82,43 +82,43 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: S
           Your WordPress setup sequence
         </p>
       </div>
-
+      
       {/* Steps List */}
-      <div className="flex-1 overflow-y-auto p-4 pb-20 lg:pb-4">
+      <div className="flex-1 overflow-y-auto p-4 max-h-64 lg:max-h-none">
         {steps.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 lg:w-20 lg:h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg border">
-              <Settings className="w-7 h-7 lg:w-8 lg:h-8 text-blueprint-accent" />
+            <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg border">
+              <Settings className="w-8 h-8 text-blueprint-accent" />
             </div>
-            <h3 className="text-base lg:text-lg font-semibold text-blueprint-text mb-2">No Steps Yet</h3>
-            <p className="text-sm text-blueprint-text/70 mb-4 px-4">Tap "Add" below to add steps and build your blueprint</p>
+            <h3 className="text-lg font-semibold text-blueprint-text mb-2">No Steps Yet</h3>
+            <p className="text-sm text-blueprint-text/70 mb-4">Add steps from the left sidebar to build your blueprint</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {steps.map((step, index) => {
               const Icon = STEP_ICONS[step.type];
               const color = getStepColor(step.type);
               const isSelected = selectedStep?.id === step.id;
-
+              
               return (
                 <div
                   key={step.id}
-                  className={`relative group border-l-4 border rounded-lg p-4 cursor-pointer blueprint-transition shadow-sm touch-manipulation ${
-                    isSelected
-                      ? 'border-l-blueprint-accent border-blueprint-accent/50 blueprint-component shadow-lg scale-[1.02]'
-                      : 'border-l-blueprint-grid border-blueprint-grid/50 hover:border-l-blueprint-accent/70 hover:border-blueprint-accent/30 hover:shadow-md hover:scale-[1.01] blueprint-component/50 active:scale-[0.98]'
+                  className={`relative group border-l-4 border rounded-lg p-4 cursor-pointer blueprint-transition shadow-sm ${
+                    isSelected 
+                      ? 'border-l-blueprint-accent border-blueprint-accent/50 blueprint-component shadow-lg scale-[1.02]' 
+                      : 'border-l-blueprint-grid border-blueprint-grid/50 hover:border-l-blueprint-accent/70 hover:border-blueprint-accent/30 hover:shadow-md hover:scale-[1.01] blueprint-component/50'
                   }`}
                   onClick={() => onSelectStep(step)}
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full blueprint-component border border-blueprint-accent/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-blueprint-accent">
+                    <div className="w-8 h-8 rounded-full blueprint-component border border-blueprint-accent/30 flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs font-bold text-blueprint-accent">
                         {index + 1}
                       </span>
                     </div>
-                    <Icon size={20} className="text-blueprint-accent flex-shrink-0" />
+                    <Icon size={18} className="text-blueprint-accent flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm lg:text-base font-semibold text-blueprint-text">
+                      <div className="text-sm font-semibold text-blueprint-text">
                         {STEP_LABELS[step.type]}
                       </div>
                       {(step.data.postTitle || step.data.option) && (
@@ -132,10 +132,9 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: S
                         e.stopPropagation();
                         onRemoveStep(step.id);
                       }}
-                      className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-blueprint-text/50 hover:text-red-400 transition-all p-2 rounded-lg hover:bg-red-900/30 flex-shrink-0 touch-manipulation"
-                      title="Delete step"
+                      className="opacity-0 group-hover:opacity-100 text-blueprint-text/50 hover:text-red-400 transition-all p-1.5 rounded-lg hover:bg-red-900/30 flex-shrink-0"
                     >
-                      <X size={16} />
+                      <X size={14} />
                     </button>
                   </div>
                 </div>
