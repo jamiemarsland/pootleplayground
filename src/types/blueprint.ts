@@ -26,7 +26,7 @@ export interface Blueprint {
     php: string;
     wp: string;
   };
-  features: {
+  features?: {
     networking?: boolean;
     multisite?: boolean;
   };

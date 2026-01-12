@@ -90,7 +90,6 @@ export function Header({
           php: "8.2",
           wp: "latest"
         },
-        phpExtensionBundles: ["kitchen-sink"],
         steps: validSteps
       };
 

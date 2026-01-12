@@ -323,7 +323,6 @@ export function generateBlueprint(allSteps: Step[], title: string, landingPageTy
       php: '8.2',
       wp: 'latest'
     },
-    phpExtensionBundles: ["kitchen-sink"],
     steps: []
   };
   
