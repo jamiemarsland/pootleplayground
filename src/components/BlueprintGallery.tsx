@@ -771,7 +771,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     const nativeBlueprint = generateBlueprint(
       cleanedData.steps,
       cleanedData.blueprintTitle,
-      cleanedData.landingPageType as 'wp-admin' | 'front-page'
+      cleanedData.landingPageType as 'wp-admin' | 'front-page' | 'custom',
+      cleanedData.customLandingUrl
     );
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);
@@ -790,7 +791,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     const nativeBlueprint = generateBlueprint(
       cleanedData.steps,
       cleanedData.blueprintTitle,
-      cleanedData.landingPageType as 'wp-admin' | 'front-page'
+      cleanedData.landingPageType as 'wp-admin' | 'front-page' | 'custom',
+      cleanedData.customLandingUrl
     );
 
     const blueprintJson = safeJsonStringify(nativeBlueprint);
