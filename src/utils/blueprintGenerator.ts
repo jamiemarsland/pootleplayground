@@ -320,8 +320,8 @@ export function generateBlueprint(allSteps: Step[], title: string, landingPageTy
   const blueprint: Blueprint = {
     landingPage: landingPageUrl,
     preferredVersions: {
-      php: '8.2',
-      wp: 'latest'
+      wp: 'latest',
+      php: '8.2'
     },
     phpExtensionBundles: ['kitchen-sink'],
     steps: []

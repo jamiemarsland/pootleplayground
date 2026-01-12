@@ -23,8 +23,8 @@ export type StepType =
 export interface Blueprint {
   landingPage: string;
   preferredVersions: {
-    php: string;
     wp: string;
+    php: string;
   };
   phpExtensionBundles?: string[];
   features?: {
