@@ -26,6 +26,7 @@ export interface Blueprint {
     php: string;
     wp: string;
   };
+  phpExtensionBundles?: string[];
   features?: {
     networking?: boolean;
     multisite?: boolean;
