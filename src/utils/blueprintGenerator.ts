@@ -569,7 +569,7 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
     case 'defineWpConfigConst':
       if (!data.consts || Object.keys(data.consts).length === 0) return null;
       return {
-        step: 'defineWpConfigConst',
+        step: 'defineWpConfigConsts',
         consts: data.consts
       };
 
@@ -589,10 +589,11 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
 
     case 'addClientRole':
       if (!data.name || !data.capabilities?.length) return null;
+      const cleanRoleName = cleanString(data.name);
+      const capsString = data.capabilities.join(',');
       return {
-        step: 'addClientRole',
-        name: data.name,
-        capabilities: data.capabilities
+        step: 'wp-cli',
+        command: `wp role create ${cleanRoleName} "${cleanRoleName}" --grant=${capsString}`
       };
 
     case 'setLandingPage':
