@@ -788,9 +788,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       steps: validSteps
     };
 
+    console.log('🎯 Generated Playground Blueprint:', JSON.stringify(playgroundBlueprint, null, 2));
+
     const blueprintJson = safeJsonStringify(playgroundBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
     const playgroundUrl = `https://playground.wordpress.net/#${encodeURIComponent(encoded)}`;
+
+    console.log('🔗 Playground URL length:', playgroundUrl.length);
 
     window.open(playgroundUrl, '_blank');
   };
@@ -821,12 +825,16 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       steps: validSteps
     };
 
+    console.log('🎯 Generated Studio Blueprint:', JSON.stringify(playgroundBlueprint, null, 2));
+
     const blueprintJson = safeJsonStringify(playgroundBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
 
     // Build the deep_link value first, then encode it once
     const deepLinkValue = `add-site?blueprint=${encoded}`;
     const studioUrl = `https://wp.com/open?deep_link=${encodeURIComponent(deepLinkValue)}`;
+
+    console.log('🔗 Studio URL length:', studioUrl.length);
 
     window.open(studioUrl, '_blank');
   };
