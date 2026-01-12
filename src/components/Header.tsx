@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
-import { unicodeSafeBase64Encode, safeJsonStringify } from '../utils/blueprintGenerator';
+import { unicodeSafeBase64Encode, safeJsonStringify, validateBlueprintStep } from '../utils/blueprintGenerator';
 
 interface HeaderProps {
   blueprint: Blueprint;
@@ -57,30 +57,7 @@ export function Header({
       console.log('==========================================');
       console.log('Original blueprint steps:', blueprint.steps);
 
-      const validSteps = blueprint.steps.filter(step => {
-        switch (step.step) {
-          case 'installPlugin':
-            return step.pluginData && (step.pluginData.url || step.pluginData.slug);
-          case 'installTheme':
-            return step.themeData && (step.themeData.url || step.themeData.slug);
-          case 'wp-cli':
-            return step.command && step.command.trim();
-          case 'addMedia':
-            return step.command && step.command.includes('wp media import');
-          case 'setSiteOptions':
-            return step.options && Object.keys(step.options).length > 0;
-          case 'defineWpConfigConst':
-            return step.consts && Object.keys(step.consts).length > 0;
-          case 'importWxr':
-            return step.file && step.file.url;
-          case 'login':
-            return step.username;
-          case 'addClientRole':
-            return step.name && step.capabilities && step.capabilities.length > 0;
-          default:
-            return true;
-        }
-      });
+      const validSteps = blueprint.steps.filter(validateBlueprintStep);
 
       console.log('✓ Filtered to', validSteps.length, 'valid steps');
 

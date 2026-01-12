@@ -304,6 +304,31 @@ function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | Blue
   
   return steps.length > 0 ? steps : null;
 }
+export function validateBlueprintStep(step: BlueprintStep): boolean {
+  switch (step.step) {
+    case 'installPlugin':
+      return step.pluginData && (step.pluginData.url || step.pluginData.slug);
+    case 'installTheme':
+      return step.themeData && (step.themeData.url || step.themeData.slug);
+    case 'wp-cli':
+      return step.command && step.command.trim();
+    case 'addMedia':
+      return step.command && step.command.includes('wp media import');
+    case 'setSiteOptions':
+      return step.options && Object.keys(step.options).length > 0;
+    case 'defineWpConfigConst':
+      return step.consts && Object.keys(step.consts).length > 0;
+    case 'importWxr':
+      return step.file && step.file.url;
+    case 'login':
+      return step.username;
+    case 'addClientRole':
+      return step.name && step.capabilities && step.capabilities.length > 0;
+    default:
+      return true;
+  }
+}
+
 export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' | 'custom' = 'wp-admin', customUrl?: string): Blueprint {
   // Check if there's a setLandingPage step to override the default
   const landingPageStep = allSteps.find(step => step.type === 'setLandingPage');

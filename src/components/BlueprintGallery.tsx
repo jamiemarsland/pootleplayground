@@ -5,7 +5,7 @@ import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '..
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
 import { getUserId } from '../utils/userManager';
-import { generateBlueprint, unicodeSafeBase64Encode, safeJsonStringify, deepCleanObject } from '../utils/blueprintGenerator';
+import { generateBlueprint, unicodeSafeBase64Encode, safeJsonStringify, deepCleanObject, validateBlueprintStep } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
 interface BlueprintTemplate {
@@ -775,7 +775,20 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       cleanedData.customLandingUrl
     );
 
-    const blueprintJson = safeJsonStringify(nativeBlueprint);
+    // Validate steps before launching
+    const validSteps = nativeBlueprint.steps.filter(validateBlueprintStep);
+
+    const playgroundBlueprint = {
+      landingPage: nativeBlueprint.landingPage,
+      preferredVersions: {
+        wp: "latest",
+        php: "8.2"
+      },
+      phpExtensionBundles: ['kitchen-sink'],
+      steps: validSteps
+    };
+
+    const blueprintJson = safeJsonStringify(playgroundBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
     const playgroundUrl = `https://playground.wordpress.net/#${encodeURIComponent(encoded)}`;
 
@@ -795,7 +808,20 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       cleanedData.customLandingUrl
     );
 
-    const blueprintJson = safeJsonStringify(nativeBlueprint);
+    // Validate steps before launching
+    const validSteps = nativeBlueprint.steps.filter(validateBlueprintStep);
+
+    const playgroundBlueprint = {
+      landingPage: nativeBlueprint.landingPage,
+      preferredVersions: {
+        wp: "latest",
+        php: "8.2"
+      },
+      phpExtensionBundles: ['kitchen-sink'],
+      steps: validSteps
+    };
+
+    const blueprintJson = safeJsonStringify(playgroundBlueprint);
     const encoded = unicodeSafeBase64Encode(blueprintJson);
 
     // Build the deep_link value first, then encode it once
