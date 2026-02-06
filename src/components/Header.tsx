@@ -12,6 +12,7 @@ interface HeaderProps {
   onSaveBlueprint: () => void;
   onReset: () => void;
   onOpenAiSidebar: () => void;
+  onShowAiGenerator?: () => void;
 }
 
 export function Header({
@@ -23,7 +24,8 @@ export function Header({
   onShowGallery,
   onSaveBlueprint,
   onReset,
-  onOpenAiSidebar
+  onOpenAiSidebar,
+  onShowAiGenerator
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -207,7 +209,7 @@ export function Header({
             </button>
 
             <button
-              onClick={onOpenAiSidebar}
+              onClick={onShowAiGenerator || onOpenAiSidebar}
               className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
               title="Generate blueprint with AI"
             >
@@ -258,7 +260,7 @@ export function Header({
             </button>
 
             <button
-              onClick={onOpenAiSidebar}
+              onClick={onShowAiGenerator || onOpenAiSidebar}
               className="lg:hidden flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all text-sm"
               title="AI Generate"
             >

@@ -8,6 +8,7 @@ import { BlueprintGallery } from './components/BlueprintGallery';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { AlertModal } from './components/AlertModal';
 import { AiPromptSidebar } from './components/AiPromptSidebar';
+import { AiGeneratorPage } from './components/AiGeneratorPage';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
@@ -231,6 +232,7 @@ function Builder() {
         onSaveBlueprint={() => setShowSaveModal(true)}
         onReset={handleReset}
         onOpenAiSidebar={() => setShowAiSidebar(true)}
+        onShowAiGenerator={() => navigate('/ai-generator')}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">
@@ -387,6 +389,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Builder />} />
       <Route path="/gallery" element={<GalleryPage />} />
+      <Route path="/ai-generator" element={<AiGeneratorPage />} />
     </Routes>
   );
 }
