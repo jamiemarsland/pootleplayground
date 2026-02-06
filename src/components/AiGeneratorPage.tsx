@@ -16,6 +16,36 @@ export function AiGeneratorPage() {
     "Build a restaurant website with menu, gallery, and reservation info"
   ];
 
+  const unicodeSafeBase64Encode = (str: string): string => {
+    const utf8Bytes = new TextEncoder().encode(str);
+    const binaryString = Array.from(utf8Bytes)
+      .map(byte => String.fromCharCode(byte))
+      .join('');
+    return btoa(binaryString);
+  };
+
+  const createPlaygroundUrl = (blueprintData: any) => {
+    try {
+      const playgroundBlueprint = {
+        landingPage: blueprintData.landingPage || '/wp-admin/',
+        preferredVersions: {
+          php: "8.2",
+          wp: "latest"
+        },
+        phpExtensionBundles: ["kitchen-sink"],
+        steps: blueprintData.steps
+      };
+
+      const blueprintJson = JSON.stringify(playgroundBlueprint);
+      const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
+
+      return `https://playground.wordpress.net/#${encodedBlueprint}`;
+    } catch (error) {
+      console.error('Error creating playground URL:', error);
+      throw new Error('Failed to create playground URL');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!prompt.trim()) {
       setError('Please enter a prompt');
@@ -52,12 +82,14 @@ export function AiGeneratorPage() {
         throw new Error('AI generated an empty blueprint. Please try a more detailed prompt.');
       }
 
-      localStorage.setItem('loadBlueprint', JSON.stringify(blueprintData));
-      navigate('/');
+      const playgroundUrl = createPlaygroundUrl(blueprintData);
+      window.open(playgroundUrl, '_blank');
+
+      setPrompt('');
+      setIsLoading(false);
     } catch (err: any) {
       console.error('Error generating blueprint:', err);
       setError(err.message || 'Failed to generate blueprint. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
