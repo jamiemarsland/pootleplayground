@@ -1,123 +1,151 @@
 # Blueprint Generator MCP Server
 
-A Model Context Protocol (MCP) server that enables Claude to generate and manage WordPress site blueprints. This integration allows you to have natural conversations with Claude to create custom WordPress sites, browse community blueprints, and get instant WordPress Playground URLs.
+Connect Claude Desktop to your WordPress Blueprint Generator! This lets you chat with Claude to create custom WordPress sites, browse community blueprints, and get instant WordPress Playground URLs.
 
-## Features
+## What You'll Get
 
-- **AI-Powered Site Generation**: Describe a WordPress site in natural language and get a fully configured blueprint
-- **Community Gallery Access**: Browse, search, and load blueprints shared by the community
-- **Instant WordPress Playground URLs**: Every blueprint comes with a ready-to-use Playground link
+- **AI-Powered Site Generation**: Describe a WordPress site and get a fully configured blueprint
+- **Community Gallery Access**: Browse, search, and load blueprints shared by others
+- **Instant WordPress Playground URLs**: Every blueprint comes with a ready-to-use link
 - **Detailed Blueprint Information**: Get comprehensive details about what each blueprint creates
 
-## Prerequisites
+## What You Need Before Installing
 
-- Node.js 18 or higher
-- npm or yarn
-- Claude Desktop app
-- Access to the Blueprint Generator Supabase project
+- **Node.js** version 18 or higher ([Download here](https://nodejs.org/))
+- **Claude Desktop** app ([Download here](https://claude.ai/download))
 
-## Installation
+Not sure if you have Node.js? Open Terminal (Mac/Linux) or Command Prompt (Windows) and type: `node --version`
 
-### 1. Install Dependencies
+**Note:** No Supabase account needed! This MCP server connects to the Blueprint Generator's shared community database. All credentials are pre-configured.
 
-Navigate to the `mcp-server` directory and install the required packages:
+---
+
+## 🚀 Quick Installation (Recommended)
+
+We've created automatic installers that do all the work for you!
+
+### For Mac & Linux Users
+
+1. Open Terminal
+2. Navigate to the mcp-server folder:
+   ```bash
+   cd /path/to/mcp-server
+   ```
+3. Run the installer:
+   ```bash
+   ./install.sh
+   ```
+4. Wait for the installation to complete (no manual input needed - everything is pre-configured!)
+5. Restart Claude Desktop completely
+6. Look for the 🔌 icon in Claude to verify the connection
+
+### For Windows Users
+
+1. Open PowerShell (right-click Start menu → Windows PowerShell)
+2. Navigate to the mcp-server folder:
+   ```powershell
+   cd C:\path\to\mcp-server
+   ```
+3. Run the installer:
+   ```powershell
+   .\install.ps1
+   ```
+4. Wait for the installation to complete (no manual input needed - everything is pre-configured!)
+5. Restart Claude Desktop completely
+6. Look for the 🔌 icon in Claude to verify the connection
+
+---
+
+## 📋 Manual Installation (Alternative Method)
+
+If the automatic installer doesn't work for you, follow these detailed steps:
+
+### Step 1: Install Required Packages
+
+Open Terminal/Command Prompt, navigate to the mcp-server folder, and run:
 
 ```bash
-cd mcp-server
 npm install
 ```
 
-### 2. Configure Environment Variables
+Wait for all packages to download (this may take a minute or two).
 
-Copy the `.env.example` file to `.env`:
+### Step 2: Build the Server
 
-```bash
-cp .env.example .env
-```
-
-Edit the `.env` file and add your Supabase credentials:
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
-```
-
-You can find these credentials in your Supabase project dashboard under **Project Settings > API**.
-
-### 3. Build the Server
-
-Compile the TypeScript code:
+Still in the same window, run:
 
 ```bash
 npm run build
 ```
 
-### 4. Configure Claude Desktop
+This creates the files needed for Claude to connect.
 
-Add the MCP server to your Claude Desktop configuration file:
+### Step 3: Find Your Configuration File
 
-#### macOS
+You need to edit a configuration file. The location depends on your operating system:
 
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+- **Mac**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
+**Tip for Mac users:** In Finder, press `Cmd + Shift + G` and paste the path above.
+
+**Tip for Windows users:** Press `Win + R`, type `%APPDATA%\Claude`, and press Enter.
+
+### Step 4: Edit the Configuration File
+
+Open the configuration file in a text editor and add this configuration:
+
+**Important:** Replace `/absolute/path/to/mcp-server` with the actual full path to your mcp-server folder. The Supabase credentials are pre-configured for the shared community database.
+
+**Example for Mac/Linux:**
 ```json
 {
   "mcpServers": {
     "blueprint-generator": {
       "command": "node",
-      "args": ["/absolute/path/to/mcp-server/dist/index.js"],
+      "args": ["/Users/yourname/projects/mcp-server/dist/index.js"],
       "env": {
-        "VITE_SUPABASE_URL": "https://your-project.supabase.co",
-        "VITE_SUPABASE_ANON_KEY": "your-anon-key-here"
+        "VITE_SUPABASE_URL": "https://qnhseyvcanynadeewdxk.supabase.co",
+        "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuaHNleXZjYW55bmFkZWV3ZHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTk0ODMsImV4cCI6MjA3NTM5NTQ4M30.dUoFBKVFUHR_RZHH3GWw1O2T_yI5RB5yNZMBi8x4HCc"
       }
     }
   }
 }
 ```
 
-#### Windows
-
-Edit `%APPDATA%\Claude\claude_desktop_config.json`:
-
+**Example for Windows:**
 ```json
 {
   "mcpServers": {
     "blueprint-generator": {
       "command": "node",
-      "args": ["C:\\absolute\\path\\to\\mcp-server\\dist\\index.js"],
+      "args": ["C:\\Users\\yourname\\projects\\mcp-server\\dist\\index.js"],
       "env": {
-        "VITE_SUPABASE_URL": "https://your-project.supabase.co",
-        "VITE_SUPABASE_ANON_KEY": "your-anon-key-here"
+        "VITE_SUPABASE_URL": "https://qnhseyvcanynadeewdxk.supabase.co",
+        "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuaHNleXZjYW55bmFkZWV3ZHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTk0ODMsImV4cCI6MjA3NTM5NTQ4M30.dUoFBKVFUHR_RZHH3GWw1O2T_yI5RB5yNZMBi8x4HCc"
       }
     }
   }
 }
 ```
 
-#### Linux
+**How to find the full path:**
+- **Mac/Linux**: In Terminal, type `pwd` while in the mcp-server folder
+- **Windows**: In the folder's address bar, copy the full path
 
-Edit `~/.config/Claude/claude_desktop_config.json`:
+### Step 5: Restart Claude Desktop
 
-```json
-{
-  "mcpServers": {
-    "blueprint-generator": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcp-server/dist/index.js"],
-      "env": {
-        "VITE_SUPABASE_URL": "https://your-project.supabase.co",
-        "VITE_SUPABASE_ANON_KEY": "your-anon-key-here"
-      }
-    }
-  }
-}
-```
+**Important:** You must completely quit Claude Desktop:
+- **Mac**: Right-click Claude in the Dock → Quit
+- **Windows**: Right-click Claude in the system tray → Quit
+- **Linux**: Close all windows and quit from the menu
 
-**Important**: Replace `/absolute/path/to/mcp-server` with the actual absolute path to your `mcp-server` directory.
+Then open Claude Desktop again.
 
-### 5. Restart Claude Desktop
+### Step 6: Verify the Connection
 
-After saving the configuration file, restart Claude Desktop completely (quit and reopen) for the changes to take effect.
+Open a new conversation in Claude and look for a small 🔌 (plug) icon near the text input. This means the MCP server is connected!
 
 ## Available Tools
 
@@ -265,81 +293,172 @@ mcp-server/
 
 ## Troubleshooting
 
-### Claude Desktop doesn't show the MCP server
+### I don't see the 🔌 icon in Claude
 
-1. Make sure the `claude_desktop_config.json` file is in the correct location
-2. Verify the absolute path to `dist/index.js` is correct
-3. Check that the environment variables are properly set
-4. Restart Claude Desktop completely (quit and reopen)
-5. Check Claude Desktop's developer console for error messages
+**This means the MCP server isn't connected. Try these steps:**
+
+1. **Completely restart Claude Desktop**
+   - Don't just close the window - you must quit the app completely
+   - Mac: Right-click Claude in Dock → Quit
+   - Windows: Right-click Claude in system tray → Quit
+   - Then reopen Claude Desktop
+
+2. **Check the configuration file location**
+   - Make sure you edited the correct file:
+     - Mac: `~/Library/Application Support/Claude/claude_desktop_config.json`
+     - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+     - Linux: `~/.config/Claude/claude_desktop_config.json`
+
+3. **Verify the path is correct**
+   - The path in your config file must point to the actual location of `dist/index.js`
+   - Use the full path (e.g., `/Users/yourname/projects/mcp-server/dist/index.js`)
+   - Windows users: Use backslashes `\\` in paths
+
+4. **Verify the Supabase credentials in your config**
+   - Make sure the URL is: `https://qnhseyvcanynadeewdxk.supabase.co`
+   - The anon key should start with: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+   - These credentials are the same for all users
+
+5. **Make sure Node.js is installed**
+   - Open Terminal/Command Prompt and type: `node --version`
+   - You should see a version number like `v18.0.0` or higher
+   - If not, [download Node.js](https://nodejs.org/)
+
+6. **Try restarting your computer**
+   - Sometimes a full restart is needed for configuration changes to take effect
 
 ### "Missing Supabase credentials" error
 
-1. Verify your `.env` file has the correct credentials
-2. Make sure the environment variables in `claude_desktop_config.json` match your `.env` file
-3. Check that `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are both set
+This means Claude can't find the Supabase information in your configuration.
 
-### "Failed to generate blueprint" error
+**Solution:**
+- Double-check that both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are in your config file
+- Make sure there are no typos in the variable names
+- Verify you're using the correct shared credentials:
+  - URL: `https://qnhseyvcanynadeewdxk.supabase.co`
+  - Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuaHNleXZjYW55bmFkZWV3ZHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTk0ODMsImV4cCI6MjA3NTM5NTQ4M30.dUoFBKVFUHR_RZHH3GWw1O2T_yI5RB5yNZMBi8x4HCc`
 
-1. Check your internet connection
-2. Verify the Supabase Edge Function is deployed and running
-3. Check the Supabase project dashboard for any service issues
-4. Ensure your Supabase anonymous key has the correct permissions
+### Claude says it can't generate a blueprint
 
-### MCP server not responding
+**Possible causes and solutions:**
 
-1. Make sure you ran `npm run build` after making changes
-2. Check the Claude Desktop logs for error messages
-3. Try running the server manually: `node dist/index.js`
-4. Verify Node.js version is 18 or higher
+1. **Check your internet connection**
+   - The server needs internet to connect to Supabase
 
-### Blueprint URLs not working
+2. **Verify you have an internet connection**
+   - The MCP server needs internet to connect to the shared Supabase database
 
-1. WordPress Playground may take a moment to load
-2. Very large blueprints might timeout - try simplifying
-3. Check that the base64 encoding is valid
-4. Some browsers block popups - allow popups for Playground URLs
+3. **Try a simpler request**
+   - Very complex sites might take longer or fail
+   - Start with something simple like "Create a basic blog with 3 posts"
 
-## FAQ
+### The automatic installer didn't work
 
-### Q: Do I need to deploy this server somewhere?
+**Try the manual installation method instead:**
+- Scroll up to the "Manual Installation (Alternative Method)" section
+- Follow each step carefully
+- Take your time and don't skip steps
 
-No! The MCP server runs locally on your machine. Claude Desktop connects to it via stdio (standard input/output).
+**Common installer issues:**
 
-### Q: Can I use this with the Claude web app?
+- **"npm: command not found"**: You need to install Node.js first
+- **"Permission denied"**: On Mac/Linux, try running with `sudo ./install.sh` (it will ask for your password)
+- **"PowerShell execution policy"**: On Windows, open PowerShell as Administrator and run: `Set-ExecutionPolicy RemoteSigned`
 
-No, MCP servers only work with Claude Desktop. They cannot be used with the web version of Claude.
+### WordPress Playground links don't work
 
-### Q: How secure is this?
+1. **Give it a moment**
+   - Large blueprints can take 10-20 seconds to load
 
-The MCP server runs locally and only communicates with:
-1. Claude Desktop (via stdio)
-2. Your Supabase project (using your credentials)
+2. **Check your browser**
+   - Some browsers block popups - allow popups for playground.wordpress.net
+   - Try opening the link in a different browser
 
-Your Supabase credentials are stored locally in environment variables and never sent to Anthropic or any third party.
+3. **Try a smaller blueprint**
+   - Very large blueprints (100+ steps) might timeout
+   - Create simpler sites with fewer pages and plugins
 
-### Q: Can I modify the tools or add new ones?
+### Still having problems?
 
-Yes! The source code is in `src/index.ts`. You can add new tools, modify existing ones, or customize the behavior. Just run `npm run build` after making changes.
+**Check these common issues:**
 
-### Q: Does this cost money to run?
+1. **Did you build the server?**
+   - Make sure you ran `npm run build` in the mcp-server folder
+   - You should see a `dist` folder appear after building
 
-The MCP server itself is free. However:
-- Claude Desktop requires a Claude Pro subscription
-- Supabase has free tier limits; heavy usage may require a paid plan
-- The AI blueprint generation uses Supabase Edge Functions which may incur costs
+2. **Is the config file valid JSON?**
+   - JSON is very picky about commas and quotes
+   - Use a JSON validator to check: [jsonlint.com](https://jsonlint.com)
+   - Make sure every opening brace `{` has a closing brace `}`
 
-### Q: Can I share blueprints with others?
+3. **Are you using Claude Desktop?**
+   - MCP servers only work with Claude Desktop, not the web version
+   - Download Claude Desktop from [claude.ai/download](https://claude.ai/download)
 
-Yes! When you generate a blueprint through the web interface, you can choose to make it public. Public blueprints appear in the community gallery and can be accessed by anyone using the MCP server.
+## Frequently Asked Questions
 
-### Q: What happens if I lose my .env file?
+### Do I need to host this somewhere online?
 
-Your `.env` file only contains credentials that can be retrieved from your Supabase dashboard. Just create a new `.env` file with the credentials from **Project Settings > API**.
+**No!** The MCP server runs on your own computer. It's completely local and private. Claude Desktop talks to it directly on your machine.
 
-### Q: Can multiple people use the same MCP server?
+### Can I use this with Claude on the web?
 
-Each person needs to install and configure the MCP server on their own machine. However, they can all connect to the same Supabase project to share the same blueprint database.
+**No**, MCP servers only work with the Claude Desktop app. You need to download and install Claude Desktop on your computer.
+
+### Is this safe? Where does my data go?
+
+**Yes, it's safe!** The MCP server:
+- Runs entirely on your computer
+- Only talks to Claude Desktop (locally) and the shared Blueprint Generator Supabase database
+- The Supabase credentials are public (anon key only) - they're designed to be shared
+- Nothing is sent to Anthropic or any third party
+- All users connect to the same community database to share blueprints
+
+### Does this cost money?
+
+**Completely free!** You need:
+- **Claude Desktop**: Free to use (Claude Pro gives you more features)
+- **Supabase**: The shared database is hosted by the Blueprint Generator project
+- **AI Blueprint Generation**: Uses shared Supabase Edge Functions
+
+No Supabase account or payment required on your end.
+
+### Can I share blueprints with my team?
+
+**Yes!** Anyone can install the MCP server on their computer. Everyone uses the same shared Supabase database, so all public blueprints are visible to everyone in the community. Your team will automatically see each other's public blueprints.
+
+### What if I want to change or customize the tools?
+
+**You can!** The code is in `src/index.ts`. You can:
+- Add new tools
+- Modify existing functionality
+- Customize how blueprints are generated
+
+Just remember to run `npm run build` after making any changes.
+
+### I lost my Supabase credentials, what do I do?
+
+**No problem!** The credentials are in the `.env.example` file in the mcp-server folder:
+- URL: `https://qnhseyvcanynadeewdxk.supabase.co`
+- Anon Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFuaHNleXZjYW55bmFkZWV3ZHhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk4MTk0ODMsImV4cCI6MjA3NTM5NTQ4M30.dUoFBKVFUHR_RZHH3GWw1O2T_yI5RB5yNZMBi8x4HCc`
+
+These credentials are the same for all users.
+
+### Can multiple people install this from the same project?
+
+**Yes!** Each person installs the MCP server on their own computer. Everyone automatically uses the same shared Supabase database and can access the community blueprint gallery.
+
+### What version of Node.js do I need?
+
+**Version 18 or newer.** Check your version by running `node --version` in Terminal/Command Prompt. If you need to update, download the latest from [nodejs.org](https://nodejs.org/).
+
+### Do I need to know how to code to use this?
+
+**No!** Once installed, you just chat with Claude normally. For installation:
+- Use the automatic installer (no coding needed)
+- Or follow the step-by-step manual guide (copy-paste commands)
+
+You only need coding knowledge if you want to customize the MCP server itself.
 
 ## Support
 
