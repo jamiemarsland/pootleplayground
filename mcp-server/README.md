@@ -362,7 +362,9 @@ This means Claude can't find the Supabase information in your configuration.
 **Common installer issues:**
 
 - **"npm: command not found"**: You need to install Node.js first
-- **"Permission denied"**: On Mac/Linux, try running with `sudo ./install.sh` (it will ask for your password)
+- **"Permission denied" on Mac/Linux**: The script might not have execute permissions. Try one of these:
+  - Run `chmod +x install.sh` then `./install.sh`
+  - Or simply run `bash install.sh` instead
 - **"PowerShell execution policy"**: On Windows, open PowerShell as Administrator and run: `Set-ExecutionPolicy RemoteSigned`
 
 ### WordPress Playground links don't work
