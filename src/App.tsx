@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { StepsList } from './components/StepsList';
 import { ConfigPanel } from './components/ConfigPanel';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 import { BlueprintGallery } from './components/BlueprintGallery';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { AlertModal } from './components/AlertModal';
@@ -293,6 +294,8 @@ function Builder() {
       {showVersionAnnouncement && (
         <VersionAnnouncementModal onClose={handleCloseVersionAnnouncement} />
       )}
+
+      <Footer />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2, AlertCircle, ArrowLeft, Zap } from 'lucide-react';
+import { Footer } from './Footer';
 
 export function AiGeneratorPage() {
   const navigate = useNavigate();
@@ -239,6 +240,8 @@ export function AiGeneratorPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
 import { AlertModal } from './AlertModal';
+import { Footer } from './Footer';
 import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
@@ -1242,6 +1243,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         type={alertState.type}
         onClose={() => setAlertState({ ...alertState, isOpen: false })}
       />
+
+      <Footer />
     </div>
   );
 }
