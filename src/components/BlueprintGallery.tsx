@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, Edit } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, CreditCard as Edit } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
