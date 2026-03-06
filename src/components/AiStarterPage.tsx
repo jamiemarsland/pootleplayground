@@ -112,21 +112,39 @@ export function AiStarterPage() {
   const [selectedTheme, setSelectedTheme] = useState('');
   const [isGenerating, setIsGenerating]   = useState(false);
   const [generatedSite, setGeneratedSite] = useState<GeneratedSite | null>(null);
+  const [error, setError]                 = useState<string | null>(null);
 
   const togglePage   = (id: string) => setSelectedPages(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
   const togglePlugin = (p: string)  => setSelectedPlugins(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
 
   const canGenerate = !isGenerating && siteName.trim().length > 0 && description.trim().length > 0 && selectedPages.length > 0;
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedSite(null);
-    const payload = { siteType, siteName, description, selectedPages, contentLevel, selectedPlugins, selectedTheme };
-    console.log('POST /api/generate-site', payload);
-    setTimeout(() => {
+    setError(null);
+    try {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-starter-site`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ siteType, siteName, description, selectedPages, contentLevel, selectedPlugins, selectedTheme }),
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'Failed to generate site');
+      }
+      const data: GeneratedSite = await response.json();
+      setGeneratedSite(data);
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
       setGeneratedSite(buildMockResponse(siteName, selectedPages, selectedPlugins, selectedTheme));
+    } finally {
       setIsGenerating(false);
-    }, 1600);
+    }
   };
 
   const handleSendToPlayground = () => {
@@ -281,6 +299,12 @@ export function AiStarterPage() {
                 ))}
               </div>
             </CollapsibleSection>
+
+            {error && (
+              <div className='rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400'>
+                {error} A fallback structure has been used.
+              </div>
+            )}
 
             <button
               onClick={handleGenerate}

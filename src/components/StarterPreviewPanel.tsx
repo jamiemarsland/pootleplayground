@@ -4,6 +4,9 @@ import { ChevronUp, ChevronDown, Send, LayoutTemplate } from 'lucide-react';
 export interface Section {
   id: string;
   name: string;
+  h2?: string;
+  h3?: string;
+  body?: string;
 }
 
 export interface Page {
@@ -50,19 +53,21 @@ const SECTION_CONTENT: Record<string, SectionContentData> = {
   'Content Section':  { h2: 'Section Heading',               h3: 'Subheading goes here',                          body: 'Add your content here. Describe what this section covers and how it helps your visitors.' },
 };
 
-function SectionContent({ name, siteName, contentLevel }: { name: string; siteName: string; contentLevel: string }) {
+function SectionContent({ section, siteName, contentLevel }: { section: Section; siteName: string; contentLevel: string }) {
   if (contentLevel === 'structure-only') return null;
 
-  const data = SECTION_CONTENT[name] ?? { h2: name, h3: 'Add content here' };
-  const h2 = data.h2.replace('[SITE]', siteName || 'Your Site');
+  const fallback = SECTION_CONTENT[section.name] ?? { h2: section.name, h3: 'Add content here' };
+  const h2 = (section.h2 ?? fallback.h2).replace('[SITE]', siteName || 'Your Site');
+  const h3 = section.h3 ?? fallback.h3;
+  const body = section.body ?? fallback.body;
 
   return (
     <div className='mt-1.5 space-y-0.5'>
       <p className='text-sm font-semibold text-blueprint-text/90'>{h2}</p>
-      {data.h3 && <p className='text-xs text-blueprint-text/50'>{data.h3}</p>}
-      {contentLevel === 'full-starter-copy' && data.body && (
+      {h3 && <p className='text-xs text-blueprint-text/50'>{h3}</p>}
+      {contentLevel === 'full-starter-copy' && body && (
         <p className='text-xs text-blueprint-text/40 leading-relaxed pt-0.5'>
-          {data.body.replace('[SITE]', siteName || 'Your Site')}
+          {body.replace('[SITE]', siteName || 'Your Site')}
         </p>
       )}
     </div>
@@ -168,7 +173,7 @@ export function StarterPreviewPanel({ site, contentLevel, onChange, onSendToPlay
                           {sec.name}
                         </span>
                         <SectionContent
-                          name={sec.name}
+                          section={sec}
                           siteName={site.siteTitle}
                           contentLevel={contentLevel}
                         />
