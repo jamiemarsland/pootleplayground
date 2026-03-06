@@ -97,8 +97,8 @@ export function AiStarterPage() {
   };
 
   return (
-    <div className="min-h-screen blueprint-paper flex flex-col">
-      <header className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
+    <div className="min-h-screen bg-blueprint-paper blueprint-grid flex flex-col">
+      <header className="bg-blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
         <div className="px-4 lg:px-6 py-4">
           <div className="flex items-center gap-4">
             <button
@@ -124,7 +124,7 @@ export function AiStarterPage() {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          <div className="blueprint-paper border border-blueprint-accent/20 rounded-xl p-8">
+          <div className="bg-blueprint-paper border border-blueprint-accent/30 rounded-xl p-8">
             <h2 className="text-xl font-semibold text-blueprint-text mb-6">Site Details</h2>
 
             <div className="space-y-6">
@@ -135,7 +135,7 @@ export function AiStarterPage() {
                 <select
                   value={siteType}
                   onChange={(e) => setSiteType(e.target.value)}
-                  className="w-full px-4 py-2 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
+                  className="w-full px-4 py-2 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent bg-slate-600 text-white"
                 >
                   <option value="business">Business</option>
                   <option value="personal-brand">Personal brand</option>
@@ -156,7 +156,7 @@ export function AiStarterPage() {
                   value={siteName}
                   onChange={(e) => setSiteName(e.target.value)}
                   placeholder="e.g., Cheltenham Yoga Studio"
-                  className="w-full px-4 py-2 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent"
+                  className="w-full px-4 py-2 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent bg-slate-600 text-white placeholder:text-slate-300"
                 />
               </div>
 
@@ -169,7 +169,7 @@ export function AiStarterPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="A yoga studio in Cheltenham offering beginner friendly classes and workshops."
                   rows={4}
-                  className="w-full px-4 py-2 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent resize-none"
+                  className="w-full px-4 py-2 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint-accent resize-none bg-slate-600 text-white placeholder:text-slate-300"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export function AiStarterPage() {
             </div>
           </div>
 
-          <div className="blueprint-paper border border-blueprint-accent/20 rounded-xl p-8">
+          <div className="bg-blueprint-paper border border-blueprint-accent/30 rounded-xl p-8">
             {!generatedSite ? (
               <div className="h-full flex items-center justify-center text-blueprint-text/40">
                 <div className="text-center">
