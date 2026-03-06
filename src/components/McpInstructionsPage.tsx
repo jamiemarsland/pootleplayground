@@ -72,11 +72,11 @@ export function McpInstructionsPage() {
             <ul className="space-y-3 text-blueprint-text/80">
               <li className="flex items-start gap-3">
                 <span className="text-blueprint-accent mt-1">•</span>
-                <span><strong>Node.js</strong> version 18 or higher (<a href="https://nodejs.org/" target=\"_blank" rel="noopener noreferrer\" className="text-blue-500 hover:underline">Download here</a>)</span>
+                <span><strong>Node.js</strong> version 18 or higher (<a href="https://nodejs.org/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Download here</a>)</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-blueprint-accent mt-1">•</span>
-                <span><strong>Claude Desktop</strong> app (<a href="https://claude.ai/download" target=\"_blank" rel="noopener noreferrer\" className="text-blue-500 hover:underline">Download here</a>)</span>
+                <span><strong>Claude Desktop</strong> app (<a href="https://claude.ai/download" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Download here</a>)</span>
               </li>
             </ul>
             <p className="text-sm text-blueprint-text/60 mt-4">
@@ -95,13 +95,13 @@ export function McpInstructionsPage() {
 
             <div className="space-y-6">
               <div>
-                <h4 className="font-semibold text-blueprint-text mb-3">For Mac & Linux Users</h4>
+                <h4 className="font-semibold text-blueprint-text mb-3">For Mac &amp; Linux Users</h4>
                 <ol className="space-y-2 text-blueprint-text/80">
                   <li>1. Open Terminal</li>
                   <li>2. Navigate to the mcp-server folder</li>
                   <li>3. Run: <code className="px-2 py-1 bg-blueprint-accent/10 rounded">./install.sh</code></li>
                   <li>4. Restart Claude Desktop</li>
-                  <li>5. Look for the 🔌 icon in Claude</li>
+                  <li>5. Look for the plugin icon in Claude</li>
                 </ol>
               </div>
 
@@ -112,7 +112,7 @@ export function McpInstructionsPage() {
                   <li>2. Navigate to the mcp-server folder</li>
                   <li>3. Run: <code className="px-2 py-1 bg-blueprint-accent/10 rounded">.\install.ps1</code></li>
                   <li>4. Restart Claude Desktop</li>
-                  <li>5. Look for the 🔌 icon in Claude</li>
+                  <li>5. Look for the plugin icon in Claude</li>
                 </ol>
               </div>
             </div>
