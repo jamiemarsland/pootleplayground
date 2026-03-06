@@ -1,90 +1,137 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Loader2, Send, LayoutTemplate } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Footer } from './Footer';
-
-interface GeneratedSite {
-  siteTitle: string;
-  pages: {
-    title: string;
-    sections: string[];
-  }[];
-  menu: string[];
-}
+import {
+  StarterPreviewPanel,
+  EmptyPreview,
+  GeneratedSite,
+} from './StarterPreviewPanel';
 
 const PAGE_OPTIONS = [
-  { id: 'home', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'services', label: 'Services' },
-  { id: 'blog', label: 'Blog' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'home',         label: 'Home' },
+  { id: 'about',        label: 'About' },
+  { id: 'services',     label: 'Services' },
+  { id: 'blog',         label: 'Blog' },
+  { id: 'contact',      label: 'Contact' },
   { id: 'testimonials', label: 'Testimonials' },
-  { id: 'pricing', label: 'Pricing' },
-  { id: 'faq', label: 'FAQ' },
+  { id: 'pricing',      label: 'Pricing' },
+  { id: 'faq',          label: 'FAQ' },
 ];
 
 const SECTIONS_BY_PAGE: Record<string, string[]> = {
-  home: ['Hero', 'Features', 'Testimonials', 'CTA'],
-  about: ['Story', 'Team', 'Values'],
-  services: ['Services Grid', 'Process', 'Pricing'],
-  contact: ['Contact Form', 'Map', 'Info'],
-  blog: ['Blog Grid', 'Categories'],
+  home:         ['Hero', 'Features', 'Testimonials', 'CTA'],
+  about:        ['Story', 'Team', 'Values'],
+  services:     ['Services Grid', 'Process', 'Pricing'],
+  contact:      ['Contact Form', 'Map', 'Info'],
+  blog:         ['Blog Grid', 'Categories'],
   testimonials: ['Testimonials Grid', 'Stats'],
-  pricing: ['Pricing Table', 'FAQ'],
-  faq: ['FAQ List'],
+  pricing:      ['Pricing Table', 'FAQ'],
+  faq:          ['FAQ List'],
 };
+
+const PLUGIN_OPTIONS = [
+  'Yoast SEO',
+  'WooCommerce',
+  'Contact Form 7',
+  'Elementor',
+  'WPForms Lite',
+  'Wordfence Security',
+  'Akismet Anti-Spam',
+  'Advanced Custom Fields',
+  'Smush',
+  'UpdraftPlus',
+  'WP Rocket',
+  'MonsterInsights',
+  'WP Super Cache',
+  'Gravity Forms',
+  'WPML',
+];
+
+const THEME_OPTIONS = [
+  { id: 'astra',            label: 'Astra',            desc: 'Lightweight & fast' },
+  { id: 'generatepress',    label: 'GeneratePress',    desc: 'Performance focused' },
+  { id: 'kadence',          label: 'Kadence',          desc: 'Full site editing' },
+  { id: 'blocksy',          label: 'Blocksy',          desc: 'Modern & flexible' },
+  { id: 'oceanwp',          label: 'OceanWP',          desc: 'Multipurpose' },
+  { id: 'hello-elementor',  label: 'Hello Elementor',  desc: 'Minimal base theme' },
+  { id: 'divi',             label: 'Divi',             desc: 'Builder included' },
+  { id: 'sydney',           label: 'Sydney',           desc: 'Business ready' },
+];
 
 function buildMockResponse(
   siteName: string,
-  selectedPages: string[]
+  selectedPages: string[],
+  selectedPlugins: string[],
+  selectedTheme: string,
 ): GeneratedSite {
   return {
     siteTitle: siteName || 'My Website',
-    pages: selectedPages.map(id => ({
+    pages: selectedPages.map((id, pi) => ({
+      id: `page-${pi}`,
       title: PAGE_OPTIONS.find(p => p.id === id)?.label ?? id,
-      sections: SECTIONS_BY_PAGE[id] ?? ['Content Section'],
+      sections: (SECTIONS_BY_PAGE[id] ?? ['Content Section']).map((name, si) => ({
+        id: `${id}-sec-${si}`,
+        name,
+      })),
     })),
     menu: selectedPages.map(id => PAGE_OPTIONS.find(p => p.id === id)?.label ?? id),
+    plugins: selectedPlugins,
+    theme: selectedTheme,
   };
 }
 
 const INPUT_CLS = 'w-full px-4 py-2.5 border border-blueprint-accent/30 rounded-lg bg-blueprint-900/60 text-blueprint-text placeholder:text-blueprint-text/30 focus:outline-none focus:ring-2 focus:ring-blueprint-accent/60 transition';
 const LABEL_CLS = 'block text-sm font-medium text-blueprint-text/80 mb-2';
 
+function CollapsibleSection({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className='border border-blueprint-accent/15 rounded-xl overflow-hidden'>
+      <button
+        type='button'
+        onClick={() => setOpen(v => !v)}
+        className='w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-blueprint-text/80 hover:text-blueprint-text hover:bg-blueprint-accent/5 transition-colors'
+      >
+        {title}
+        {open ? <ChevronUp className='w-4 h-4 text-blueprint-accent/50' /> : <ChevronDown className='w-4 h-4 text-blueprint-accent/50' />}
+      </button>
+      {open && <div className='px-4 pb-4 pt-1'>{children}</div>}
+    </div>
+  );
+}
+
 export function AiStarterPage() {
   const navigate = useNavigate();
-  const [siteType, setSiteType] = useState('business');
-  const [siteName, setSiteName] = useState('');
-  const [description, setDescription] = useState('');
-  const [contentLevel, setContentLevel] = useState('starter-headings');
+  const [siteType, setSiteType]           = useState('business');
+  const [siteName, setSiteName]           = useState('');
+  const [description, setDescription]     = useState('');
+  const [contentLevel, setContentLevel]   = useState('starter-headings');
   const [selectedPages, setSelectedPages] = useState<string[]>(['home', 'about', 'contact']);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedPlugins, setSelectedPlugins] = useState<string[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState('');
+  const [isGenerating, setIsGenerating]   = useState(false);
   const [generatedSite, setGeneratedSite] = useState<GeneratedSite | null>(null);
 
-  const togglePage = (id: string) => {
-    setSelectedPages(prev =>
-      prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
-    );
-  };
+  const togglePage   = (id: string) => setSelectedPages(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  const togglePlugin = (p: string)  => setSelectedPlugins(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
+
+  const canGenerate = !isGenerating && siteName.trim().length > 0 && description.trim().length > 0 && selectedPages.length > 0;
 
   const handleGenerate = () => {
     setIsGenerating(true);
     setGeneratedSite(null);
-
-    const payload = { siteType, siteName, description, selectedPages, contentLevel };
+    const payload = { siteType, siteName, description, selectedPages, contentLevel, selectedPlugins, selectedTheme };
     console.log('POST /api/generate-site', payload);
-
     setTimeout(() => {
-      setGeneratedSite(buildMockResponse(siteName, selectedPages));
+      setGeneratedSite(buildMockResponse(siteName, selectedPages, selectedPlugins, selectedTheme));
       setIsGenerating(false);
-    }, 1800);
+    }, 1600);
   };
 
   const handleSendToPlayground = () => {
     console.log('Send to Playground:', JSON.stringify(generatedSite, null, 2));
   };
-
-  const canGenerate = !isGenerating && siteName.trim().length > 0 && description.trim().length > 0 && selectedPages.length > 0;
 
   return (
     <div className='min-h-screen bg-blueprint-paper blueprint-grid flex flex-col'>
@@ -111,7 +158,7 @@ export function AiStarterPage() {
 
       <div className='flex-1 max-w-5xl mx-auto w-full px-6 py-10'>
         <div className='text-center mb-10'>
-          <p className='text-blueprint-text/60 text-base max-w-lg mx-auto'>
+          <p className='text-blueprint-text/55 text-base max-w-lg mx-auto'>
             Describe the website you want and we'll generate starter pages, navigation, and content structure.
           </p>
         </div>
@@ -122,11 +169,7 @@ export function AiStarterPage() {
 
             <div>
               <label className={LABEL_CLS}>Site Type</label>
-              <select
-                value={siteType}
-                onChange={e => setSiteType(e.target.value)}
-                className={INPUT_CLS}
-              >
+              <select value={siteType} onChange={e => setSiteType(e.target.value)} className={INPUT_CLS}>
                 <option value='business'>Business</option>
                 <option value='personal-brand'>Personal brand</option>
                 <option value='portfolio'>Portfolio</option>
@@ -170,7 +213,7 @@ export function AiStarterPage() {
                       onChange={() => togglePage(page.id)}
                       className='w-4 h-4 rounded border-blueprint-accent/40 text-blueprint-accent focus:ring-blueprint-accent/50 bg-blueprint-900/60'
                     />
-                    <span className='text-sm text-blueprint-text/80 group-hover:text-blueprint-text transition-colors'>
+                    <span className='text-sm text-blueprint-text/75 group-hover:text-blueprint-text transition-colors'>
                       {page.label}
                     </span>
                   </label>
@@ -182,7 +225,7 @@ export function AiStarterPage() {
               <label className={LABEL_CLS}>Content level</label>
               <div className='space-y-2'>
                 {[
-                  { value: 'structure-only', label: 'Structure only' },
+                  { value: 'structure-only',   label: 'Structure only' },
                   { value: 'starter-headings', label: 'Starter headings' },
                   { value: 'full-starter-copy', label: 'Full starter copy' },
                 ].map(opt => (
@@ -195,13 +238,49 @@ export function AiStarterPage() {
                       onChange={e => setContentLevel(e.target.value)}
                       className='w-4 h-4 text-blueprint-accent border-blueprint-accent/40 focus:ring-blueprint-accent/50'
                     />
-                    <span className='text-sm text-blueprint-text/80 group-hover:text-blueprint-text transition-colors'>
+                    <span className='text-sm text-blueprint-text/75 group-hover:text-blueprint-text transition-colors'>
                       {opt.label}
                     </span>
                   </label>
                 ))}
               </div>
             </div>
+
+            <CollapsibleSection title='Theme'>
+              <div className='grid grid-cols-2 gap-2 pt-1'>
+                {THEME_OPTIONS.map(t => (
+                  <button
+                    key={t.id}
+                    type='button'
+                    onClick={() => setSelectedTheme(prev => prev === t.label ? '' : t.label)}
+                    className={`text-left px-3 py-2.5 rounded-lg border transition-all ${
+                      selectedTheme === t.label
+                        ? 'border-blueprint-accent bg-blueprint-accent/10 text-blueprint-text'
+                        : 'border-blueprint-accent/15 hover:border-blueprint-accent/35 text-blueprint-text/60 hover:text-blueprint-text/90'
+                    }`}
+                  >
+                    <p className='text-xs font-semibold'>{t.label}</p>
+                    <p className='text-xs opacity-60 mt-0.5'>{t.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </CollapsibleSection>
+
+            <CollapsibleSection title={`Plugins${selectedPlugins.length > 0 ? ` (${selectedPlugins.length})` : ''}`}>
+              <div className='space-y-2 pt-1'>
+                {PLUGIN_OPTIONS.map(p => (
+                  <label key={p} className='flex items-center gap-2 cursor-pointer group'>
+                    <input
+                      type='checkbox'
+                      checked={selectedPlugins.includes(p)}
+                      onChange={() => togglePlugin(p)}
+                      className='w-4 h-4 rounded border-blueprint-accent/40 text-blueprint-accent focus:ring-blueprint-accent/50 bg-blueprint-900/60'
+                    />
+                    <span className='text-sm text-blueprint-text/70 group-hover:text-blueprint-text transition-colors'>{p}</span>
+                  </label>
+                ))}
+              </div>
+            </CollapsibleSection>
 
             <button
               onClick={handleGenerate}
@@ -222,78 +301,23 @@ export function AiStarterPage() {
             </button>
           </div>
 
-          <div className='bg-blueprint-800/40 border border-blueprint-accent/20 rounded-2xl p-8 min-h-96'>
-            {isGenerating && (
-              <div className='h-full flex items-center justify-center'>
-                <div className='text-center space-y-4'>
-                  <Loader2 className='w-10 h-10 text-blueprint-accent animate-spin mx-auto' />
-                  <p className='text-blueprint-text/50 text-sm'>Building your site structure...</p>
-                </div>
+          {isGenerating ? (
+            <div className='bg-blueprint-800/40 border border-blueprint-accent/20 rounded-2xl p-8 flex items-center justify-center min-h-96'>
+              <div className='text-center space-y-4'>
+                <Loader2 className='w-10 h-10 text-blueprint-accent animate-spin mx-auto' />
+                <p className='text-blueprint-text/45 text-sm'>Building your site structure...</p>
               </div>
-            )}
-
-            {!isGenerating && !generatedSite && (
-              <div className='h-full flex items-center justify-center text-blueprint-text/25'>
-                <div className='text-center space-y-3'>
-                  <LayoutTemplate className='w-14 h-14 mx-auto' />
-                  <p className='text-sm'>Your site preview will appear here</p>
-                </div>
-              </div>
-            )}
-
-            {!isGenerating && generatedSite && (
-              <div className='space-y-6'>
-                <div>
-                  <p className='text-xs font-semibold text-blueprint-accent/60 uppercase tracking-widest mb-1'>
-                    Starter Site Preview
-                  </p>
-                  <h2 className='text-2xl font-bold text-blueprint-text'>
-                    {generatedSite.siteTitle}
-                  </h2>
-                </div>
-
-                <div>
-                  <h3 className='text-sm font-semibold text-blueprint-text/70 uppercase tracking-wide mb-3'>Pages</h3>
-                  <div className='space-y-2'>
-                    {generatedSite.pages.map((page, i) => (
-                      <div key={i} className='bg-blueprint-900/40 border border-blueprint-accent/10 rounded-xl px-4 py-3'>
-                        <p className='font-medium text-blueprint-text text-sm mb-1.5'>{page.title}</p>
-                        <div className='flex flex-wrap gap-1.5'>
-                          {page.sections.map((sec, j) => (
-                            <span key={j} className='text-xs px-2 py-0.5 rounded-full bg-blueprint-accent/10 text-blueprint-accent/80'>
-                              {sec}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className='text-sm font-semibold text-blueprint-text/70 uppercase tracking-wide mb-3'>Navigation</h3>
-                  <div className='flex flex-wrap gap-2'>
-                    {generatedSite.menu.map((item, i) => (
-                      <React.Fragment key={i}>
-                        <span className='text-sm text-blueprint-text/80'>{item}</span>
-                        {i < generatedSite.menu.length - 1 && (
-                          <span className='text-blueprint-accent/30 text-sm'>|</span>
-                        )}
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleSendToPlayground}
-                  className='w-full bg-green-600/90 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/20'
-                >
-                  <Send className='w-4 h-4' />
-                  Send to Playground
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : generatedSite ? (
+            <StarterPreviewPanel
+              site={generatedSite}
+              contentLevel={contentLevel}
+              onChange={setGeneratedSite}
+              onSendToPlayground={handleSendToPlayground}
+            />
+          ) : (
+            <EmptyPreview />
+          )}
         </div>
       </div>
 
