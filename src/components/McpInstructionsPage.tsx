@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, BookOpen, Download, Terminal, Check } from 'lucide-react';
 import { Footer } from './Footer';
 
+const extLink = { target: '_blank', rel: 'noopener noreferrer' };
+
 export function McpInstructionsPage() {
   const navigate = useNavigate();
 
@@ -72,11 +74,11 @@ export function McpInstructionsPage() {
             <ul className="space-y-3 text-blueprint-text/80">
               <li className="flex items-start gap-3">
                 <span className="text-blueprint-accent mt-1">•</span>
-                <span><strong>Node.js</strong> version 18 or higher (<a href={'https://nodejs.org/'} target={\'_blank'} rel={'noopener noreferrer'} className="text-blue-500 hover:underline">Download here</a>)</span>
+                <span><strong>Node.js</strong> version 18 or higher (<a href="https://nodejs.org/" {...extLink} className="text-blue-500 hover:underline">Download here</a>)</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-blueprint-accent mt-1">•</span>
-                <span><strong>Claude Desktop</strong> app (<a href={'https://claude.ai/download'} target={\'_blank'} rel={'noopener noreferrer'} className="text-blue-500 hover:underline">Download here</a>)</span>
+                <span><strong>Claude Desktop</strong> app (<a href="https://claude.ai/download" {...extLink} className="text-blue-500 hover:underline">Download here</a>)</span>
               </li>
             </ul>
             <p className="text-sm text-blueprint-text/60 mt-4">
