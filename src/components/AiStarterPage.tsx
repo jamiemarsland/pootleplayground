@@ -48,6 +48,24 @@ const PLUGIN_OPTIONS = [
   'WPML',
 ];
 
+const PLUGIN_SLUGS: Record<string, string | null> = {
+  'Yoast SEO':              'wordpress-seo',
+  'WooCommerce':            'woocommerce',
+  'Contact Form 7':         'contact-form-7',
+  'Elementor':              'elementor',
+  'WPForms Lite':           'wpforms-lite',
+  'Wordfence Security':     'wordfence',
+  'Akismet Anti-Spam':      'akismet',
+  'Advanced Custom Fields': 'advanced-custom-fields',
+  'Smush':                  'wp-smushit',
+  'UpdraftPlus':            'updraftplus',
+  'WP Rocket':              null,
+  'MonsterInsights':        'google-analytics-for-wordpress',
+  'WP Super Cache':         'wp-super-cache',
+  'Gravity Forms':          null,
+  'WPML':                   null,
+};
+
 const THEME_OPTIONS = [
   { id: 'astra',            label: 'Astra',            desc: 'Lightweight & fast' },
   { id: 'generatepress',    label: 'GeneratePress',    desc: 'Performance focused' },
@@ -148,7 +166,65 @@ export function AiStarterPage() {
   };
 
   const handleSendToPlayground = () => {
-    console.log('Send to Playground:', JSON.stringify(generatedSite, null, 2));
+    if (!generatedSite) return;
+
+    const steps: any[] = [];
+
+    steps.push({ step: 'setSiteOption', name: 'blogname', value: generatedSite.siteTitle });
+    steps.push({ step: 'setSiteOption', name: 'permalink_structure', value: '/%postname%/' });
+
+    if (selectedTheme) {
+      steps.push({
+        step: 'installTheme',
+        themeZipFile: { resource: 'wordpress.org/themes', slug: selectedTheme },
+      });
+    }
+
+    generatedSite.plugins.forEach((name) => {
+      const slug = PLUGIN_SLUGS[name];
+      if (!slug) return;
+      steps.push({
+        step: 'installPlugin',
+        pluginZipFile: { resource: 'wordpress.org/plugins', slug },
+      });
+    });
+
+    const menuItems: any[] = [];
+
+    generatedSite.pages.forEach((page, pi) => {
+      const slug = page.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const content = page.sections.map(s => `<!-- wp:heading --><h2>${s.h2 ?? s.name}</h2><!-- /wp:heading -->${s.h3 ? `<!-- wp:paragraph --><p>${s.h3}</p><!-- /wp:paragraph -->` : ''}${s.body ? `<!-- wp:paragraph --><p>${s.body}</p><!-- /wp:paragraph -->` : ''}`).join('\n');
+
+      if (pi === 0) {
+        steps.push({
+          step: 'runPHP',
+          code: `<?php require '/wordpress/wp-load.php'; $id = wp_insert_post(['post_title'=>${JSON.stringify(page.title)},'post_name'=>${JSON.stringify(slug)},'post_content'=>${JSON.stringify(content)},'post_status'=>'publish','post_type'=>'page']); update_option('page_on_front',$id); update_option('show_on_front','page'); ?>`,
+        });
+      } else {
+        steps.push({
+          step: 'runPHP',
+          code: `<?php require '/wordpress/wp-load.php'; wp_insert_post(['post_title'=>${JSON.stringify(page.title)},'post_name'=>${JSON.stringify(slug)},'post_content'=>${JSON.stringify(content)},'post_status'=>'publish','post_type'=>'page']); ?>`,
+        });
+      }
+
+      menuItems.push({ type: 'custom', title: page.title, url: `/${slug}/` });
+    });
+
+    steps.push({
+      step: 'runPHP',
+      code: `<?php require '/wordpress/wp-load.php'; $menu_id = wp_create_nav_menu('Main Menu'); ${menuItems.map((item) => `wp_update_nav_menu_item($menu_id, 0, ['menu-item-title'=>${JSON.stringify(item.title)},'menu-item-url'=>${JSON.stringify(item.url)},'menu-item-status'=>'publish']);`).join(' ')} $locations = get_theme_mod('nav_menu_locations'); $locations['primary'] = $menu_id; set_theme_mod('nav_menu_locations', $locations); ?>`,
+    });
+
+    const blueprint = {
+      landingPage: '/',
+      preferredVersions: { php: '8.2', wp: 'latest' },
+      phpExtensionBundles: ['kitchen-sink'],
+      steps,
+    };
+
+    const json = JSON.stringify(blueprint);
+    const b64 = btoa(Array.from(new TextEncoder().encode(json)).map(b => String.fromCharCode(b)).join(''));
+    window.open(`https://playground.wordpress.net/#${b64}`, '_blank');
   };
 
   return (
