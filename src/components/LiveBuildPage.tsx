@@ -65,8 +65,6 @@ export function LiveBuildPage() {
     if (startOption === 'blank') {
       return {
         landingPage: '/wp-admin/',
-        preferredVersions: { php: '8.2', wp: 'latest' },
-        phpExtensionBundles: ['kitchen-sink'],
         steps: [{ step: 'login', username: 'admin', password: 'password' }]
       };
     }
@@ -89,8 +87,6 @@ export function LiveBuildPage() {
 
     return {
       landingPage: '/wp-admin/',
-      preferredVersions: { php: '8.2', wp: 'latest' },
-      phpExtensionBundles: ['kitchen-sink'],
       steps: [{ step: 'login', username: 'admin', password: 'password' }]
     };
   };
@@ -106,17 +102,24 @@ export function LiveBuildPage() {
 
       const { startPlaygroundWeb } = await import('@wp-playground/client');
 
-      const client = await startPlaygroundWeb({
-        iframe: iframeRef.current,
-        remoteUrl: 'https://playground.wordpress.net/remote.html',
-        blueprint: blueprint as any
-      });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Timed out after 90s')), 90000)
+      );
+
+      const client = await Promise.race([
+        startPlaygroundWeb({
+          iframe: iframeRef.current,
+          remoteUrl: 'https://playground.wordpress.net/remote.html',
+          blueprint: blueprint as any
+        }),
+        timeoutPromise
+      ]);
 
       clientRef.current = client;
       setStatus('ready');
     } catch (err: any) {
       console.error('Playground start error:', err);
-      setError('Failed to start WordPress Playground. Please check your connection and try again.');
+      setError(`Failed to start WordPress Playground: ${err?.message || 'Unknown error'}. Check your connection and try again.`);
       setStatus('error');
     }
   };
@@ -279,7 +282,7 @@ export function LiveBuildPage() {
             className="w-full h-full border-0"
             style={{ display: status === 'idle' || status === 'error' ? 'none' : 'block' }}
             title="WordPress Playground"
-            allow="cross-origin-isolated"
+            allow="clipboard-read; clipboard-write; storage-access"
           />
         </div>
 
