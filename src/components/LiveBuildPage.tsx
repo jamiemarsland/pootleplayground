@@ -102,19 +102,16 @@ export function LiveBuildPage() {
     setCaptured(null);
 
     try {
-      const { startPlaygroundWeb } = await import(
-        /* @vite-ignore */ 'https://playground.wordpress.net/client/index.js'
-      ) as any;
-
       const blueprint = getInitialBlueprint();
+
+      const { startPlaygroundWeb } = await import('@wp-playground/client');
 
       const client = await startPlaygroundWeb({
         iframe: iframeRef.current,
         remoteUrl: 'https://playground.wordpress.net/remote.html',
-        blueprint
+        blueprint: blueprint as any
       });
 
-      await client.isReady();
       clientRef.current = client;
       setStatus('ready');
     } catch (err: any) {
