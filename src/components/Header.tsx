@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, MonitorPlay } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -13,6 +13,7 @@ interface HeaderProps {
   onReset: () => void;
   onOpenAiSidebar: () => void;
   onShowAiGenerator?: () => void;
+  onShowLiveBuild?: () => void;
 }
 
 export function Header({
@@ -25,7 +26,8 @@ export function Header({
   onSaveBlueprint,
   onReset,
   onOpenAiSidebar,
-  onShowAiGenerator
+  onShowAiGenerator,
+  onShowLiveBuild
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -208,6 +210,17 @@ export function Header({
               <Upload className="w-4 h-4" />
             </button>
 
+            {onShowLiveBuild && (
+              <button
+                onClick={onShowLiveBuild}
+                className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+                title="Build live in WordPress Playground and capture as blueprint"
+              >
+                <MonitorPlay className="w-4 h-4" />
+                <span className="font-medium hidden xl:inline">Live Build</span>
+              </button>
+            )}
+
             <button
               onClick={onShowAiGenerator || onOpenAiSidebar}
               className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
@@ -258,6 +271,16 @@ export function Header({
             >
               <Upload className="w-4 h-4" />
             </button>
+
+            {onShowLiveBuild && (
+              <button
+                onClick={onShowLiveBuild}
+                className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
+                title="Live Build"
+              >
+                <MonitorPlay className="w-4 h-4" />
+              </button>
+            )}
 
             <button
               onClick={onShowAiGenerator || onOpenAiSidebar}

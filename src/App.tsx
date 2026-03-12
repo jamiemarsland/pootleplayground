@@ -13,6 +13,7 @@ import { AiGeneratorPage } from './components/AiGeneratorPage';
 import { AiStarterPage } from './components/AiStarterPage';
 import { McpInstructionsPage } from './components/McpInstructionsPage';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
+import { LiveBuildPage } from './components/LiveBuildPage';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
@@ -236,6 +237,7 @@ function Builder() {
         onReset={handleReset}
         onOpenAiSidebar={() => setShowAiSidebar(true)}
         onShowAiGenerator={() => navigate('/ai-generator')}
+        onShowLiveBuild={() => navigate('/live-build')}
       />
       
       <div className="flex flex-col lg:flex-row relative z-10">
@@ -397,6 +399,7 @@ function App() {
       <Route path="/ai-generator" element={<AiGeneratorPage />} />
       <Route path="/ai-starter" element={<AiStarterPage />} />
       <Route path="/mcp-instructions" element={<McpInstructionsPage />} />
+      <Route path="/live-build" element={<LiveBuildPage />} />
     </Routes>
   );
 }
