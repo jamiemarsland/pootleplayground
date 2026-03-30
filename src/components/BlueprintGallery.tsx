@@ -733,8 +733,17 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       if (communityError) throw communityError;
 
+      const sortedCommunity = (communityData || []).sort((a, b) => {
+        const aHasImage = !!a.screenshot_url;
+        const bHasImage = !!b.screenshot_url;
+        if (aHasImage && !bHasImage) return -1;
+        if (!aHasImage && bHasImage) return 1;
+        if (b.votes !== a.votes) return b.votes - a.votes;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
       setMyBlueprints(myData || []);
-      setCommunityBlueprints(communityData || []);
+      setCommunityBlueprints(sortedCommunity);
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
