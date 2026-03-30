@@ -702,12 +702,17 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; blueprintId: string | null; event: React.MouseEvent | null }>({ isOpen: false, blueprintId: null, event: null });
   const [alertState, setAlertState] = useState<{ isOpen: boolean; title: string; message: string; type: 'warning' | 'danger' | 'info' | 'success' }>({ isOpen: false, title: '', message: '', type: 'info' });
   const [editingScreenshotId, setEditingScreenshotId] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const sortCommunity = (bps: BlueprintRecord[]) =>
+  const handleImageError = (blueprintId: string) => {
+    setFailedImages(prev => new Set(prev).add(blueprintId));
+  };
+
+  const sortCommunity = (bps: BlueprintRecord[], failed = failedImages) =>
     [...bps].sort((a, b) => {
-      const aHasImage = !!a.screenshot_url;
-      const bHasImage = !!b.screenshot_url;
+      const aHasImage = !!a.screenshot_url && !failed.has(a.id);
+      const bHasImage = !!b.screenshot_url && !failed.has(b.id);
       if (aHasImage && !bHasImage) return -1;
       if (!aHasImage && bHasImage) return 1;
       if (b.votes !== a.votes) return b.votes - a.votes;
@@ -1126,7 +1131,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                 <p className="text-blueprint-text/70">No community blueprints yet. Be the first to save one!</p>
               </div>
             ) : (
-              communityBlueprints.map((blueprint) => (
+              sortCommunity(communityBlueprints).map((blueprint) => (
                 <div
                   key={blueprint.id}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
@@ -1139,6 +1144,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-110"
                       onError={(e) => {
                         e.currentTarget.src = '/ChatGPT Image Nov 18, 2025, 04_39_51 AM.png';
+                        handleImageError(blueprint.id);
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
