@@ -704,6 +704,16 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [editingScreenshotId, setEditingScreenshotId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const sortCommunity = (bps: BlueprintRecord[]) =>
+    [...bps].sort((a, b) => {
+      const aHasImage = !!a.screenshot_url;
+      const bHasImage = !!b.screenshot_url;
+      if (aHasImage && !bHasImage) return -1;
+      if (!aHasImage && bHasImage) return 1;
+      if (b.votes !== a.votes) return b.votes - a.votes;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
   }, []);
@@ -733,17 +743,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       if (communityError) throw communityError;
 
-      const sortedCommunity = (communityData || []).sort((a, b) => {
-        const aHasImage = !!a.screenshot_url;
-        const bHasImage = !!b.screenshot_url;
-        if (aHasImage && !bHasImage) return -1;
-        if (!aHasImage && bHasImage) return 1;
-        if (b.votes !== a.votes) return b.votes - a.votes;
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-
       setMyBlueprints(myData || []);
-      setCommunityBlueprints(sortedCommunity);
+      setCommunityBlueprints(sortCommunity(communityData || []));
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
@@ -858,10 +859,9 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       localStorage.setItem(votedKey, 'true');
       const updateVotes = (bps: BlueprintRecord[]) =>
-        bps.map(bp => bp.id === blueprintId ? { ...bp, votes: bp.votes + 1 } : bp)
-           .sort((a, b) => b.votes - a.votes);
+        bps.map(bp => bp.id === blueprintId ? { ...bp, votes: bp.votes + 1 } : bp);
 
-      setCommunityBlueprints(updateVotes(communityBlueprints));
+      setCommunityBlueprints(sortCommunity(updateVotes(communityBlueprints)));
       setMyBlueprints(updateVotes(myBlueprints));
     } catch (error) {
       console.error('Error upvoting blueprint:', error);
@@ -919,7 +919,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         bps.map(bp => bp.id === editingScreenshotId ? { ...bp, screenshot_url: screenshotUrl } : bp);
 
       setMyBlueprints(updateScreenshot(myBlueprints));
-      setCommunityBlueprints(updateScreenshot(communityBlueprints));
+      setCommunityBlueprints(sortCommunity(updateScreenshot(communityBlueprints)));
 
       setAlertState({
         isOpen: true,
