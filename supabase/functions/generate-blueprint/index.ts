@@ -175,6 +175,7 @@ IMPORTANT RULES:
 6. Create meaningful page slugs in postName field
 7. For navigation menus, use type: "custom" with title and url
 8. Always set landingPageType appropriately
+9. NEVER use placeholder or fake image URLs (e.g., example.com, placeholder.com, via.placeholder.com, picsum.photos, loremflickr.com, dummyimage.com). Always set featuredImageUrl to "" (empty string). Do NOT populate featuredImageUrl at all.
 
 Common WordPress.org plugin slugs:
 - contact-form-7 (contact forms)

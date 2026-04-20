@@ -347,8 +347,11 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         });
       }
       
+      const BLOCKED_IMAGE_DOMAINS = ['example.com', 'placeholder.com', 'via.placeholder.com', 'picsum.photos', 'loremflickr.com', 'dummyimage.com', 'lorempixel.com'];
+      const isBlockedImageUrl = (url: string) => BLOCKED_IMAGE_DOMAINS.some(domain => url.includes(domain));
+
       // If featured image URL is provided, import it and set as featured image
-      if (data.featuredImageUrl && data.featuredImageUrl.trim()) {
+      if (data.featuredImageUrl && data.featuredImageUrl.trim() && !isBlockedImageUrl(data.featuredImageUrl)) {
         // Import the media file and get its ID
         steps.push({
           step: 'wp-cli',
