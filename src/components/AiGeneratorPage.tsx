@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Loader2, AlertCircle, ArrowLeft, Zap } from 'lucide-react';
 import { Footer } from './Footer';
+import { generateBlueprint } from '../utils/blueprintGenerator';
 
 export function AiGeneratorPage() {
   const navigate = useNavigate();
@@ -27,17 +28,14 @@ export function AiGeneratorPage() {
 
   const createPlaygroundUrl = (blueprintData: any) => {
     try {
-      const playgroundBlueprint = {
-        landingPage: blueprintData.landingPage || '/wp-admin/',
-        preferredVersions: {
-          php: "8.2",
-          wp: "latest"
-        },
-        phpExtensionBundles: ["kitchen-sink"],
-        steps: blueprintData.steps
-      };
+      const nativeBlueprint = generateBlueprint(
+        blueprintData.steps,
+        blueprintData.blueprintTitle || 'My WordPress Site',
+        blueprintData.landingPageType || 'wp-admin',
+        blueprintData.customLandingUrl
+      );
 
-      const blueprintJson = JSON.stringify(playgroundBlueprint);
+      const blueprintJson = JSON.stringify(nativeBlueprint);
       const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
 
       return `https://playground.wordpress.net/#${encodedBlueprint}`;
