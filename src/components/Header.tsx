@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, MonitorPlay } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, MonitorPlay, Share2, Link2, Loader2 } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -14,7 +14,11 @@ interface HeaderProps {
   onOpenAiSidebar: () => void;
   onShowAiGenerator?: () => void;
   onShowLiveBuild?: () => void;
+  onSharePlayground?: () => void;
+  onShowSharedPlaygrounds?: () => void;
 }
+
+const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
 
 export function Header({
   blueprint,
@@ -27,101 +31,63 @@ export function Header({
   onReset,
   onOpenAiSidebar,
   onShowAiGenerator,
-  onShowLiveBuild
+  onShowLiveBuild,
+  onSharePlayground,
+  onShowSharedPlaygrounds,
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
   const unicodeSafeBase64Encode = (str: string): string => {
-    // Convert string to UTF-8 bytes
     const utf8Bytes = new TextEncoder().encode(str);
-    // Convert bytes to binary string
-    const binaryString = Array.from(utf8Bytes)
-      .map(byte => String.fromCharCode(byte))
-      .join('');
-    // Now safely use btoa
+    const binaryString = Array.from(utf8Bytes).map(byte => String.fromCharCode(byte)).join('');
     return btoa(binaryString);
   };
 
   const createPlaygroundUrl = () => {
     try {
-      console.log('Original blueprint steps:', blueprint.steps);
-      
       const validSteps = blueprint.steps.filter(step => {
-        console.log('Validating step:', step);
         switch (step.step) {
           case 'installPlugin':
-            const pluginValid = step.pluginData && (step.pluginData.url || step.pluginData.slug);
-            console.log('Plugin step valid:', pluginValid, step);
-            return pluginValid;
+            return step.pluginData && (step.pluginData.url || step.pluginData.slug);
           case 'installTheme':
-            const themeValid = step.themeData && (step.themeData.url || step.themeData.slug);
-            console.log('Theme step valid:', themeValid, step);
-            return themeValid;
+            return step.themeData && (step.themeData.url || step.themeData.slug);
           case 'wp-cli':
-            const cliValid = step.command && step.command.trim();
-            console.log('WP-CLI step valid:', cliValid, step);
-            return cliValid;
+            return step.command && step.command.trim();
           case 'addMedia':
-            const mediaValid = step.command && step.command.includes('wp media import');
-            console.log('Media step valid:', mediaValid, step);
-            return mediaValid;
-          case 'setSiteOptions': 
-            const optionsValid = step.options && Object.keys(step.options).length > 0;
-            console.log('Site options step valid:', optionsValid, step);
-            return optionsValid;
+            return step.command && step.command.includes('wp media import');
+          case 'setSiteOptions':
+            return step.options && Object.keys(step.options).length > 0;
           case 'defineWpConfigConst':
-            const constsValid = step.consts && Object.keys(step.consts).length > 0;
-            console.log('WP Config step valid:', constsValid, step);
-            return constsValid;
+            return step.consts && Object.keys(step.consts).length > 0;
           case 'importWxr':
-            const wxrValid = step.file && step.file.url;
-            console.log('WXR step valid:', wxrValid, step);
-            return wxrValid;
+            return step.file && step.file.url;
           case 'login':
-            const loginValid = step.username;
-            console.log('Login step valid:', loginValid, step);
-            return loginValid;
+            return step.username;
           case 'addClientRole':
-            const roleValid = step.name && step.capabilities && step.capabilities.length > 0;
-            console.log('Client role step valid:', roleValid, step);
-            return roleValid;
+            return step.name && step.capabilities && step.capabilities.length > 0;
           default:
-            console.log('Default step valid:', true, step);
             return true;
         }
       });
-      
-      console.log('Valid steps after filtering:', validSteps);
-      
+
       const playgroundBlueprint = {
         landingPage: blueprint.landingPage,
-        preferredVersions: {
-          php: "8.2",
-          wp: "latest"
-        },
-        phpExtensionBundles: ["kitchen-sink"],
-        steps: validSteps
+        preferredVersions: { php: '8.2', wp: 'latest' },
+        phpExtensionBundles: ['kitchen-sink'],
+        steps: validSteps,
       };
-      
-      console.log('Final playground blueprint:', playgroundBlueprint);
-      
-      const blueprintJson = JSON.stringify(playgroundBlueprint);
-      console.log('Blueprint JSON:', blueprintJson);
-      const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
-      console.log('Encoded blueprint length:', encodedBlueprint.length);
-      
-      return `https://playground.wordpress.net/#${encodedBlueprint}`;
+
+      return `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(playgroundBlueprint))}`;
     } catch (error) {
       console.error('Error creating playground URL:', error);
-      alert('Error creating playground URL: ' + error.message);
+      alert('Error creating playground URL: ' + (error as Error).message);
       return 'https://playground.wordpress.net/';
     }
   };
 
   const handleLaunch = () => {
     setIsLaunching(true);
-    const url = createPlaygroundUrl();
-    window.open(url, '_blank');
+    window.open(createPlaygroundUrl(), '_blank');
     setTimeout(() => setIsLaunching(false), 2000);
   };
 
@@ -138,176 +104,159 @@ export function Header({
     URL.revokeObjectURL(url);
   };
 
+  const iconBtn = (active = true): React.CSSProperties => ({
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: 36, height: 36, border: 'none', background: 'transparent',
+    borderRadius: 2, cursor: active ? 'pointer' : 'not-allowed',
+    color: active ? '#3c434a' : '#a7aaad',
+    transition: 'background 0.12s', flexShrink: 0, padding: 0,
+  });
+
+  const divider = (
+    <div style={{ width: 1, height: 24, background: '#dcdcde', margin: '0 4px', flexShrink: 0 }} />
+  );
+
   return (
-    <header className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
-      <div className="px-4 lg:px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 lg:gap-4">
-            <div className="flex items-center gap-2 lg:gap-3">
-              <div className="w-10 h-10 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50">
-                <Zap className="w-5 h-5 text-blueprint-paper" />
-              </div>
-              <div>
-                <h1 className="text-lg lg:text-xl font-bold text-blueprint-text">Pootle Playground</h1>
-                <p className="text-xs lg:text-sm text-blueprint-text/70">Blueprint Generator v1.6</p>
-              </div>
+    <header style={{
+      background: '#ffffff', borderBottom: '1px solid #dcdcde',
+      position: 'sticky', top: 0, zIndex: 50, fontFamily: WP_FONT,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 16px', height: 56, gap: 8,
+      }}>
+
+        {/* ── Logo ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <div style={{
+            width: 36, height: 36, background: '#2271b1', borderRadius: 6,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Zap style={{ width: 18, height: 18, color: '#fff' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1e1e', lineHeight: 1.2 }}>
+              Pootle Playground
             </div>
-            
-            <div className="hidden xl:flex items-center gap-4 ml-8">
-              <div className="flex items-center gap-2 px-3 py-1 blueprint-component rounded-full border">
-                <FileText className="w-4 h-4 text-blueprint-accent" />
-                <span className="text-sm font-medium text-blueprint-accent">{stepCount} steps</span>
-              </div>
-              <div className="text-sm text-blueprint-text/70">
-                Building: <span className="font-medium text-blueprint-text">{title}</span>
-              </div>
+            <div style={{ fontSize: 11, color: '#787c82', lineHeight: 1.2 }}>
+              Blueprint Generator v1.6
             </div>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onReset}
-              disabled={stepCount === 0}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500/10 hover:text-red-600"
-              title="Reset blueprint (clear all steps)"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Reset</span>
+
+          {stepCount > 0 && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              padding: '3px 9px', background: '#f0f6fc',
+              border: '1px solid #b8d3f4', borderRadius: 999,
+              fontSize: 12, color: '#2271b1', fontWeight: 500, flexShrink: 0,
+            }}>
+              <FileText style={{ width: 11, height: 11 }} />
+              {stepCount}
+            </div>
+          )}
+
+          <span className="hidden xl:block" style={{ fontSize: 13, color: '#50575e' }}>
+            {title}
+          </span>
+        </div>
+
+        {/* ── Toolbar ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+          {divider}
+
+          <button onClick={onReset} disabled={stepCount === 0} title="Reset blueprint" style={iconBtn(stepCount > 0)}
+            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = '#f0f0f1'; }}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+            <RotateCcw style={{ width: 15, height: 15 }} />
+          </button>
+
+          <button onClick={onShowGallery} title="Browse gallery" style={iconBtn()}
+            onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+            <Grid3x3 style={{ width: 15, height: 15 }} />
+          </button>
+
+          <button onClick={onImportBlueprint} title="Import blueprint JSON" style={iconBtn()}
+            onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+            <Download style={{ width: 15, height: 15 }} />
+          </button>
+
+          <button onClick={handleDownload} disabled={stepCount === 0} title="Export blueprint JSON" style={iconBtn(stepCount > 0)}
+            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = '#f0f0f1'; }}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+            <Upload style={{ width: 15, height: 15 }} />
+          </button>
+
+          {onShowLiveBuild && (
+            <button onClick={onShowLiveBuild} title="Live Build" style={iconBtn()}
+              onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+              onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+              <MonitorPlay style={{ width: 15, height: 15 }} />
             </button>
+          )}
 
-            <button
-              onClick={onSaveBlueprint}
-              disabled={stepCount === 0}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Save to Community Gallery"
-            >
-              <Save className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Save</span>
+          <button
+            onClick={onShowAiGenerator || onOpenAiSidebar} title="Generate with AI"
+            style={{ ...iconBtn(), color: '#2271b1' }}
+            onMouseOver={e => (e.currentTarget.style.background = '#f0f6fc')}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+            <Sparkles style={{ width: 15, height: 15 }} />
+          </button>
+
+          {onShowSharedPlaygrounds && (
+            <button onClick={onShowSharedPlaygrounds} title="My shared links" style={iconBtn()}
+              onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+              onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+              <Link2 style={{ width: 15, height: 15 }} />
             </button>
+          )}
 
-            <button
-              onClick={onShowGallery}
-              className="hidden lg:flex items-center gap-2 px-3 lg:px-4 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Browse blueprint gallery"
-            >
-              <Grid3x3 className="w-4 h-4" />
-              <span className="font-medium hidden xl:inline">Gallery</span>
+          {onSharePlayground && (
+            <button onClick={onSharePlayground} title="Share this Playground" style={iconBtn()}
+              onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+              onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+              <Share2 style={{ width: 15, height: 15 }} />
             </button>
+          )}
 
-            <button
-              onClick={onImportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Import WordPress Playground blueprint"
-            >
-              <Download className="w-4 h-4" />
-            </button>
+          {divider}
 
-            <button
-              onClick={onExportBlueprint}
-              className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Export as WordPress Playground blueprint"
-            >
-              <Upload className="w-4 h-4" />
-            </button>
+          {/* Save draft */}
+          <button
+            onClick={onSaveBlueprint} disabled={stepCount === 0}
+            style={{
+              padding: '6px 14px', fontSize: 13, fontWeight: 500,
+              background: '#fff', color: stepCount === 0 ? '#a7aaad' : '#2271b1',
+              border: `1px solid ${stepCount === 0 ? '#dcdcde' : '#2271b1'}`,
+              borderRadius: 999, cursor: stepCount === 0 ? 'not-allowed' : 'pointer',
+              fontFamily: WP_FONT, display: 'flex', alignItems: 'center', gap: 5,
+              transition: 'background 0.12s', whiteSpace: 'nowrap', flexShrink: 0,
+            }}
+            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = '#f0f6fc'; }}
+            onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+            <Save style={{ width: 12, height: 12 }} />
+            Save
+          </button>
 
-            {onShowLiveBuild && (
-              <button
-                onClick={onShowLiveBuild}
-                className="hidden lg:flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
-                title="Build live in WordPress Playground and capture as blueprint"
-              >
-                <MonitorPlay className="w-4 h-4" />
-                <span className="font-medium hidden xl:inline">Live Build</span>
-              </button>
-            )}
-
-            <button
-              onClick={onShowAiGenerator || onOpenAiSidebar}
-              className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 text-sm"
-              title="Generate blueprint with AI"
-            >
-              <Sparkles className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={onReset}
-              disabled={stepCount === 0}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-500/10 hover:text-red-600"
-              title="Reset blueprint"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={onSaveBlueprint}
-              disabled={stepCount === 0}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Save to Community"
-            >
-              <Save className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={onShowGallery}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Browse gallery"
-            >
-              <Grid3x3 className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={onImportBlueprint}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
-              title="Import blueprint"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={onExportBlueprint}
-              disabled={stepCount === 0}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Export blueprint"
-            >
-              <Upload className="w-4 h-4" />
-            </button>
-
-            {onShowLiveBuild && (
-              <button
-                onClick={onShowLiveBuild}
-                className="lg:hidden flex items-center gap-2 px-3 py-2 blueprint-button rounded-lg transition-colors text-sm"
-                title="Live Build"
-              >
-                <MonitorPlay className="w-4 h-4" />
-              </button>
-            )}
-
-            <button
-              onClick={onShowAiGenerator || onOpenAiSidebar}
-              className="lg:hidden flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg transition-all text-sm"
-              title="AI Generate"
-            >
-              <Sparkles className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={handleLaunch}
-              disabled={stepCount === 0 || isLaunching}
-              className="flex items-center gap-2 px-4 lg:px-6 py-2 blueprint-accent font-medium rounded-lg hover:brightness-110 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 text-sm lg:text-base"
-            >
-              {isLaunching ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-blueprint-paper/30 border-t-blueprint-paper rounded-full animate-spin" />
-                  <span>Launching...</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" />
-                  <span>Launch</span>
-                </>
-              )}
-            </button>
-          </div>
+          {/* Launch */}
+          <button
+            onClick={handleLaunch} disabled={stepCount === 0 || isLaunching}
+            style={{
+              padding: '6px 16px', fontSize: 13, fontWeight: 500,
+              background: stepCount === 0 || isLaunching ? '#a7aaad' : '#2271b1',
+              color: '#fff', border: '1px solid transparent',
+              borderRadius: 999,
+              cursor: stepCount === 0 || isLaunching ? 'not-allowed' : 'pointer',
+              fontFamily: WP_FONT, display: 'flex', alignItems: 'center', gap: 6,
+              transition: 'background 0.12s', whiteSpace: 'nowrap', flexShrink: 0,
+            }}
+            onMouseOver={e => { if (stepCount > 0 && !isLaunching) e.currentTarget.style.background = '#135e96'; }}
+            onMouseOut={e => { if (stepCount > 0 && !isLaunching) e.currentTarget.style.background = '#2271b1'; }}>
+            {isLaunching
+              ? <><Loader2 style={{ width: 13, height: 13 }} className="animate-spin" /> Launching…</>
+              : <><Play style={{ width: 13, height: 13 }} /> Launch</>}
+          </button>
         </div>
       </div>
     </header>

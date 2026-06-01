@@ -1,158 +1,118 @@
-/* Blueprint Theme Styles for WordPress Playground Blueprint Configurator */
+/* WordPress Admin Theme */
 
-/* Blueprint grid background pattern */
+html {
+  scroll-behavior: smooth;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+/* Page background */
 .blueprint-grid {
-  background-color: #1e3a5f;
-  background-image: 
-    linear-gradient(rgba(79, 195, 247, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(79, 195, 247, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-color: #f0f0f1;
 }
-
 .blueprint-grid::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(rgba(79, 195, 247, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(79, 195, 247, 0.05) 1px, transparent 1px);
-  background-size: 100px 100px;
-  pointer-events: none;
+  display: none;
 }
 
-/* Blueprint paper texture */
+/* White panel surface */
 .blueprint-paper {
-  background: linear-gradient(135deg, #1e3a5f 0%, #2a4d73 50%, #1e3a5f 100%);
+  background: #ffffff;
   position: relative;
 }
 
-/* Blueprint component styling */
+/* Component panels */
 .blueprint-component {
-  background: rgba(42, 77, 115, 0.8);
-  border: 1px solid rgba(79, 195, 247, 0.3);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border-color: #dcdcde;
+  backdrop-filter: none;
 }
-
 .blueprint-component:hover {
-  border-color: rgba(79, 195, 247, 0.5);
-  background: rgba(42, 77, 115, 0.9);
+  background: #ffffff;
+  border-color: #8c8f94;
 }
 
-/* Blueprint input styling */
+/* Inputs */
 .blueprint-input {
-  background: rgba(30, 58, 95, 0.8);
-  border: 1px solid rgba(79, 195, 247, 0.4);
-  color: #e6f3ff;
+  background: #ffffff;
+  border: 1px solid #8c8f94;
+  color: #1e1e1e;
+  border-radius: 2px;
 }
-
 .blueprint-input:focus {
-  border-color: #4fc3f7;
-  box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.2);
-  background: rgba(30, 58, 95, 0.9);
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+  background: #ffffff;
+  outline: none;
 }
-
 .blueprint-input::placeholder {
-  color: rgba(230, 243, 255, 0.5);
+  color: #a7aaad;
 }
 
-/* Blueprint button styling */
+/* Secondary / ghost buttons */
 .blueprint-button {
-  background: linear-gradient(135deg, rgba(79, 195, 247, 0.2), rgba(79, 195, 247, 0.1));
-  border: 1px solid rgba(79, 195, 247, 0.4);
-  color: #e6f3ff;
-  transition: all 0.2s ease;
+  background: transparent;
+  border: 1px solid #c3c4c7;
+  color: #1e1e1e;
+  transition: all 0.15s ease;
+}
+.blueprint-button:hover:not(:disabled) {
+  background: #f0f0f1;
+  border-color: #8c8f94;
+  transform: none;
+  box-shadow: none;
+}
+.blueprint-button:disabled {
+  opacity: 0.4;
 }
 
-.blueprint-button:hover {
-  background: linear-gradient(135deg, rgba(79, 195, 247, 0.3), rgba(79, 195, 247, 0.2));
-  border-color: #4fc3f7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(79, 195, 247, 0.2);
-}
-
-/* Blueprint accent elements */
+/* Primary accent — WordPress blue */
 .blueprint-accent {
-  background: linear-gradient(135deg, #4fc3f7, #29b6f6);
-  color: #1e3a5f;
+  background: #2271b1;
+  color: #ffffff;
+}
+.blueprint-accent:hover:not(:disabled) {
+  background: #135e96;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Smooth transitions */
+/* Transition helper */
 .blueprint-transition {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.15s ease;
 }
 
-/* Custom scrollbar */
+/* Scrollbar */
 *::-webkit-scrollbar {
   width: 6px;
 }
-
 *::-webkit-scrollbar-track {
-  background: rgba(30, 58, 95, 0.5);
-  border-radius: 4px;
+  background: #f0f0f1;
 }
-
 *::-webkit-scrollbar-thumb {
-  background: rgba(79, 195, 247, 0.4);
-  border-radius: 4px;
+  background: #c3c4c7;
+  border-radius: 3px;
 }
-
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 195, 247, 0.6);
+  background: #8c8f94;
 }
 
-/* Animation utilities */
+/* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fadeIn {
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.25s ease-out;
 }
 
-/* Gallery-specific styles */
+/* Gallery grid */
 .blueprint-gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
   padding: 2rem 0;
 }
-
 .blueprint-template-card {
   position: relative;
   overflow: hidden;
 }
-
 .blueprint-template-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(rgba(79, 195, 247, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(79, 195, 247, 0.03) 1px, transparent 1px);
-  background-size: 12px 12px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.blueprint-template-card:hover::before {
-  opacity: 1;
+  display: none;
 }

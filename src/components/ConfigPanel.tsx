@@ -25,16 +25,24 @@ interface ConfigPanelProps {
 export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPanelProps) {
   if (!selectedStep) {
     return (
-      <div className="hidden lg:flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg border">
-            <Settings className="w-8 h-8 text-blueprint-accent" />
+      <div
+        className="hidden lg:flex flex-1 items-center justify-center"
+        style={{ background: '#f0f0f1' }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 56, height: 56,
+            background: '#ffffff', border: '1px solid #dcdcde', borderRadius: 6,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+          }}>
+            <Settings style={{ width: 22, height: 22, color: '#a7aaad' }} />
           </div>
-          <h3 className="text-xl font-semibold text-blueprint-text mb-3">
-            Select a Step to Configure
+          <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1e1e1e', margin: '0 0 6px' }}>
+            Select a step to configure
           </h3>
-          <p className="text-blueprint-text/70 max-w-sm">
-            Choose a step from the sidebar to configure its settings and content.
+          <p style={{ fontSize: 13, color: '#787c82', margin: 0, maxWidth: 280 }}>
+            Choose a step from the right panel to configure its settings.
           </p>
         </div>
       </div>
@@ -44,45 +52,33 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
   const renderForm = () => {
     const commonProps = {
       data: selectedStep.data,
-      onChange: (data: any) => onUpdateStep(selectedStep.id, data)
+      onChange: (data: any) => onUpdateStep(selectedStep.id, data),
     };
 
     switch (selectedStep.type) {
-      case 'addPost':
-        return <PostForm {...commonProps} />;
-      case 'addPage':
-        return <PageForm {...commonProps} />;
-      case 'addMedia':
-        return <MediaForm {...commonProps} />;
-      case 'installPlugin':
-        return <PluginForm {...commonProps} />;
-      case 'installTheme':
-        return <ThemeForm {...commonProps} />;
-      case 'setSiteOption':
-        return <SiteOptionForm {...commonProps} />;
-      case 'defineWpConfigConst':
-        return <WpConfigForm {...commonProps} />;
-      case 'login':
-        return <LoginForm {...commonProps} />;
-      case 'importWxr':
-        return <ImportForm {...commonProps} />;
-      case 'addClientRole':
-        return <ClientRoleForm {...commonProps} />;
-      case 'setHomepage':
-        return <HomepageForm {...commonProps} allSteps={allSteps} />;
-      case 'setPostsPage':
-        return <PostsPageForm {...commonProps} allSteps={allSteps} />;
-      case 'createNavigationMenu':
-        return <NavigationMenuForm {...commonProps} allSteps={allSteps} />;
-      case 'setLandingPage':
-        return <LandingPageForm {...commonProps} />;
-      default:
-        return <div>Unsupported step type</div>;
+      case 'addPost': return <PostForm {...commonProps} />;
+      case 'addPage': return <PageForm {...commonProps} />;
+      case 'addMedia': return <MediaForm {...commonProps} />;
+      case 'installPlugin': return <PluginForm {...commonProps} />;
+      case 'installTheme': return <ThemeForm {...commonProps} />;
+      case 'setSiteOption': return <SiteOptionForm {...commonProps} />;
+      case 'defineWpConfigConst': return <WpConfigForm {...commonProps} />;
+      case 'login': return <LoginForm {...commonProps} />;
+      case 'importWxr': return <ImportForm {...commonProps} />;
+      case 'addClientRole': return <ClientRoleForm {...commonProps} />;
+      case 'setHomepage': return <HomepageForm {...commonProps} allSteps={allSteps} />;
+      case 'setPostsPage': return <PostsPageForm {...commonProps} allSteps={allSteps} />;
+      case 'createNavigationMenu': return <NavigationMenuForm {...commonProps} allSteps={allSteps} />;
+      case 'setLandingPage': return <LandingPageForm {...commonProps} />;
+      default: return <div>Unsupported step type</div>;
     }
   };
 
   return (
-    <div className="flex-1 blueprint-component rounded-t-2xl lg:rounded-tl-2xl lg:rounded-tr-none shadow-xl border m-2 lg:m-4 overflow-hidden backdrop-blur-sm">
+    <div
+      className="flex-1 overflow-hidden"
+      style={{ background: '#ffffff', borderLeft: '1px solid #dcdcde' }}
+    >
       {renderForm()}
     </div>
   );

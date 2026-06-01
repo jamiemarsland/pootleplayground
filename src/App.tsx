@@ -8,12 +8,15 @@ import { Footer } from './components/Footer';
 import { BlueprintGallery } from './components/BlueprintGallery';
 import { SaveBlueprintModal } from './components/SaveBlueprintModal';
 import { AlertModal } from './components/AlertModal';
+import { SharePlaygroundModal } from './components/SharePlaygroundModal';
 import { AiPromptSidebar } from './components/AiPromptSidebar';
 import { AiGeneratorPage } from './components/AiGeneratorPage';
 import { AiStarterPage } from './components/AiStarterPage';
 import { McpInstructionsPage } from './components/McpInstructionsPage';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
 import { LiveBuildPage } from './components/LiveBuildPage';
+import { PlaygroundRedirectPage } from './components/PlaygroundRedirectPage';
+import { SharedPlaygroundsPage } from './components/SharedPlaygroundsPage';
 import { Step, StepType } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
@@ -36,6 +39,7 @@ function Builder() {
     type: 'warning' | 'danger' | 'info' | 'success';
   }>({ isOpen: false, title: '', message: '', type: 'info' });
   const [showVersionAnnouncement, setShowVersionAnnouncement] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     const hasSeenAnnouncement = localStorage.getItem('hasSeenV16Announcement');
@@ -225,7 +229,7 @@ function Builder() {
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
 
   return (
-    <div className="min-h-screen bg-blueprint-paper blueprint-grid relative">
+    <div className="min-h-screen relative" style={{ background: '#f0f0f1' }}>
       <Header
         blueprint={blueprint}
         title={blueprintTitle}
@@ -238,9 +242,11 @@ function Builder() {
         onOpenAiSidebar={() => setShowAiSidebar(true)}
         onShowAiGenerator={() => navigate('/ai-generator')}
         onShowLiveBuild={() => navigate('/live-build')}
+        onSharePlayground={() => setShowShareModal(true)}
+        onShowSharedPlaygrounds={() => navigate('/shared')}
       />
       
-      <div className="flex flex-col lg:flex-row relative z-10">
+      <div className="flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 56px - 41px)' }}>
         <Sidebar 
           onAddStep={addStep}
           blueprintTitle={blueprintTitle}
@@ -287,6 +293,21 @@ function Builder() {
         message={alertState.message}
         type={alertState.type}
         onClose={() => setAlertState({ ...alertState, isOpen: false })}
+      />
+
+      <SharePlaygroundModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        currentPlaygroundUrl={(() => {
+          try {
+            const utf8Bytes = new TextEncoder().encode(JSON.stringify(blueprint));
+            const binaryString = Array.from(utf8Bytes).map(b => String.fromCharCode(b)).join('');
+            return `https://playground.wordpress.net/#${btoa(binaryString)}`;
+          } catch {
+            return undefined;
+          }
+        })()}
+        blueprintJson={steps.length > 0 ? blueprint : null}
       />
 
       <AiPromptSidebar
@@ -400,6 +421,8 @@ function App() {
       <Route path="/ai-starter" element={<AiStarterPage />} />
       <Route path="/mcp-instructions" element={<McpInstructionsPage />} />
       <Route path="/live-build" element={<LiveBuildPage />} />
+      <Route path="/p/:slug" element={<PlaygroundRedirectPage />} />
+      <Route path="/shared" element={<SharedPlaygroundsPage />} />
     </Routes>
   );
 }

@@ -4,14 +4,26 @@ import { BookOpen } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="blueprint-paper border-t border-blueprint-accent/30 py-4 px-6 mt-auto">
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-6 text-sm text-blueprint-text/70">
+    <footer
+      style={{
+        background: '#ffffff',
+        borderTop: '1px solid #dcdcde',
+        padding: '10px 24px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
         <Link
           to="/mcp-instructions"
-          className="flex items-center gap-2 hover:text-blueprint-accent transition-colors"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            fontSize: 12, color: '#787c82', textDecoration: 'none', transition: 'color 0.12s',
+          }}
+          onMouseOver={e => (e.currentTarget.style.color = '#2271b1')}
+          onMouseOut={e => (e.currentTarget.style.color = '#787c82')}
         >
-          <BookOpen className="w-4 h-4" />
-          <span>MCP Instructions</span>
+          <BookOpen style={{ width: 13, height: 13 }} />
+          MCP Instructions
         </Link>
       </div>
     </footer>

@@ -10,133 +10,144 @@ interface StepsListProps {
 }
 
 const STEP_ICONS = {
-  addPost: FileText,
-  addPage: FileText,
-  addMedia: Image,
-  setLandingPage: Settings,
-  setHomepage: FileText,
-  setPostsPage: FileText,
-  installPlugin: Puzzle,
-  installTheme: Puzzle,
-  setSiteOption: Settings,
-  defineWpConfigConst: Settings,
-  login: Settings,
-  importWxr: Settings,
-  addClientRole: Settings,
-  createNavigationMenu: Menu
+  addPost: FileText, addPage: FileText, addMedia: Image,
+  setLandingPage: Settings, setHomepage: FileText, setPostsPage: FileText,
+  installPlugin: Puzzle, installTheme: Puzzle,
+  setSiteOption: Settings, defineWpConfigConst: Settings, login: Settings,
+  importWxr: Settings, addClientRole: Settings, createNavigationMenu: Menu,
 };
 
 const STEP_LABELS = {
-  addPost: 'Add Post',
-  addPage: 'Add Page',
-  addMedia: 'Add Media',
-  setLandingPage: 'Set Landing Page',
-  setHomepage: 'Set Homepage',
-  setPostsPage: 'Set Posts Page',
-  installPlugin: 'Install Plugin',
-  installTheme: 'Install Theme',
-  setSiteOption: 'Site Option',
-  defineWpConfigConst: 'WP Config',
-  login: 'Login',
-  importWxr: 'Import WXR',
-  addClientRole: 'Client Role',
-  createNavigationMenu: 'Set Navigation Menu'
+  addPost: 'Add Post', addPage: 'Add Page', addMedia: 'Add Media',
+  setLandingPage: 'Set Landing Page', setHomepage: 'Set Homepage',
+  setPostsPage: 'Set Posts Page', installPlugin: 'Install Plugin',
+  installTheme: 'Install Theme', setSiteOption: 'Site Option',
+  defineWpConfigConst: 'WP Config', login: 'Login', importWxr: 'Import WXR',
+  addClientRole: 'Client Role', createNavigationMenu: 'Set Navigation Menu',
 };
 
-export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: StepsListProps) {
-  const getStepColor = (type: StepType) => {
-    const colorMap = {
-      addPost: 'blue',
-      addPage: 'blue', 
-      addMedia: 'blue',
-      setLandingPage: 'purple',
-      setHomepage: 'blue',
-      setPostsPage: 'blue',
-      installPlugin: 'green',
-      installTheme: 'green',
-      setSiteOption: 'purple',
-      defineWpConfigConst: 'purple',
-      login: 'purple',
-      importWxr: 'orange',
-      addClientRole: 'orange',
-      createNavigationMenu: 'purple'
-    };
-    return colorMap[type] || 'gray';
-  };
+const STEP_ACCENT: Record<string, string> = {
+  addPost: '#2271b1', addPage: '#2271b1', addMedia: '#2271b1',
+  installPlugin: '#00a32a', installTheme: '#00a32a',
+  setHomepage: '#787c82', setPostsPage: '#787c82', createNavigationMenu: '#787c82',
+  setLandingPage: '#dba617', setSiteOption: '#dba617',
+  defineWpConfigConst: '#d63638', login: '#d63638',
+  importWxr: '#50575e', addClientRole: '#50575e',
+};
 
+const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
+
+export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep }: StepsListProps) {
   return (
-    <div className="w-full lg:w-80 blueprint-paper border-l lg:border-l border-t lg:border-t-0 border-blueprint-accent/30 flex flex-col min-h-auto lg:min-h-[calc(100vh-73px)] backdrop-blur-sm order-last lg:order-none">
+    <div
+      style={{
+        width: 280, minWidth: 280,
+        background: '#ffffff',
+        borderLeft: '1px solid #dcdcde',
+        display: 'flex', flexDirection: 'column',
+        minHeight: 'calc(100vh - 56px)',
+        fontFamily: WP_FONT,
+      }}
+      className="lg:flex flex-col hidden"
+    >
       {/* Header */}
-      <div className="p-4 lg:p-4 border-b border-blueprint-accent/30 blueprint-component/20">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-blueprint-text flex items-center gap-2">
-            Blueprint Steps
-            {steps.length > 0 && (
-              <span className="inline-flex items-center justify-center w-6 h-6 text-xs font-bold text-blueprint-paper blueprint-accent rounded-full">
-                {steps.length}
-              </span>
-            )}
-          </h2>
+      <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #dcdcde' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e' }}>Blueprint Steps</span>
+          {steps.length > 0 && (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              width: 20, height: 20, background: '#2271b1', color: '#fff',
+              borderRadius: '50%', fontSize: 11, fontWeight: 700,
+            }}>
+              {steps.length}
+            </span>
+          )}
         </div>
-        <p className="text-xs text-blueprint-text/60">
+        <p style={{ fontSize: 11, color: '#787c82', margin: '3px 0 0' }}>
           Your WordPress setup sequence
         </p>
       </div>
-      
-      {/* Steps List */}
-      <div className="flex-1 overflow-y-auto p-4 max-h-64 lg:max-h-none">
+
+      {/* Steps */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
         {steps.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 blueprint-component rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg border">
-              <Settings className="w-8 h-8 text-blueprint-accent" />
+          <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+            <div style={{
+              width: 48, height: 48, background: '#f6f7f7',
+              border: '1px solid #dcdcde', borderRadius: 6,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 12px',
+            }}>
+              <Settings style={{ width: 20, height: 20, color: '#a7aaad' }} />
             </div>
-            <h3 className="text-lg font-semibold text-blueprint-text mb-2">No Steps Yet</h3>
-            <p className="text-sm text-blueprint-text/70 mb-4">Add steps from the left sidebar to build your blueprint</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e', margin: '0 0 4px' }}>No steps yet</p>
+            <p style={{ fontSize: 12, color: '#787c82', margin: 0 }}>Add steps from the left panel</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div>
             {steps.map((step, index) => {
-              const Icon = STEP_ICONS[step.type];
-              const color = getStepColor(step.type);
+              const Icon = STEP_ICONS[step.type] || Settings;
               const isSelected = selectedStep?.id === step.id;
-              
+              const accent = STEP_ACCENT[step.type] || '#50575e';
+
               return (
                 <div
                   key={step.id}
-                  className={`relative group border-l-4 border rounded-lg p-4 cursor-pointer blueprint-transition shadow-sm ${
-                    isSelected 
-                      ? 'border-l-blueprint-accent border-blueprint-accent/50 blueprint-component shadow-lg scale-[1.02]' 
-                      : 'border-l-blueprint-grid border-blueprint-grid/50 hover:border-l-blueprint-accent/70 hover:border-blueprint-accent/30 hover:shadow-md hover:scale-[1.01] blueprint-component/50'
-                  }`}
                   onClick={() => onSelectStep(step)}
+                  className="group"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '9px 14px 9px 0',
+                    borderLeft: `3px solid ${isSelected ? accent : 'transparent'}`,
+                    background: isSelected ? '#f0f6fc' : 'transparent',
+                    cursor: 'pointer', transition: 'all 0.1s',
+                    borderBottom: '1px solid #f0f0f1',
+                  }}
+                  onMouseOver={e => { if (!isSelected) e.currentTarget.style.background = '#f9f9f9'; }}
+                  onMouseOut={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full blueprint-component border border-blueprint-accent/30 flex items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-blueprint-accent">
-                        {index + 1}
-                      </span>
-                    </div>
-                    <Icon size={18} className="text-blueprint-accent flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-blueprint-text">
-                        {STEP_LABELS[step.type]}
-                      </div>
-                      {(step.data.postTitle || step.data.option) && (
-                        <div className="text-xs text-blueprint-text/60 truncate mt-1">
-                          {step.data.postTitle || step.data.option}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveStep(step.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 text-blueprint-text/50 hover:text-red-400 transition-all p-1.5 rounded-lg hover:bg-red-900/30 flex-shrink-0"
-                    >
-                      <X size={14} />
-                    </button>
+                  {/* Step number */}
+                  <div style={{
+                    width: 24, minWidth: 24, textAlign: 'center',
+                    fontSize: 11, fontWeight: 600,
+                    color: isSelected ? accent : '#a7aaad',
+                    paddingLeft: 8,
+                  }}>
+                    {index + 1}
                   </div>
+
+                  {/* Icon */}
+                  <Icon size={14} style={{ color: isSelected ? accent : '#50575e', flexShrink: 0 }} />
+
+                  {/* Label */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: '#1e1e1e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {STEP_LABELS[step.type]}
+                    </div>
+                    {(step.data?.postTitle || step.data?.option) && (
+                      <div style={{ fontSize: 11, color: '#787c82', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {step.data.postTitle || step.data.option}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Delete */}
+                  <button
+                    onClick={e => { e.stopPropagation(); onRemoveStep(step.id); }}
+                    style={{
+                      width: 24, height: 24, border: 'none', background: 'transparent',
+                      borderRadius: 2, cursor: 'pointer', color: '#a7aaad',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      opacity: 0, transition: 'opacity 0.1s, color 0.1s',
+                      flexShrink: 0, padding: 0,
+                    }}
+                    className="group-hover:opacity-100"
+                    onMouseOver={e => (e.currentTarget.style.color = '#d63638')}
+                    onMouseOut={e => (e.currentTarget.style.color = '#a7aaad')}
+                  >
+                    <X size={12} />
+                  </button>
                 </div>
               );
             })}
