@@ -30,6 +30,8 @@ function Builder() {
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page' | 'custom'>('wp-admin');
   const [customLandingUrl, setCustomLandingUrl] = useState('');
+  const [phpVersion, setPhpVersion] = useState('8.2');
+  const [wpVersion, setWpVersion] = useState('latest');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [alertState, setAlertState] = useState<{
     isOpen: boolean;
@@ -100,7 +102,7 @@ function Builder() {
 
 
   const handleExportBlueprint = () => {
-    const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
+    const nativeBlueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
     const jsonString = JSON.stringify(nativeBlueprint, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -225,7 +227,7 @@ function Builder() {
     });
   };
 
-  const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl);
+  const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
 
   return (
     <div className="min-h-screen relative" style={{ background: '#f0f0f1' }}>
@@ -245,10 +247,14 @@ function Builder() {
       />
       
       <div className="flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 56px - 41px)' }}>
-        <Sidebar 
+        <Sidebar
           onAddStep={addStep}
           blueprintTitle={blueprintTitle}
           onTitleChange={setBlueprintTitle}
+          phpVersion={phpVersion}
+          onPhpVersionChange={setPhpVersion}
+          wpVersion={wpVersion}
+          onWpVersionChange={setWpVersion}
         />
         
         <ConfigPanel 

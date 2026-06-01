@@ -1,12 +1,19 @@
-import React from 'react';
-import { FileText, Image, Puzzle, Settings, Menu } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Image, Puzzle, Settings, Menu, ChevronDown, ChevronRight } from 'lucide-react';
 import { StepType, StepCategory } from '../types/blueprint';
 
 interface SidebarProps {
   onAddStep: (type: StepType) => void;
   blueprintTitle: string;
   onTitleChange: (title: string) => void;
+  phpVersion: string;
+  onPhpVersionChange: (v: string) => void;
+  wpVersion: string;
+  onWpVersionChange: (v: string) => void;
 }
+
+const PHP_VERSIONS = ['7.4', '8.0', '8.1', '8.2', '8.3'];
+const WP_VERSIONS = ['latest', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1', '6.0'];
 
 const STEP_CATEGORIES: StepCategory[] = [
   { name: 'Content', steps: ['addPage', 'addPost', 'addMedia'], color: 'blue' },
@@ -34,7 +41,8 @@ const STEP_LABELS = {
 
 const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
 
-export function Sidebar({ onAddStep, blueprintTitle, onTitleChange }: SidebarProps) {
+export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, onPhpVersionChange, wpVersion, onWpVersionChange }: SidebarProps) {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   return (
     <div
       style={{
@@ -102,6 +110,75 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange }: SidebarPro
             })}
           </div>
         ))}
+
+        {/* Advanced section */}
+        <div style={{ borderTop: '1px solid #f0f0f1', marginTop: 4 }}>
+          <button
+            onClick={() => setAdvancedOpen(o => !o)}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '10px 16px 4px', border: 'none', background: 'transparent',
+              cursor: 'pointer', fontFamily: WP_FONT,
+            }}
+          >
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Advanced
+            </span>
+            {advancedOpen
+              ? <ChevronDown size={13} style={{ color: '#787c82' }} />
+              : <ChevronRight size={13} style={{ color: '#787c82' }} />}
+          </button>
+
+          {advancedOpen && (
+            <div style={{ padding: '8px 16px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {/* WordPress version */}
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                  WordPress Version
+                </label>
+                <select
+                  value={wpVersion}
+                  onChange={e => onWpVersionChange(e.target.value)}
+                  style={{
+                    width: '100%', padding: '6px 8px', fontSize: 12,
+                    border: '1px solid #8c8f94', borderRadius: 2,
+                    color: '#1e1e1e', background: '#fff', outline: 'none',
+                    fontFamily: WP_FONT, cursor: 'pointer',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
+                  onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
+                >
+                  {WP_VERSIONS.map(v => (
+                    <option key={v} value={v}>{v === 'latest' ? 'Latest' : v}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* PHP version */}
+              <div>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                  PHP Version
+                </label>
+                <select
+                  value={phpVersion}
+                  onChange={e => onPhpVersionChange(e.target.value)}
+                  style={{
+                    width: '100%', padding: '6px 8px', fontSize: 12,
+                    border: '1px solid #8c8f94', borderRadius: 2,
+                    color: '#1e1e1e', background: '#fff', outline: 'none',
+                    fontFamily: WP_FONT, cursor: 'pointer',
+                  }}
+                  onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
+                  onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
+                >
+                  {PHP_VERSIONS.map(v => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

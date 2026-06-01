@@ -171,7 +171,7 @@ function handlePostsPageStep(step: Step, allSteps: Step[]): BlueprintStep | Blue
   
   return steps.length > 0 ? steps : null;
 }
-export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' | 'custom' = 'wp-admin', customUrl?: string): Blueprint {
+export function generateBlueprint(allSteps: Step[], title: string, landingPageType: 'wp-admin' | 'front-page' | 'custom' = 'wp-admin', customUrl?: string, phpVersion = '8.2', wpVersion = 'latest'): Blueprint {
   // Check if there's a setLandingPage step to override the default
   const landingPageStep = allSteps.find(step => step.type === 'setLandingPage');
   const finalLandingPageType = landingPageStep?.data?.landingPageType || landingPageType;
@@ -187,8 +187,8 @@ export function generateBlueprint(allSteps: Step[], title: string, landingPageTy
   const blueprint: Blueprint = {
     landingPage: landingPageUrl,
     preferredVersions: {
-      php: '8.2',
-      wp: 'latest'
+      php: phpVersion,
+      wp: wpVersion
     },
     phpExtensionBundles: ["kitchen-sink"],
     steps: []
