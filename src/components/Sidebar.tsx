@@ -24,11 +24,11 @@ const WP_VERSIONS: { value: string; label: string; group?: string }[] = [
   { value: '6.2', label: '6.2', group: 'WordPress 6' },
   { value: '6.1', label: '6.1', group: 'WordPress 6' },
   { value: '6.0', label: '6.0', group: 'WordPress 6' },
-  { value: '5.9', label: 'WordPress 5 (5.9)', group: 'Older' },
-  { value: '4.9', label: 'WordPress 4 (4.9)', group: 'Older' },
-  { value: '3.9', label: 'WordPress 3 (3.9)', group: 'Older' },
-  { value: '2.9', label: 'WordPress 2 (2.9)', group: 'Older' },
-  { value: '1.5', label: 'WordPress 1 (1.5)', group: 'Older' },
+  { value: '5.0', label: '5 (Bebo)', group: 'Older Releases' },
+  { value: '4.0', label: '4 (Benny)', group: 'Older Releases' },
+  { value: '3.0', label: '3 (Thelonious)', group: 'Older Releases' },
+  { value: '2.0', label: '2 (Duke)', group: 'Older Releases' },
+  { value: '1.0', label: '1 (Miles)', group: 'Older Releases' },
 ];
 
 const STEP_CATEGORIES: StepCategory[] = [
@@ -171,7 +171,7 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                     ))}
                   </optgroup>
                   <optgroup label="Older Releases">
-                    {WP_VERSIONS.filter(v => v.group === 'Older').map(v => (
+                    {WP_VERSIONS.filter(v => v.group === 'Older Releases').map(v => (
                       <option key={v.value} value={v.value}>{v.label}</option>
                     ))}
                   </optgroup>
