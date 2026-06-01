@@ -70,7 +70,7 @@ export function Header({
 
       const playgroundBlueprint = {
         landingPage: blueprint.landingPage,
-        preferredVersions: { php: '8.2', wp: 'latest' },
+        preferredVersions: blueprint.preferredVersions,
         phpExtensionBundles: ['kitchen-sink'],
         steps: validSteps,
       };
