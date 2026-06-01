@@ -231,18 +231,18 @@ export function Header({
 
           {/* Launch */}
           <button
-            onClick={handleLaunch} disabled={stepCount === 0 || isLaunching}
+            onClick={handleLaunch} disabled={isLaunching}
             style={{
               padding: '6px 16px', fontSize: 13, fontWeight: 500,
-              background: stepCount === 0 || isLaunching ? '#a7aaad' : '#2271b1',
+              background: isLaunching ? '#a7aaad' : '#2271b1',
               color: '#fff', border: '1px solid transparent',
               borderRadius: 999,
-              cursor: stepCount === 0 || isLaunching ? 'not-allowed' : 'pointer',
+              cursor: isLaunching ? 'not-allowed' : 'pointer',
               fontFamily: WP_FONT, display: 'flex', alignItems: 'center', gap: 6,
               transition: 'background 0.12s', whiteSpace: 'nowrap', flexShrink: 0,
             }}
-            onMouseOver={e => { if (stepCount > 0 && !isLaunching) e.currentTarget.style.background = '#135e96'; }}
-            onMouseOut={e => { if (stepCount > 0 && !isLaunching) e.currentTarget.style.background = '#2271b1'; }}>
+            onMouseOver={e => { if (!isLaunching) e.currentTarget.style.background = '#135e96'; }}
+            onMouseOut={e => { if (!isLaunching) e.currentTarget.style.background = '#2271b1'; }}>
             {isLaunching
               ? <><Loader2 style={{ width: 13, height: 13 }} className="animate-spin" /> Launching…</>
               : <><Play style={{ width: 13, height: 13 }} /> Launch</>}
