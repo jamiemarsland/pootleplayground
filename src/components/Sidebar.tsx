@@ -13,7 +13,23 @@ interface SidebarProps {
 }
 
 const PHP_VERSIONS = ['7.4', '8.0', '8.1', '8.2', '8.3'];
-const WP_VERSIONS = ['latest', '6.7', '6.6', '6.5', '6.4', '6.3', '6.2', '6.1', '6.0'];
+
+const WP_VERSIONS: { value: string; label: string; group?: string }[] = [
+  { value: 'latest', label: 'Latest' },
+  { value: '6.7', label: '6.7', group: 'WordPress 6' },
+  { value: '6.6', label: '6.6', group: 'WordPress 6' },
+  { value: '6.5', label: '6.5', group: 'WordPress 6' },
+  { value: '6.4', label: '6.4', group: 'WordPress 6' },
+  { value: '6.3', label: '6.3', group: 'WordPress 6' },
+  { value: '6.2', label: '6.2', group: 'WordPress 6' },
+  { value: '6.1', label: '6.1', group: 'WordPress 6' },
+  { value: '6.0', label: '6.0', group: 'WordPress 6' },
+  { value: '5.9', label: 'WordPress 5 (5.9)', group: 'Older' },
+  { value: '4.9', label: 'WordPress 4 (4.9)', group: 'Older' },
+  { value: '3.9', label: 'WordPress 3 (3.9)', group: 'Older' },
+  { value: '2.9', label: 'WordPress 2 (2.9)', group: 'Older' },
+  { value: '1.5', label: 'WordPress 1 (1.5)', group: 'Older' },
+];
 
 const STEP_CATEGORIES: StepCategory[] = [
   { name: 'Content', steps: ['addPage', 'addPost', 'addMedia'], color: 'blue' },
@@ -148,9 +164,17 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                   onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
                   onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
                 >
-                  {WP_VERSIONS.map(v => (
-                    <option key={v} value={v}>{v === 'latest' ? 'Latest' : v}</option>
-                  ))}
+                  <option value="latest">Latest</option>
+                  <optgroup label="WordPress 6">
+                    {WP_VERSIONS.filter(v => v.group === 'WordPress 6').map(v => (
+                      <option key={v.value} value={v.value}>{v.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Older Releases">
+                    {WP_VERSIONS.filter(v => v.group === 'Older').map(v => (
+                      <option key={v.value} value={v.value}>{v.label}</option>
+                    ))}
+                  </optgroup>
                 </select>
               </div>
 
