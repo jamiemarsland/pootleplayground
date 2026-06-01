@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, CreditCard as Edit } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, CreditCard as Edit, Link2 } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
@@ -8,6 +8,7 @@ import { Footer } from './Footer';
 import { getUserId } from '../utils/userManager';
 import { generateBlueprint } from '../utils/blueprintGenerator';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
+import { SharePlaygroundModal } from './SharePlaygroundModal';
 
 interface BlueprintTemplate {
   id: string;
@@ -703,6 +704,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
   const [alertState, setAlertState] = useState<{ isOpen: boolean; title: string; message: string; type: 'warning' | 'danger' | 'info' | 'success' }>({ isOpen: false, title: '', message: '', type: 'info' });
   const [editingScreenshotId, setEditingScreenshotId] = useState<string | null>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+  const [shareModal, setShareModal] = useState<{ isOpen: boolean; url: string; blueprintJson: object | null }>({ isOpen: false, url: '', blueprintJson: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageError = (blueprintId: string) => {
@@ -777,6 +779,21 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
 
     window.open(playgroundUrl, '_blank');
+  };
+
+  const handleShareClick = (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    const nativeBlueprint = generateBlueprint(
+      blueprint.blueprint_data.steps,
+      blueprint.blueprint_data.blueprintTitle,
+      blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
+    );
+
+    const compressed = btoa(JSON.stringify(nativeBlueprint));
+    const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
+
+    setShareModal({ isOpen: true, url: playgroundUrl, blueprintJson: nativeBlueprint });
   };
 
   const handleDeleteClick = (blueprintId: string, event: React.MouseEvent) => {
@@ -1103,6 +1120,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       </div>
                       <div className="flex items-center gap-1">
                         <button
+                          onClick={(e) => handleShareClick(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
+                          title="Create short link"
+                        >
+                          <Link2 className="w-3 h-3" />
+                        </button>
+                        <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                           className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                           title="Launch in WordPress Playground"
@@ -1199,6 +1223,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                       </div>
                       <div className="flex items-center gap-1">
                         <button
+                          onClick={(e) => handleShareClick(blueprint, e)}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-blue-500/10 hover:text-blue-600 text-xs transition-all"
+                          title="Create short link"
+                        >
+                          <Link2 className="w-3 h-3" />
+                        </button>
+                        <button
                           onClick={(e) => handleLaunchBlueprint(blueprint, e)}
                           className="flex items-center gap-1 px-2 py-1 rounded-lg blueprint-button hover:bg-green-500/10 hover:text-green-600 text-xs transition-all"
                           title="Launch in WordPress Playground"
@@ -1238,6 +1269,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
         onChange={handleScreenshotFileChange}
         style={{ display: 'none' }}
+      />
+
+      <SharePlaygroundModal
+        isOpen={shareModal.isOpen}
+        onClose={() => setShareModal({ isOpen: false, url: '', blueprintJson: null })}
+        currentPlaygroundUrl={shareModal.url}
+        blueprintJson={shareModal.blueprintJson}
       />
 
       <ConfirmModal
