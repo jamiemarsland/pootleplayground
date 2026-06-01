@@ -17,16 +17,14 @@ const PHP_VERSIONS = ['7.4', '8.0', '8.1', '8.2', '8.3'];
 const WP_VERSIONS: { value: string; label: string; group?: string }[] = [
   { value: 'latest', label: 'Latest' },
   { value: '7.0', label: '7.0 (Armstrong)', group: 'WordPress 7' },
+  { value: '6.9', label: '6.9 (Lively)', group: 'WordPress 6' },
+  { value: '6.8', label: '6.8 (Cecil)', group: 'WordPress 6' },
   { value: '6.7', label: '6.7 (Rollins)', group: 'WordPress 6' },
   { value: '6.6', label: '6.6 (Dorothea)', group: 'WordPress 6' },
   { value: '6.5', label: '6.5 (Regina)', group: 'WordPress 6' },
   { value: '6.4', label: '6.4 (Shirley)', group: 'WordPress 6' },
   { value: '6.3', label: '6.3 (Lionel)', group: 'WordPress 6' },
   { value: '6.2', label: '6.2 (Dolphy)', group: 'WordPress 6' },
-  { value: '6.1', label: '6.1 (Misha)', group: 'WordPress 6' },
-  { value: '6.0', label: '6.0 (Arturo)', group: 'WordPress 6' },
-  { value: '5.0', label: '5 (Bebo)', group: 'WordPress 5' },
-  { value: '4.0', label: '4 (Benny)', group: 'WordPress 4' },
 ];
 
 const STEP_CATEGORIES: StepCategory[] = [
@@ -170,16 +168,6 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                   </optgroup>
                   <optgroup label="WordPress 6">
                     {WP_VERSIONS.filter(v => v.group === 'WordPress 6').map(v => (
-                      <option key={v.value} value={v.value}>{v.label}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="WordPress 5">
-                    {WP_VERSIONS.filter(v => v.group === 'WordPress 5').map(v => (
-                      <option key={v.value} value={v.value}>{v.label}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="WordPress 4">
-                    {WP_VERSIONS.filter(v => v.group === 'WordPress 4').map(v => (
                       <option key={v.value} value={v.value}>{v.label}</option>
                     ))}
                   </optgroup>
