@@ -4,6 +4,8 @@ import { Sparkles, Loader2, AlertCircle, ArrowLeft, Zap } from 'lucide-react';
 import { Footer } from './Footer';
 import { generateBlueprint } from '../utils/blueprintGenerator';
 
+const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
+
 export function AiGeneratorPage() {
   const navigate = useNavigate();
   const [prompt, setPrompt] = useState('');
@@ -11,53 +13,35 @@ export function AiGeneratorPage() {
   const [error, setError] = useState<string | null>(null);
 
   const examplePrompts = [
-    "Create a simple blog with 5 posts about technology",
-    "Build a portfolio site with an About page, Projects page, and Contact page",
-    "Make a business website with homepage, services, and contact form",
-    "Create an online magazine with multiple categories and 10 articles",
-    "Build a restaurant website with menu, gallery, and reservation info"
+    'Create a simple blog with 5 posts about technology',
+    'Build a portfolio site with an About page, Projects page, and Contact page',
+    'Make a business website with homepage, services, and contact form',
+    'Create an online magazine with multiple categories and 10 articles',
+    'Build a restaurant website with menu, gallery, and reservation info',
   ];
 
   const unicodeSafeBase64Encode = (str: string): string => {
     const utf8Bytes = new TextEncoder().encode(str);
-    const binaryString = Array.from(utf8Bytes)
-      .map(byte => String.fromCharCode(byte))
-      .join('');
+    const binaryString = Array.from(utf8Bytes).map(byte => String.fromCharCode(byte)).join('');
     return btoa(binaryString);
   };
 
   const createPlaygroundUrl = (blueprintData: any) => {
-    try {
-      const nativeBlueprint = generateBlueprint(
-        blueprintData.steps,
-        blueprintData.blueprintTitle || 'My WordPress Site',
-        blueprintData.landingPageType || 'wp-admin',
-        blueprintData.customLandingUrl
-      );
-
-      const blueprintJson = JSON.stringify(nativeBlueprint);
-      const encodedBlueprint = unicodeSafeBase64Encode(blueprintJson);
-
-      return `https://playground.wordpress.net/#${encodedBlueprint}`;
-    } catch (error) {
-      console.error('Error creating playground URL:', error);
-      throw new Error('Failed to create playground URL');
-    }
+    const nativeBlueprint = generateBlueprint(
+      blueprintData.steps,
+      blueprintData.blueprintTitle || 'My WordPress Site',
+      blueprintData.landingPageType || 'wp-admin',
+      blueprintData.customLandingUrl
+    );
+    return `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(nativeBlueprint))}`;
   };
 
   const handleSubmit = async () => {
-    if (!prompt.trim()) {
-      setError('Please enter a prompt');
-      return;
-    }
-
+    if (!prompt.trim()) { setError('Please enter a prompt'); return; }
     setIsLoading(true);
     setError(null);
-
     try {
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-blueprint`;
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-blueprint`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
@@ -65,146 +49,165 @@ export function AiGeneratorPage() {
         },
         body: JSON.stringify({ prompt: prompt.trim() }),
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to generate blueprint');
       }
-
       const blueprintData = await response.json();
-
-      if (!blueprintData || !blueprintData.steps || !Array.isArray(blueprintData.steps)) {
-        throw new Error('Invalid blueprint data received from AI');
-      }
-
-      if (blueprintData.steps.length === 0) {
-        throw new Error('AI generated an empty blueprint. Please try a more detailed prompt.');
-      }
-
-      const playgroundUrl = createPlaygroundUrl(blueprintData);
-      window.open(playgroundUrl, '_blank');
-
+      if (!blueprintData?.steps || !Array.isArray(blueprintData.steps)) throw new Error('Invalid blueprint data received from AI');
+      if (blueprintData.steps.length === 0) throw new Error('AI generated an empty blueprint. Please try a more detailed prompt.');
+      window.open(createPlaygroundUrl(blueprintData), '_blank');
       setPrompt('');
-      setIsLoading(false);
     } catch (err: any) {
-      console.error('Error generating blueprint:', err);
       setError(err.message || 'Failed to generate blueprint. Please try again.');
+    } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleExampleClick = (example: string) => {
-    setPrompt(example);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      handleSubmit();
-    }
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit();
   };
 
   return (
-    <div className="min-h-screen bg-blueprint-paper blueprint-grid">
-      <header className="blueprint-paper border-b border-blueprint-accent/30 sticky top-0 z-50 backdrop-blur-lg">
-        <div className="px-4 lg:px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center gap-2 px-4 py-2 blueprint-button rounded-lg transition-colors text-sm hover:bg-blueprint-accent/10"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Back to Builder</span>
-              </button>
-            </div>
+    <div style={{ minHeight: '100vh', background: '#f0f0f1', fontFamily: WP_FONT }}>
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 blueprint-accent rounded-xl flex items-center justify-center shadow-lg border border-blueprint-accent/50">
-                <Zap className="w-5 h-5 text-blueprint-paper" />
-              </div>
-              <div>
-                <h1 className="text-lg lg:text-xl font-bold text-blueprint-text">Pootle Playground</h1>
-                <p className="text-xs lg:text-sm text-blueprint-text/70">AI Generator</p>
-              </div>
-            </div>
+      {/* Header */}
+      <header style={{ background: '#fff', borderBottom: '1px solid #dcdcde', position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 56 }}>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px',
+              background: '#fff', border: '1px solid #c3c4c7', borderRadius: 999,
+              fontSize: 13, fontWeight: 500, color: '#1e1e1e', cursor: 'pointer',
+              fontFamily: WP_FONT, transition: 'background 0.12s',
+            }}
+            onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+            onMouseOut={e => (e.currentTarget.style.background = '#fff')}
+          >
+            <ArrowLeft style={{ width: 13, height: 13 }} />
+            Back to Builder
+          </button>
 
-            <div className="w-32"></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, background: '#2271b1', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Zap style={{ width: 16, height: 16, color: '#fff' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1e1e', lineHeight: 1.2 }}>Pootle Playground</div>
+              <div style={{ fontSize: 11, color: '#787c82', lineHeight: 1.2 }}>AI Generator</div>
+            </div>
           </div>
+
+          <div style={{ width: 120 }} />
         </div>
       </header>
 
-      <div className="flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-3xl space-y-8">
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-2xl">
-              <Sparkles className="w-10 h-10 text-white" />
+      {/* Body */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '48px 24px 32px' }}>
+        <div style={{ width: '100%', maxWidth: 700, display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+          {/* Hero */}
+          <div style={{ textAlign: 'center', paddingBottom: 8 }}>
+            <div style={{
+              width: 56, height: 56, background: '#2271b1', borderRadius: 10,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 20px',
+            }}>
+              <Sparkles style={{ width: 26, height: 26, color: '#fff' }} />
             </div>
-            <h2 className="text-4xl lg:text-5xl font-bold text-blueprint-text">
+            <h2 style={{ fontSize: 28, fontWeight: 700, color: '#1e1e1e', margin: '0 0 10px' }}>
               Create Your WordPress Site
             </h2>
-            <p className="text-lg text-blueprint-text/70 max-w-2xl mx-auto">
-              Describe what you want to build, and our AI will generate a complete WordPress blueprint for you
+            <p style={{ fontSize: 14, color: '#50575e', margin: 0, lineHeight: 1.6 }}>
+              Describe what you want to build, and our AI will generate a complete WordPress blueprint for you.
             </p>
           </div>
 
-          <div className="blueprint-paper border border-blueprint-accent/30 rounded-2xl shadow-2xl p-8 space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-blueprint-text mb-3">
+          {/* Main card */}
+          <div style={{ background: '#fff', border: '1px solid #c3c4c7', borderRadius: 3, padding: '20px 20px 16px' }}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1e1e1e', marginBottom: 6 }}>
                 What would you like to create?
               </label>
               <textarea
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={e => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="E.g., Create a photography portfolio with a gallery, about page, and contact form..."
-                className="w-full h-48 px-4 py-3 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-white bg-slate-600 placeholder:text-slate-300 text-lg"
                 disabled={isLoading}
+                rows={7}
+                placeholder="E.g., Create a photography portfolio with a gallery, about page, and contact form..."
+                style={{
+                  width: '100%', padding: '10px 12px', fontSize: 13,
+                  border: '1px solid #8c8f94', borderRadius: 2,
+                  color: '#1e1e1e', background: '#fff',
+                  resize: 'vertical', outline: 'none',
+                  fontFamily: WP_FONT, boxSizing: 'border-box',
+                  lineHeight: 1.6,
+                }}
+                onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
+                onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
               />
-              <p className="text-xs text-blueprint-text/60 mt-2">
+              <p style={{ fontSize: 11, color: '#787c82', margin: '5px 0 0' }}>
                 Press Cmd/Ctrl + Enter to generate
               </p>
             </div>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div style={{
+                display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px',
+                background: '#fcf0f1', border: '1px solid #f0b8ba', borderRadius: 2, marginBottom: 14,
+              }}>
+                <AlertCircle style={{ width: 15, height: 15, color: '#d63638', flexShrink: 0, marginTop: 1 }} />
                 <div>
-                  <p className="text-sm font-medium text-red-800">Error</p>
-                  <p className="text-sm text-red-600">{error}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: '#d63638', margin: '0 0 2px' }}>Error</p>
+                  <p style={{ fontSize: 13, color: '#d63638', margin: 0 }}>{error}</p>
                 </div>
               </div>
             )}
 
-            <div className="pt-4 border-t border-blueprint-accent/20">
+            <div style={{ borderTop: '1px solid #dcdcde', paddingTop: 14 }}>
               <button
                 onClick={handleSubmit}
                 disabled={isLoading || !prompt.trim()}
-                className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold text-lg rounded-xl hover:shadow-2xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  background: isLoading || !prompt.trim() ? '#a7aaad' : '#2271b1',
+                  color: '#fff', border: 'none', borderRadius: 999,
+                  cursor: isLoading || !prompt.trim() ? 'not-allowed' : 'pointer',
+                  fontFamily: WP_FONT, transition: 'background 0.12s',
+                }}
+                onMouseOver={e => { if (!isLoading && prompt.trim()) e.currentTarget.style.background = '#135e96'; }}
+                onMouseOut={e => { if (!isLoading && prompt.trim()) e.currentTarget.style.background = '#2271b1'; }}
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-6 h-6 animate-spin" />
-                    <span>Generating Your Site...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-6 h-6" />
-                    <span>Launch Site</span>
-                  </>
-                )}
+                {isLoading
+                  ? <><Loader2 style={{ width: 16, height: 16 }} className="animate-spin" /> Generating your site…</>
+                  : <><Sparkles style={{ width: 16, height: 16 }} /> Generate &amp; Launch Site</>}
               </button>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium text-blueprint-text text-center">Try These Examples</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {examplePrompts.map((example, index) => (
+          {/* Examples */}
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 10px', textAlign: 'center' }}>
+              Try an example
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {examplePrompts.map((example, i) => (
                 <button
-                  key={index}
-                  onClick={() => handleExampleClick(example)}
+                  key={i}
+                  onClick={() => setPrompt(example)}
                   disabled={isLoading}
-                  className="text-left px-4 py-3 blueprint-paper border border-blueprint-accent/20 rounded-lg hover:bg-blueprint-accent/5 hover:border-blueprint-accent/40 hover:shadow-lg transition-all text-sm text-blueprint-text/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    padding: '9px 12px', fontSize: 12, textAlign: 'left',
+                    background: '#fff', border: '1px solid #dcdcde', borderRadius: 2,
+                    color: '#1e1e1e', cursor: isLoading ? 'not-allowed' : 'pointer',
+                    fontFamily: WP_FONT, lineHeight: 1.5, transition: 'border-color 0.12s, background 0.12s',
+                  }}
+                  onMouseOver={e => { if (!isLoading) { e.currentTarget.style.borderColor = '#2271b1'; e.currentTarget.style.background = '#f0f6fc'; } }}
+                  onMouseOut={e => { e.currentTarget.style.borderColor = '#dcdcde'; e.currentTarget.style.background = '#fff'; }}
                 >
                   {example}
                 </button>
@@ -212,30 +215,27 @@ export function AiGeneratorPage() {
             </div>
           </div>
 
-          <div className="blueprint-paper border border-blue-200/50 rounded-xl p-6">
-            <h4 className="text-sm font-semibold text-blueprint-text mb-3 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-500" />
-              Tips for Better Results
+          {/* Tips */}
+          <div style={{ background: '#fff', border: '1px solid #dcdcde', borderRadius: 3, padding: '14px 16px' }}>
+            <h4 style={{ fontSize: 12, fontWeight: 600, color: '#1e1e1e', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Sparkles style={{ width: 13, height: 13, color: '#2271b1' }} />
+              Tips for better results
             </h4>
-            <ul className="text-sm text-blueprint-text/70 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Be specific about pages, posts, and content you want</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Mention any plugins or themes you'd like installed</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Describe the site's purpose and target audience</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>Include details about navigation and structure</span>
-              </li>
+            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {[
+                'Be specific about pages, posts, and content you want',
+                'Mention any plugins or themes you\'d like installed',
+                'Describe the site\'s purpose and target audience',
+                'Include details about navigation and structure',
+              ].map((tip, i) => (
+                <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: '#50575e' }}>
+                  <span style={{ color: '#2271b1', fontWeight: 700, flexShrink: 0 }}>·</span>
+                  {tip}
+                </li>
+              ))}
             </ul>
           </div>
+
         </div>
       </div>
 
