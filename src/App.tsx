@@ -14,7 +14,6 @@ import { AiGeneratorPage } from './components/AiGeneratorPage';
 import { AiStarterPage } from './components/AiStarterPage';
 import { McpInstructionsPage } from './components/McpInstructionsPage';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
-import { LiveBuildPage } from './components/LiveBuildPage';
 import { PlaygroundRedirectPage } from './components/PlaygroundRedirectPage';
 import { SharedPlaygroundsPage } from './components/SharedPlaygroundsPage';
 import { Step, StepType } from './types/blueprint';
@@ -241,7 +240,6 @@ function Builder() {
         onReset={handleReset}
         onOpenAiSidebar={() => setShowAiSidebar(true)}
         onShowAiGenerator={() => navigate('/ai-generator')}
-        onShowLiveBuild={() => navigate('/live-build')}
         onSharePlayground={() => setShowShareModal(true)}
         onShowSharedPlaygrounds={() => navigate('/shared')}
       />
@@ -420,7 +418,6 @@ function App() {
       <Route path="/ai-generator" element={<AiGeneratorPage />} />
       <Route path="/ai-starter" element={<AiStarterPage />} />
       <Route path="/mcp-instructions" element={<McpInstructionsPage />} />
-      <Route path="/live-build" element={<LiveBuildPage />} />
       <Route path="/p/:slug" element={<PlaygroundRedirectPage />} />
       <Route path="/shared" element={<SharedPlaygroundsPage />} />
     </Routes>

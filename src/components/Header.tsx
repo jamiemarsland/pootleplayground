@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, MonitorPlay, Share2, Link2, Loader2 } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, Share2, Link2, Loader2 } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -13,7 +13,6 @@ interface HeaderProps {
   onReset: () => void;
   onOpenAiSidebar: () => void;
   onShowAiGenerator?: () => void;
-  onShowLiveBuild?: () => void;
   onSharePlayground?: () => void;
   onShowSharedPlaygrounds?: () => void;
 }
@@ -31,7 +30,6 @@ export function Header({
   onReset,
   onOpenAiSidebar,
   onShowAiGenerator,
-  onShowLiveBuild,
   onSharePlayground,
   onShowSharedPlaygrounds,
 }: HeaderProps) {
@@ -187,14 +185,6 @@ export function Header({
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
             <Upload style={{ width: 15, height: 15 }} />
           </button>
-
-          {onShowLiveBuild && (
-            <button onClick={onShowLiveBuild} title="Live Build" style={iconBtn()}
-              onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
-              onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
-              <MonitorPlay style={{ width: 15, height: 15 }} />
-            </button>
-          )}
 
           <button
             onClick={onShowAiGenerator || onOpenAiSidebar} title="Generate with AI"
