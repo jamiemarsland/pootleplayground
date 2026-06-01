@@ -16,7 +16,6 @@ const PHP_VERSIONS = ['7.4', '8.0', '8.1', '8.2', '8.3'];
 
 const WP_VERSIONS: { value: string; label: string; group?: string }[] = [
   { value: 'latest', label: 'Latest' },
-  { value: '7.0', label: '7.0 (Armstrong)', group: 'WordPress 7' },
   { value: '6.7', label: '6.7 (Rollins)', group: 'WordPress 6' },
   { value: '6.6', label: '6.6 (Dorothea)', group: 'WordPress 6' },
   { value: '6.5', label: '6.5 (Regina)', group: 'WordPress 6' },
@@ -166,11 +165,6 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                   onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
                 >
                   <option value="latest">Latest</option>
-                  <optgroup label="WordPress 7">
-                    {WP_VERSIONS.filter(v => v.group === 'WordPress 7').map(v => (
-                      <option key={v.value} value={v.value}>{v.label}</option>
-                    ))}
-                  </optgroup>
                   <optgroup label="WordPress 6">
                     {WP_VERSIONS.filter(v => v.group === 'WordPress 6').map(v => (
                       <option key={v.value} value={v.value}>{v.label}</option>
