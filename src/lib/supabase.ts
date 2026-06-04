@@ -35,4 +35,5 @@ export interface BlueprintRecord {
   votes: number;
   user_id: string;
   screenshot_url?: string | null;
+  has_featured_image: boolean;
 }

@@ -713,8 +713,8 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
   const sortedCommunityBlueprints = useMemo(() => {
     return [...communityBlueprints].sort((a, b) => {
-      const aHasImage = !!a.screenshot_url && !failedImages.has(a.id);
-      const bHasImage = !!b.screenshot_url && !failedImages.has(b.id);
+      const aHasImage = a.has_featured_image && !failedImages.has(a.id);
+      const bHasImage = b.has_featured_image && !failedImages.has(b.id);
       if (aHasImage && !bHasImage) return -1;
       if (!aHasImage && bHasImage) return 1;
       if (b.votes !== a.votes) return b.votes - a.votes;
@@ -933,13 +933,13 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
 
       const { error } = await supabase
         .from('blueprints')
-        .update({ screenshot_url: screenshotUrl })
+        .update({ screenshot_url: screenshotUrl, has_featured_image: true })
         .eq('id', editingScreenshotId);
 
       if (error) throw error;
 
       const updateScreenshot = (bps: BlueprintRecord[]) =>
-        bps.map(bp => bp.id === editingScreenshotId ? { ...bp, screenshot_url: screenshotUrl } : bp);
+        bps.map(bp => bp.id === editingScreenshotId ? { ...bp, screenshot_url: screenshotUrl, has_featured_image: true } : bp);
 
       setMyBlueprints(updateScreenshot(myBlueprints));
       setCommunityBlueprints(updateScreenshot(communityBlueprints));
