@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, CreditCard as Edit, Link2 } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
@@ -711,15 +711,16 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     setFailedImages(prev => new Set(prev).add(blueprintId));
   };
 
-  const sortCommunity = (bps: BlueprintRecord[], failed = failedImages) =>
-    [...bps].sort((a, b) => {
-      const aHasImage = !!a.screenshot_url && !failed.has(a.id);
-      const bHasImage = !!b.screenshot_url && !failed.has(b.id);
+  const sortedCommunityBlueprints = useMemo(() => {
+    return [...communityBlueprints].sort((a, b) => {
+      const aHasImage = !!a.screenshot_url && !failedImages.has(a.id);
+      const bHasImage = !!b.screenshot_url && !failedImages.has(b.id);
       if (aHasImage && !bHasImage) return -1;
       if (!aHasImage && bHasImage) return 1;
       if (b.votes !== a.votes) return b.votes - a.votes;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
+  }, [communityBlueprints, failedImages]);
 
   useEffect(() => {
     setIsAdmin(isAdminAuthenticated());
@@ -751,7 +752,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       if (communityError) throw communityError;
 
       setMyBlueprints(myData || []);
-      setCommunityBlueprints(sortCommunity(communityData || []));
+      setCommunityBlueprints(communityData || []);
     } catch (error) {
       console.error('Error loading blueprints:', error);
     } finally {
@@ -883,7 +884,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       const updateVotes = (bps: BlueprintRecord[]) =>
         bps.map(bp => bp.id === blueprintId ? { ...bp, votes: bp.votes + 1 } : bp);
 
-      setCommunityBlueprints(sortCommunity(updateVotes(communityBlueprints)));
+      setCommunityBlueprints(updateVotes(communityBlueprints));
       setMyBlueprints(updateVotes(myBlueprints));
     } catch (error) {
       console.error('Error upvoting blueprint:', error);
@@ -941,7 +942,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
         bps.map(bp => bp.id === editingScreenshotId ? { ...bp, screenshot_url: screenshotUrl } : bp);
 
       setMyBlueprints(updateScreenshot(myBlueprints));
-      setCommunityBlueprints(sortCommunity(updateScreenshot(communityBlueprints)));
+      setCommunityBlueprints(updateScreenshot(communityBlueprints));
 
       setAlertState({
         isOpen: true,
@@ -1036,7 +1037,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
           >
             <div className="flex items-center gap-2">
               <Database className="w-4 h-4" />
-              Community ({communityBlueprints.length})
+              Community ({sortedCommunityBlueprints.length})
             </div>
           </button>
         </div>
@@ -1155,7 +1156,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                 <p className="text-blueprint-text/70">No community blueprints yet. Be the first to save one!</p>
               </div>
             ) : (
-              sortCommunity(communityBlueprints).map((blueprint) => (
+              sortedCommunityBlueprints.map((blueprint) => (
                 <div
                   key={blueprint.id}
                   onClick={() => handleSelectSavedBlueprint(blueprint)}
