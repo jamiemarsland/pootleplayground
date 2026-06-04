@@ -1056,7 +1056,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
             onClick={() => setActiveTab('my')}
             className={`px-6 py-3 rounded-lg font-medium transition-all ${
               activeTab === 'my'
-                ? 'blueprint-accent text-blueprint-paper shadow-lg'
+                ? 'blueprint-accent text-white shadow-lg'
                 : 'blueprint-button'
             }`}
           >
@@ -1069,7 +1069,7 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
             onClick={() => setActiveTab('community')}
             className={`px-6 py-3 rounded-lg font-medium transition-all ${
               activeTab === 'community'
-                ? 'blueprint-accent text-blueprint-paper shadow-lg'
+                ? 'blueprint-accent text-white shadow-lg'
                 : 'blueprint-button'
             }`}
           >
