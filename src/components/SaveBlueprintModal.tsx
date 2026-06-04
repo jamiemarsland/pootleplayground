@@ -245,16 +245,24 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
               <p className="font-medium text-blueprint-text text-sm">Share Publicly</p>
               <p className="text-xs text-blueprint-text/70">Make visible in the community gallery (otherwise only you can see it)</p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="sr-only peer"
-                disabled={saving}
-              />
-              <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blueprint-accent"></div>
-            </label>
+            <button
+              type="button"
+              onClick={() => !saving && setIsPublic(p => !p)}
+              disabled={saving}
+              style={{
+                width: 44, height: 24, borderRadius: 12, border: 'none',
+                background: isPublic ? 'var(--accent)' : 'var(--border-muted)',
+                position: 'relative', cursor: saving ? 'not-allowed' : 'pointer',
+                transition: 'background 0.2s', flexShrink: 0, padding: 0,
+              }}
+            >
+              <span style={{
+                position: 'absolute', top: 2, left: isPublic ? 22 : 2,
+                width: 20, height: 20, borderRadius: '50%',
+                background: '#ffffff', transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }} />
+            </button>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-blueprint-text/70 p-3 bg-blueprint-grid/10 rounded-lg">
