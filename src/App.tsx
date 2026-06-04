@@ -268,6 +268,7 @@ function Builder() {
           selectedStep={selectedStep}
           onSelectStep={setSelectedStep}
           onRemoveStep={removeStep}
+          onReorderSteps={setSteps}
         />
       </div>
       
