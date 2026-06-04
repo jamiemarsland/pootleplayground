@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, CreditCard as Edit, Link2 } from 'lucide-react';
+import { ArrowLeft, Play, FileText, Globe, Store, Briefcase, Camera, Users, Calendar, Utensils, Database, Trash2, Shield, ThumbsUp, User, Rocket, CreditCard as Edit, Link2, Star } from 'lucide-react';
 import { supabase, BlueprintRecord } from '../lib/supabase';
 import { isAdminAuthenticated, promptAdminPassword, clearAdminSession } from '../utils/adminAuth';
 import { ConfirmModal } from './ConfirmModal';
@@ -901,6 +901,26 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     return localStorage.getItem(`voted_${blueprintId}`) !== null;
   };
 
+  const handleToggleFeaturedImage = async (blueprint: BlueprintRecord, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const newValue = !blueprint.has_featured_image;
+    try {
+      const { error } = await supabase
+        .from('blueprints')
+        .update({ has_featured_image: newValue })
+        .eq('id', blueprint.id);
+      if (error) throw error;
+      setCommunityBlueprints(prev =>
+        prev.map(bp => bp.id === blueprint.id ? { ...bp, has_featured_image: newValue } : bp)
+      );
+      setMyBlueprints(prev =>
+        prev.map(bp => bp.id === blueprint.id ? { ...bp, has_featured_image: newValue } : bp)
+      );
+    } catch (error) {
+      console.error('Error toggling featured image:', error);
+    }
+  };
+
   const handleEditScreenshotClick = (blueprintId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setEditingScreenshotId(blueprintId);
@@ -1175,6 +1195,17 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
                     <div className="absolute inset-0 bg-gradient-to-t from-blueprint-paper/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     {isAdmin && (
                       <div className="absolute top-3 right-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100">
+                        <button
+                          onClick={(e) => handleToggleFeaturedImage(blueprint, e)}
+                          className={`w-8 h-8 rounded-lg text-white flex items-center justify-center transition-all ${
+                            blueprint.has_featured_image
+                              ? 'bg-yellow-500/90 hover:bg-yellow-600'
+                              : 'bg-gray-500/90 hover:bg-gray-600'
+                          }`}
+                          title={blueprint.has_featured_image ? 'Unmark as featured image' : 'Mark as featured image'}
+                        >
+                          <Star className={`w-4 h-4 ${blueprint.has_featured_image ? 'fill-current' : ''}`} />
+                        </button>
                         <button
                           onClick={(e) => handleEditScreenshotClick(blueprint.id, e)}
                           className="w-8 h-8 rounded-lg bg-blue-500/90 hover:bg-blue-600 text-white flex items-center justify-center transition-all"
