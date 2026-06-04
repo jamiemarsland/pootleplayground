@@ -230,7 +230,7 @@ function Builder() {
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
 
   return (
-    <div className="min-h-screen relative blueprint-grid bg-blueprint-paper">
+    <div className="min-h-screen relative" style={{ background: '#f0f0f1' }}>
       <Header
         blueprint={blueprint}
         title={blueprintTitle}
