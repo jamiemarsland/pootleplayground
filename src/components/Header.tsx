@@ -153,9 +153,6 @@ export function Header({
             </div>
           )}
 
-          <span className="hidden xl:block" style={{ fontSize: 13, color: '#50575e' }}>
-            {title}
-          </span>
         </div>
 
         {/* ── Toolbar ── */}
