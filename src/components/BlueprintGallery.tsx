@@ -827,12 +827,30 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     }
 
     try {
-      const { error } = await supabase
-        .from('blueprints')
-        .delete()
-        .eq('id', confirmDelete.blueprintId);
-
-      if (error) throw error;
+      if (!isOwner) {
+        const adminPassword = import.meta.env.VITE_ADMIN_PASSWORD;
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-blueprint`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({ blueprintId: confirmDelete.blueprintId, adminPassword }),
+          }
+        );
+        if (!res.ok) {
+          const body = await res.json();
+          throw new Error(body.error || 'Admin delete failed');
+        }
+      } else {
+        const { error } = await supabase
+          .from('blueprints')
+          .delete()
+          .eq('id', confirmDelete.blueprintId);
+        if (error) throw error;
+      }
 
       setCommunityBlueprints(communityBlueprints.filter(bp => bp.id !== confirmDelete.blueprintId));
       setMyBlueprints(myBlueprints.filter(bp => bp.id !== confirmDelete.blueprintId));
