@@ -27,21 +27,21 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
     return (
       <div
         className="hidden lg:flex flex-1 items-center justify-center"
-        style={{ background: '#f0f0f1' }}
+        style={{ background: 'var(--bg-app)' }}
       >
         <div style={{ textAlign: 'center' }}>
           <div style={{
             width: 56, height: 56,
-            background: '#ffffff', border: '1px solid #dcdcde', borderRadius: 6,
+            background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 16px',
           }}>
-            <Settings style={{ width: 22, height: 22, color: '#a7aaad' }} />
+            <Settings style={{ width: 22, height: 22, color: 'var(--text-muted)' }} />
           </div>
-          <h3 style={{ fontSize: 15, fontWeight: 600, color: '#1e1e1e', margin: '0 0 6px' }}>
+          <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 6px' }}>
             Select a step to configure
           </h3>
-          <p style={{ fontSize: 13, color: '#787c82', margin: 0, maxWidth: 280 }}>
+          <p style={{ fontSize: 13, color: 'var(--text-tertiary)', margin: 0, maxWidth: 280 }}>
             Choose a step from the right panel to configure its settings.
           </p>
         </div>
@@ -77,7 +77,7 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
   return (
     <div
       className="flex-1 overflow-hidden"
-      style={{ background: '#ffffff', borderLeft: '1px solid #dcdcde' }}
+      style={{ background: 'var(--bg-surface)', borderLeft: '1px solid var(--border)' }}
     >
       {renderForm()}
     </div>

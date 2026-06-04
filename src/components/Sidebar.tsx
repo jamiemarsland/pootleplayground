@@ -59,8 +59,8 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
     <div
       style={{
         width: 280, minWidth: 280,
-        background: '#ffffff',
-        borderRight: '1px solid #dcdcde',
+        background: 'var(--bg-surface)',
+        borderRight: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column',
         minHeight: 'calc(100vh - 56px)',
         fontFamily: WP_FONT,
@@ -68,8 +68,8 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
       className="lg:flex flex-col hidden"
     >
       {/* Site title */}
-      <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid #f0f0f1' }}>
-        <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
+      <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border-light)' }}>
+        <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>
           Site Title
         </label>
         <input
@@ -79,12 +79,12 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
           placeholder="My WordPress Site"
           style={{
             width: '100%', padding: '7px 10px', fontSize: 13,
-            border: '1px solid #8c8f94', borderRadius: 2,
-            color: '#1e1e1e', background: '#fff', outline: 'none',
+            border: '1px solid var(--border-input)', borderRadius: 2,
+            color: 'var(--text-primary)', background: 'var(--bg-surface)', outline: 'none',
             boxSizing: 'border-box', fontFamily: WP_FONT,
           }}
-          onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
-          onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 1px var(--accent)'; }}
+          onBlur={e => { e.target.style.borderColor = 'var(--border-input)'; e.target.style.boxShadow = 'none'; }}
         />
       </div>
 
@@ -94,7 +94,7 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
           <div key={category.name} style={{ marginBottom: 4 }}>
             <div style={{
               padding: '10px 16px 4px',
-              fontSize: 11, fontWeight: 600, color: '#787c82',
+              fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)',
               textTransform: 'uppercase', letterSpacing: '0.06em',
             }}>
               {category.name}
@@ -109,13 +109,13 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                     width: '100%', display: 'flex', alignItems: 'center', gap: 10,
                     padding: '8px 16px', border: 'none', background: 'transparent',
                     cursor: 'pointer', textAlign: 'left', fontSize: 13,
-                    color: '#1e1e1e', fontFamily: WP_FONT,
+                    color: 'var(--text-primary)', fontFamily: WP_FONT,
                     transition: 'background 0.1s',
                   }}
-                  onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+                  onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
                   onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
                 >
-                  <Icon size={15} style={{ color: '#50575e', flexShrink: 0 }} />
+                  <Icon size={15} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
                   <span>{STEP_LABELS[stepType]}</span>
                 </button>
               );
@@ -124,7 +124,7 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
         ))}
 
         {/* Advanced section */}
-        <div style={{ borderTop: '1px solid #f0f0f1', marginTop: 4 }}>
+        <div style={{ borderTop: '1px solid var(--border-light)', marginTop: 4 }}>
           <button
             onClick={() => setAdvancedOpen(o => !o)}
             style={{
@@ -133,19 +133,19 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
               cursor: 'pointer', fontFamily: WP_FONT,
             }}
           >
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Advanced
             </span>
             {advancedOpen
-              ? <ChevronDown size={13} style={{ color: '#787c82' }} />
-              : <ChevronRight size={13} style={{ color: '#787c82' }} />}
+              ? <ChevronDown size={13} style={{ color: 'var(--text-tertiary)' }} />
+              : <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />}
           </button>
 
           {advancedOpen && (
             <div style={{ padding: '8px 16px 12px', display: 'flex', flexDirection: 'column', gap: 10 }}>
               {/* WordPress version */}
               <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
                   WordPress Version
                 </label>
                 <select
@@ -153,12 +153,12 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                   onChange={e => onWpVersionChange(e.target.value)}
                   style={{
                     width: '100%', padding: '6px 8px', fontSize: 12,
-                    border: '1px solid #8c8f94', borderRadius: 2,
-                    color: '#1e1e1e', background: '#fff', outline: 'none',
+                    border: '1px solid var(--border-input)', borderRadius: 2,
+                    color: 'var(--text-primary)', background: 'var(--bg-surface)', outline: 'none',
                     fontFamily: WP_FONT, cursor: 'pointer',
                   }}
-                  onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
-                  onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 1px var(--accent)'; }}
+                  onBlur={e => { e.target.style.borderColor = 'var(--border-input)'; e.target.style.boxShadow = 'none'; }}
                 >
                   <option value="latest">Latest</option>
                   <optgroup label="WordPress 7">
@@ -176,7 +176,7 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
 
               {/* PHP version */}
               <div>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: '#787c82', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
                   PHP Version
                 </label>
                 <select
@@ -184,12 +184,12 @@ export function Sidebar({ onAddStep, blueprintTitle, onTitleChange, phpVersion, 
                   onChange={e => onPhpVersionChange(e.target.value)}
                   style={{
                     width: '100%', padding: '6px 8px', fontSize: 12,
-                    border: '1px solid #8c8f94', borderRadius: 2,
-                    color: '#1e1e1e', background: '#fff', outline: 'none',
+                    border: '1px solid var(--border-input)', borderRadius: 2,
+                    color: 'var(--text-primary)', background: 'var(--bg-surface)', outline: 'none',
                     fontFamily: WP_FONT, cursor: 'pointer',
                   }}
-                  onFocus={e => { e.target.style.borderColor = '#2271b1'; e.target.style.boxShadow = '0 0 0 1px #2271b1'; }}
-                  onBlur={e => { e.target.style.borderColor = '#8c8f94'; e.target.style.boxShadow = 'none'; }}
+                  onFocus={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 1px var(--accent)'; }}
+                  onBlur={e => { e.target.style.borderColor = 'var(--border-input)'; e.target.style.boxShadow = 'none'; }}
                 >
                   {PHP_VERSIONS.map(v => (
                     <option key={v} value={v}>{v}</option>

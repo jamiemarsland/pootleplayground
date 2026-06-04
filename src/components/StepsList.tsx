@@ -77,8 +77,8 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
     <div
       style={{
         width: 280, minWidth: 280,
-        background: '#ffffff',
-        borderLeft: '1px solid #dcdcde',
+        background: 'var(--bg-surface)',
+        borderLeft: '1px solid var(--border)',
         display: 'flex', flexDirection: 'column',
         minHeight: 'calc(100vh - 56px)',
         fontFamily: WP_FONT,
@@ -86,20 +86,20 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
       className="lg:flex flex-col hidden"
     >
       {/* Header */}
-      <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #dcdcde' }}>
+      <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e' }}>Blueprint Steps</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Blueprint Steps</span>
           {steps.length > 0 && (
             <span style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 20, height: 20, background: '#2271b1', color: '#fff',
+              width: 20, height: 20, background: 'var(--accent)', color: '#fff',
               borderRadius: '50%', fontSize: 11, fontWeight: 700,
             }}>
               {steps.length}
             </span>
           )}
         </div>
-        <p style={{ fontSize: 11, color: '#787c82', margin: '3px 0 0' }}>
+        <p style={{ fontSize: 11, color: 'var(--text-tertiary)', margin: '3px 0 0' }}>
           Drag to reorder your setup sequence
         </p>
       </div>
@@ -109,22 +109,22 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
         {steps.length === 0 ? (
           <div style={{ padding: '40px 20px', textAlign: 'center' }}>
             <div style={{
-              width: 48, height: 48, background: '#f6f7f7',
-              border: '1px solid #dcdcde', borderRadius: 6,
+              width: 48, height: 48, background: 'var(--bg-subtle)',
+              border: '1px solid var(--border)', borderRadius: 6,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 12px',
             }}>
-              <Settings style={{ width: 20, height: 20, color: '#a7aaad' }} />
+              <Settings style={{ width: 20, height: 20, color: 'var(--text-muted)' }} />
             </div>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#1e1e1e', margin: '0 0 4px' }}>No steps yet</p>
-            <p style={{ fontSize: 12, color: '#787c82', margin: 0 }}>Add steps from the left panel</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px' }}>No steps yet</p>
+            <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: 0 }}>Add steps from the left panel</p>
           </div>
         ) : (
           <div>
             {steps.map((step, index) => {
               const Icon = STEP_ICONS[step.type] || Settings;
               const isSelected = selectedStep?.id === step.id;
-              const accent = STEP_ACCENT[step.type] || '#50575e';
+              const accent = STEP_ACCENT[step.type] || 'var(--text-secondary)';
               const isDragOver = dragOverIndex === index;
 
               return (
@@ -141,22 +141,22 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
                     padding: '9px 14px 9px 0',
                     borderLeft: `3px solid ${isSelected ? accent : 'transparent'}`,
                     background: isDragOver
-                      ? '#e8f0fb'
-                      : isSelected ? '#f0f6fc' : 'transparent',
+                      ? 'var(--accent-bg)'
+                      : isSelected ? 'var(--accent-bg)' : 'transparent',
                     cursor: 'pointer', transition: 'background 0.1s',
                     borderBottom: isDragOver
-                      ? '2px solid #2271b1'
-                      : '1px solid #f0f0f1',
+                      ? '2px solid var(--accent)'
+                      : '1px solid var(--border-light)',
                     opacity: dragIndex.current === index ? 0.4 : 1,
                   }}
-                  onMouseOver={e => { if (!isSelected) e.currentTarget.style.background = '#f9f9f9'; }}
+                  onMouseOver={e => { if (!isSelected) e.currentTarget.style.background = 'var(--bg-hover)'; }}
                   onMouseOut={e => { if (!isSelected && dragOverIndex !== index) e.currentTarget.style.background = 'transparent'; }}
                 >
                   {/* Drag handle */}
                   <div
                     style={{
                       paddingLeft: 6, cursor: 'grab',
-                      color: '#c3c4c7', display: 'flex', alignItems: 'center',
+                      color: 'var(--border-muted)', display: 'flex', alignItems: 'center',
                       flexShrink: 0,
                     }}
                     onMouseDown={e => e.stopPropagation()}
@@ -168,21 +168,21 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
                   <div style={{
                     width: 18, minWidth: 18, textAlign: 'center',
                     fontSize: 11, fontWeight: 600,
-                    color: isSelected ? accent : '#a7aaad',
+                    color: isSelected ? accent : 'var(--text-muted)',
                   }}>
                     {index + 1}
                   </div>
 
                   {/* Icon */}
-                  <Icon size={14} style={{ color: isSelected ? accent : '#50575e', flexShrink: 0 }} />
+                  <Icon size={14} style={{ color: isSelected ? accent : 'var(--text-secondary)', flexShrink: 0 }} />
 
                   {/* Label */}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: '#1e1e1e', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {STEP_LABELS[step.type]}
                     </div>
                     {(step.data?.postTitle || step.data?.option) && (
-                      <div style={{ fontSize: 11, color: '#787c82', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-tertiary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {step.data.postTitle || step.data.option}
                       </div>
                     )}
@@ -193,12 +193,12 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
                     onClick={e => { e.stopPropagation(); onRemoveStep(step.id); }}
                     style={{
                       width: 24, height: 24, border: 'none', background: 'transparent',
-                      borderRadius: 2, cursor: 'pointer', color: '#c3c4c7',
+                      borderRadius: 2, cursor: 'pointer', color: 'var(--border-muted)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       transition: 'color 0.1s', flexShrink: 0, padding: 0,
                     }}
-                    onMouseOver={e => (e.currentTarget.style.color = '#d63638')}
-                    onMouseOut={e => (e.currentTarget.style.color = '#c3c4c7')}
+                    onMouseOver={e => (e.currentTarget.style.color = 'var(--error)')}
+                    onMouseOut={e => (e.currentTarget.style.color = 'var(--border-muted)')}
                   >
                     <X size={12} />
                   </button>

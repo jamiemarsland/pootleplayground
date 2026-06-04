@@ -6,8 +6,8 @@ export function Footer() {
   return (
     <footer
       style={{
-        background: '#ffffff',
-        borderTop: '1px solid #dcdcde',
+        background: 'var(--bg-surface)',
+        borderTop: '1px solid var(--border)',
         padding: '10px 24px',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
       }}
@@ -17,10 +17,10 @@ export function Footer() {
           to="/mcp-instructions"
           style={{
             display: 'flex', alignItems: 'center', gap: 5,
-            fontSize: 12, color: '#787c82', textDecoration: 'none', transition: 'color 0.12s',
+            fontSize: 12, color: 'var(--text-tertiary)', textDecoration: 'none', transition: 'color 0.12s',
           }}
-          onMouseOver={e => (e.currentTarget.style.color = '#2271b1')}
-          onMouseOut={e => (e.currentTarget.style.color = '#787c82')}
+          onMouseOver={e => (e.currentTarget.style.color = 'var(--accent)')}
+          onMouseOut={e => (e.currentTarget.style.color = 'var(--text-tertiary)')}
         >
           <BookOpen style={{ width: 13, height: 13 }} />
           MCP Instructions

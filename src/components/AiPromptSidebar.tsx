@@ -120,7 +120,8 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="E.g., Create a photography portfolio with a gallery, about page, and contact form..."
-              className="w-full h-40 px-4 py-3 border border-blueprint-accent/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none text-white bg-slate-600 placeholder:text-slate-300"
+              className="w-full h-40 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 resize-none blueprint-input"
+              style={{ focusRingColor: 'var(--accent)' } as React.CSSProperties}
               disabled={isLoading}
             />
             <p className="text-xs text-blueprint-text/60 mt-2">
@@ -129,11 +130,11 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="p-4 rounded-lg flex items-start gap-3" style={{ background: 'color-mix(in srgb, var(--error) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)' }}>
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--error)' }} />
               <div>
-                <p className="text-sm font-medium text-red-800">Error</p>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm font-medium" style={{ color: 'var(--error)' }}>Error</p>
+                <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>
               </div>
             </div>
           )}
@@ -154,11 +155,14 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
             </div>
           </div>
 
-          <div className="pt-4 border-t border-blueprint-accent/20">
+          <div className="pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
             <button
               onClick={handleSubmit}
               disabled={isLoading || !prompt.trim()}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 text-white font-medium rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: 'var(--accent)' }}
+              onMouseOver={e => { if (!isLoading && prompt.trim()) (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent-hover)'; }}
+              onMouseOut={e => (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent)'}
             >
               {isLoading ? (
                 <>
@@ -174,9 +178,9 @@ export function AiPromptSidebar({ isOpen, onClose, onGenerateBlueprint }: AiProm
             </button>
           </div>
 
-          <div className="p-4 bg-blue-50/50 border border-blue-200/50 rounded-lg">
-            <h4 className="text-sm font-medium text-blue-900 mb-2">Tips for better results:</h4>
-            <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
+          <div className="p-4 rounded-lg" style={{ background: 'var(--accent-bg)', border: '1px solid var(--accent-border)' }}>
+            <h4 className="text-sm font-medium mb-2" style={{ color: 'var(--accent)' }}>Tips for better results:</h4>
+            <ul className="text-xs space-y-1 list-disc list-inside" style={{ color: 'var(--text-secondary)' }}>
               <li>Be specific about pages, posts, and content you want</li>
               <li>Mention any plugins or themes you'd like installed</li>
               <li>Describe the site's purpose and target audience</li>

@@ -7,7 +7,7 @@ html {
 
 /* Page background */
 .blueprint-grid {
-  background-color: #f0f0f1;
+  background-color: var(--bg-app);
 }
 .blueprint-grid::before {
   display: none;
@@ -15,48 +15,48 @@ html {
 
 /* White panel surface */
 .blueprint-paper {
-  background: #ffffff;
+  background: var(--bg-surface);
   position: relative;
 }
 
 /* Component panels */
 .blueprint-component {
-  background: #ffffff;
-  border-color: #dcdcde;
+  background: var(--bg-surface);
+  border-color: var(--border);
   backdrop-filter: none;
 }
 .blueprint-component:hover {
-  background: #ffffff;
-  border-color: #8c8f94;
+  background: var(--bg-surface);
+  border-color: var(--border-input);
 }
 
 /* Inputs */
 .blueprint-input {
-  background: #ffffff;
-  border: 1px solid #8c8f94;
-  color: #1e1e1e;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-input);
+  color: var(--text-primary);
   border-radius: 2px;
 }
 .blueprint-input:focus {
-  border-color: #2271b1;
-  box-shadow: 0 0 0 1px #2271b1;
-  background: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+  background: var(--bg-surface);
   outline: none;
 }
 .blueprint-input::placeholder {
-  color: #a7aaad;
+  color: var(--text-muted);
 }
 
 /* Secondary / ghost buttons */
 .blueprint-button {
   background: transparent;
-  border: 1px solid #c3c4c7;
-  color: #1e1e1e;
+  border: 1px solid var(--border-muted);
+  color: var(--text-primary);
   transition: all 0.15s ease;
 }
 .blueprint-button:hover:not(:disabled) {
-  background: #f0f0f1;
-  border-color: #8c8f94;
+  background: var(--bg-hover);
+  border-color: var(--border-input);
   transform: none;
   box-shadow: none;
 }
@@ -66,11 +66,11 @@ html {
 
 /* Primary accent — WordPress blue */
 .blueprint-accent {
-  background: #2271b1;
+  background: var(--accent);
   color: #ffffff;
 }
 .blueprint-accent:hover:not(:disabled) {
-  background: #135e96;
+  background: var(--accent-hover);
 }
 
 /* Transition helper */
@@ -83,14 +83,14 @@ html {
   width: 6px;
 }
 *::-webkit-scrollbar-track {
-  background: #f0f0f1;
+  background: var(--bg-app);
 }
 *::-webkit-scrollbar-thumb {
-  background: #c3c4c7;
+  background: var(--border-muted);
   border-radius: 3px;
 }
 *::-webkit-scrollbar-thumb:hover {
-  background: #8c8f94;
+  background: var(--border-input);
 }
 
 /* Animations */

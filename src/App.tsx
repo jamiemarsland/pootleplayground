@@ -27,6 +27,12 @@ function Builder() {
   const [selectedStep, setSelectedStep] = useState<Step | null>(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showAiSidebar, setShowAiSidebar] = useState(false);
+  const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
   const [blueprintTitle, setBlueprintTitle] = useState('My WordPress Site');
   const [landingPageType, setLandingPageType] = useState<'wp-admin' | 'front-page' | 'custom'>('wp-admin');
   const [customLandingUrl, setCustomLandingUrl] = useState('');
@@ -230,7 +236,7 @@ function Builder() {
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
 
   return (
-    <div className="min-h-screen relative" style={{ background: '#f0f0f1' }}>
+    <div className="min-h-screen relative" style={{ background: 'var(--bg-app)' }}>
       <Header
         blueprint={blueprint}
         title={blueprintTitle}
@@ -244,6 +250,8 @@ function Builder() {
         onShowAiGenerator={() => navigate('/ai-generator')}
         onSharePlayground={() => setShowShareModal(true)}
         onShowSharedPlaygrounds={() => navigate('/shared')}
+        isDark={isDark}
+        onToggleTheme={() => setIsDark(d => !d)}
       />
       
       <div className="flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 56px - 41px)' }}>

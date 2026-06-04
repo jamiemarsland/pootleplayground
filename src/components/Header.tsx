@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, Share2, Link2, Loader2 } from 'lucide-react';
+import { Play, FileText, Zap, Download, Upload, Grid3x3, Save, RotateCcw, Sparkles, Share2, Link2, Loader2, Moon, Sun } from 'lucide-react';
 import { Blueprint } from '../types/blueprint';
 
 interface HeaderProps {
@@ -15,6 +15,8 @@ interface HeaderProps {
   onShowAiGenerator?: () => void;
   onSharePlayground?: () => void;
   onShowSharedPlaygrounds?: () => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
 }
 
 const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
@@ -32,6 +34,8 @@ export function Header({
   onShowAiGenerator,
   onSharePlayground,
   onShowSharedPlaygrounds,
+  isDark,
+  onToggleTheme,
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -106,17 +110,17 @@ export function Header({
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: 36, height: 36, border: 'none', background: 'transparent',
     borderRadius: 2, cursor: active ? 'pointer' : 'not-allowed',
-    color: active ? '#3c434a' : '#a7aaad',
+    color: active ? 'var(--text-secondary)' : 'var(--text-muted)',
     transition: 'background 0.12s', flexShrink: 0, padding: 0,
   });
 
   const divider = (
-    <div style={{ width: 1, height: 24, background: '#dcdcde', margin: '0 4px', flexShrink: 0 }} />
+    <div style={{ width: 1, height: 24, background: 'var(--border)', margin: '0 4px', flexShrink: 0 }} />
   );
 
   return (
     <header style={{
-      background: '#ffffff', borderBottom: '1px solid #dcdcde',
+      background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)',
       position: 'sticky', top: 0, zIndex: 50, fontFamily: WP_FONT,
     }}>
       <div style={{
@@ -127,16 +131,16 @@ export function Header({
         {/* ── Logo ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <div style={{
-            width: 36, height: 36, background: '#2271b1', borderRadius: 6,
+            width: 36, height: 36, background: 'var(--accent)', borderRadius: 6,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <Zap style={{ width: 18, height: 18, color: '#fff' }} />
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#1e1e1e', lineHeight: 1.2 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.2 }}>
               Pootle Playground
             </div>
-            <div style={{ fontSize: 11, color: '#787c82', lineHeight: 1.2 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', lineHeight: 1.2 }}>
               Blueprint Generator v1.6
             </div>
           </div>
@@ -144,15 +148,14 @@ export function Header({
           {stepCount > 0 && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 4,
-              padding: '3px 9px', background: '#f0f6fc',
-              border: '1px solid #b8d3f4', borderRadius: 999,
-              fontSize: 12, color: '#2271b1', fontWeight: 500, flexShrink: 0,
+              padding: '3px 9px', background: 'var(--accent-bg)',
+              border: '1px solid var(--accent-border)', borderRadius: 999,
+              fontSize: 12, color: 'var(--accent)', fontWeight: 500, flexShrink: 0,
             }}>
               <FileText style={{ width: 11, height: 11 }} />
               {stepCount}
             </div>
           )}
-
         </div>
 
         {/* ── Toolbar ── */}
@@ -160,40 +163,40 @@ export function Header({
           {divider}
 
           <button onClick={onReset} disabled={stepCount === 0} title="Reset blueprint" style={iconBtn(stepCount > 0)}
-            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = '#f0f0f1'; }}
+            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = 'var(--bg-hover)'; }}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
             <RotateCcw style={{ width: 15, height: 15 }} />
           </button>
 
           <button onClick={onShowGallery} title="Browse gallery" style={iconBtn()}
-            onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+            onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
             <Grid3x3 style={{ width: 15, height: 15 }} />
           </button>
 
           <button onClick={onImportBlueprint} title="Import blueprint JSON" style={iconBtn()}
-            onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+            onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
             <Download style={{ width: 15, height: 15 }} />
           </button>
 
           <button onClick={handleDownload} disabled={stepCount === 0} title="Export blueprint JSON" style={iconBtn(stepCount > 0)}
-            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = '#f0f0f1'; }}
+            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = 'var(--bg-hover)'; }}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
             <Upload style={{ width: 15, height: 15 }} />
           </button>
 
           <button
             onClick={onShowAiGenerator || onOpenAiSidebar} title="Generate with AI"
-            style={{ ...iconBtn(), color: '#2271b1' }}
-            onMouseOver={e => (e.currentTarget.style.background = '#f0f6fc')}
+            style={{ ...iconBtn(), color: 'var(--accent)' }}
+            onMouseOver={e => (e.currentTarget.style.background = 'var(--accent-bg)')}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
             <Sparkles style={{ width: 15, height: 15 }} />
           </button>
 
           {onShowSharedPlaygrounds && (
             <button onClick={onShowSharedPlaygrounds} title="My shared links" style={iconBtn()}
-              onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+              onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
               onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
               <Link2 style={{ width: 15, height: 15 }} />
             </button>
@@ -201,11 +204,23 @@ export function Header({
 
           {onSharePlayground && (
             <button onClick={onSharePlayground} title="Share this Playground" style={iconBtn()}
-              onMouseOver={e => (e.currentTarget.style.background = '#f0f0f1')}
+              onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
               onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
               <Share2 style={{ width: 15, height: 15 }} />
             </button>
           )}
+
+          {/* Dark mode toggle */}
+          <button
+            onClick={onToggleTheme}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={iconBtn()}
+            onMouseOver={e => (e.currentTarget.style.background = 'var(--bg-hover)')}
+            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
+            {isDark
+              ? <Sun style={{ width: 15, height: 15 }} />
+              : <Moon style={{ width: 15, height: 15 }} />}
+          </button>
 
           {divider}
 
@@ -214,14 +229,15 @@ export function Header({
             onClick={onSaveBlueprint} disabled={stepCount === 0}
             style={{
               padding: '6px 14px', fontSize: 13, fontWeight: 500,
-              background: '#fff', color: stepCount === 0 ? '#a7aaad' : '#2271b1',
-              border: `1px solid ${stepCount === 0 ? '#dcdcde' : '#2271b1'}`,
+              background: 'var(--bg-surface)',
+              color: stepCount === 0 ? 'var(--text-muted)' : 'var(--accent)',
+              border: `1px solid ${stepCount === 0 ? 'var(--border)' : 'var(--accent)'}`,
               borderRadius: 999, cursor: stepCount === 0 ? 'not-allowed' : 'pointer',
               fontFamily: WP_FONT, display: 'flex', alignItems: 'center', gap: 5,
               transition: 'background 0.12s', whiteSpace: 'nowrap', flexShrink: 0,
             }}
-            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = '#f0f6fc'; }}
-            onMouseOut={e => (e.currentTarget.style.background = '#fff')}>
+            onMouseOver={e => { if (stepCount > 0) e.currentTarget.style.background = 'var(--accent-bg)'; }}
+            onMouseOut={e => (e.currentTarget.style.background = 'var(--bg-surface)')}>
             <Save style={{ width: 12, height: 12 }} />
             Save
           </button>
@@ -231,15 +247,15 @@ export function Header({
             onClick={handleLaunch} disabled={isLaunching}
             style={{
               padding: '6px 16px', fontSize: 13, fontWeight: 500,
-              background: isLaunching ? '#a7aaad' : '#2271b1',
+              background: isLaunching ? 'var(--text-muted)' : 'var(--accent)',
               color: '#fff', border: '1px solid transparent',
               borderRadius: 999,
               cursor: isLaunching ? 'not-allowed' : 'pointer',
               fontFamily: WP_FONT, display: 'flex', alignItems: 'center', gap: 6,
               transition: 'background 0.12s', whiteSpace: 'nowrap', flexShrink: 0,
             }}
-            onMouseOver={e => { if (!isLaunching) e.currentTarget.style.background = '#135e96'; }}
-            onMouseOut={e => { if (!isLaunching) e.currentTarget.style.background = '#2271b1'; }}>
+            onMouseOver={e => { if (!isLaunching) e.currentTarget.style.background = 'var(--accent-hover)'; }}
+            onMouseOut={e => { if (!isLaunching) e.currentTarget.style.background = 'var(--accent)'; }}>
             {isLaunching
               ? <><Loader2 style={{ width: 13, height: 13 }} className="animate-spin" /> Launching…</>
               : <><Play style={{ width: 13, height: 13 }} /> Launch</>}

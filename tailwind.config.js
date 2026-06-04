@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -16,10 +17,10 @@ export default {
           800: '#f6f7f7',
           900: '#dcdcde',
           950: '#c3c4c7',
-          paper: '#ffffff',
-          grid: '#f0f0f1',
-          text: '#1e1e1e',
-          accent: '#2271b1',
+          paper: 'rgb(var(--bg-surface-rgb) / <alpha-value>)',
+          grid: 'rgb(var(--border-light-rgb) / <alpha-value>)',
+          text: 'rgb(var(--text-primary-rgb) / <alpha-value>)',
+          accent: 'rgb(var(--accent-rgb) / <alpha-value>)',
         },
         'pootle-blue': {
           50: '#eff6ff',

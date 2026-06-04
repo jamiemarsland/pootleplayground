@@ -1,3 +1,67 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Theme variables ── */
+:root {
+  --bg-app: #f0f0f1;
+  --bg-surface: #ffffff;
+  --bg-hover: #f0f0f1;
+  --bg-subtle: #f6f7f7;
+
+  --border: #dcdcde;
+  --border-light: #f0f0f1;
+  --border-input: #8c8f94;
+  --border-muted: #c3c4c7;
+
+  --text-primary: #1e1e1e;
+  --text-secondary: #50575e;
+  --text-tertiary: #787c82;
+  --text-muted: #a7aaad;
+
+  /* RGB versions for Tailwind opacity modifiers */
+  --text-primary-rgb: 30, 30, 30;
+  --bg-surface-rgb: 255, 255, 255;
+  --border-light-rgb: 240, 240, 241;
+  --accent-rgb: 34, 113, 177;
+
+  --accent: #2271b1;
+  --accent-hover: #135e96;
+  --accent-bg: #f0f6fc;
+  --accent-border: #b8d3f4;
+
+  --success: #00a32a;
+  --error: #d63638;
+  --warning: #dba617;
+}
+
+.dark {
+  --bg-app: #1a1a1a;
+  --bg-surface: #242424;
+  --bg-hover: #2e2e2e;
+  --bg-subtle: #1e1e1e;
+
+  --border: #3a3a3a;
+  --border-light: #2e2e2e;
+  --border-input: #555a60;
+  --border-muted: #4a4e54;
+
+  --text-primary: #f0f0f1;
+  --text-secondary: #b0b3b8;
+  --text-tertiary: #8b8e93;
+  --text-muted: #606467;
+
+  --text-primary-rgb: 240, 240, 241;
+  --bg-surface-rgb: 36, 36, 36;
+  --border-light-rgb: 46, 46, 46;
+  --accent-rgb: 74, 144, 217;
+
+  --accent: #4a90d9;
+  --accent-hover: #3b7ec9;
+  --accent-bg: #1a2a3d;
+  --accent-border: #2a4a6b;
+
+  --success: #3dbb5a;
+  --error: #e05257;
+  --warning: #e6b220;
+}
