@@ -136,7 +136,6 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
                   onDrop={e => handleDrop(e, index)}
                   onDragEnd={handleDragEnd}
                   onClick={() => onSelectStep(step)}
-                  className="group"
                   style={{
                     display: 'flex', alignItems: 'center', gap: 6,
                     padding: '9px 14px 9px 0',
@@ -155,11 +154,10 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
                 >
                   {/* Drag handle */}
                   <div
-                    className="group-hover:opacity-100"
                     style={{
-                      paddingLeft: 6, opacity: 0, cursor: 'grab',
-                      color: '#a7aaad', display: 'flex', alignItems: 'center',
-                      transition: 'opacity 0.1s', flexShrink: 0,
+                      paddingLeft: 6, cursor: 'grab',
+                      color: '#c3c4c7', display: 'flex', alignItems: 'center',
+                      flexShrink: 0,
                     }}
                     onMouseDown={e => e.stopPropagation()}
                   >
@@ -195,14 +193,12 @@ export function StepsList({ steps, selectedStep, onSelectStep, onRemoveStep, onR
                     onClick={e => { e.stopPropagation(); onRemoveStep(step.id); }}
                     style={{
                       width: 24, height: 24, border: 'none', background: 'transparent',
-                      borderRadius: 2, cursor: 'pointer', color: '#a7aaad',
+                      borderRadius: 2, cursor: 'pointer', color: '#c3c4c7',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      opacity: 0, transition: 'opacity 0.1s, color 0.1s',
-                      flexShrink: 0, padding: 0,
+                      transition: 'color 0.1s', flexShrink: 0, padding: 0,
                     }}
-                    className="group-hover:opacity-100"
                     onMouseOver={e => (e.currentTarget.style.color = '#d63638')}
-                    onMouseOut={e => (e.currentTarget.style.color = '#a7aaad')}
+                    onMouseOut={e => (e.currentTarget.style.color = '#c3c4c7')}
                   >
                     <X size={12} />
                   </button>
