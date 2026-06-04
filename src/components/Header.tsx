@@ -145,17 +145,6 @@ export function Header({
             </div>
           </div>
 
-          {stepCount > 0 && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              padding: '3px 9px', background: 'var(--accent-bg)',
-              border: '1px solid var(--accent-border)', borderRadius: 999,
-              fontSize: 12, color: 'var(--accent)', fontWeight: 500, flexShrink: 0,
-            }}>
-              <FileText style={{ width: 11, height: 11 }} />
-              {stepCount}
-            </div>
-          )}
         </div>
 
         {/* ── Toolbar ── */}
