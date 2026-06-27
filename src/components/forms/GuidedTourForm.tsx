@@ -324,6 +324,34 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                           The admin page this step appears on (for reference).
                         </span>
                       </div>
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={labelStyle}>Popover Side</label>
+                          <select
+                            style={{ ...inputStyle, cursor: 'pointer' }}
+                            value={step.side ?? ''}
+                            onChange={e => updateStep(step.id, { side: (e.target.value as TourStep['side']) || undefined })}
+                          >
+                            <option value="">Auto-detect</option>
+                            <option value="bottom">Bottom</option>
+                            <option value="top">Top</option>
+                            <option value="right">Right</option>
+                            <option value="left">Left</option>
+                          </select>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <label style={labelStyle}>Alignment</label>
+                          <select
+                            style={{ ...inputStyle, cursor: 'pointer' }}
+                            value={step.align ?? 'center'}
+                            onChange={e => updateStep(step.id, { align: e.target.value as TourStep['align'] })}
+                          >
+                            <option value="center">Center</option>
+                            <option value="start">Start</option>
+                            <option value="end">End</option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
