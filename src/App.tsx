@@ -403,6 +403,10 @@ function getDefaultStepData(type: StepType): any {
     },
     setLandingPage: {
       landingPageType: 'wp-admin'
+    },
+    guidedTour: {
+      tourMode: 'quick',
+      tourSteps: [],
     }
   };
   

@@ -15,6 +15,7 @@ import { HomepageForm } from './forms/HomepageForm';
 import { PostsPageForm } from './forms/PostsPageForm';
 import { NavigationMenuForm } from './forms/NavigationMenuForm';
 import { LandingPageForm } from './forms/LandingPageForm';
+import { GuidedTourForm } from './forms/GuidedTourForm';
 
 interface ConfigPanelProps {
   selectedStep: Step | null;
@@ -70,6 +71,7 @@ export function ConfigPanel({ selectedStep, onUpdateStep, allSteps }: ConfigPane
       case 'setPostsPage': return <PostsPageForm {...commonProps} allSteps={allSteps} />;
       case 'createNavigationMenu': return <NavigationMenuForm {...commonProps} allSteps={allSteps} />;
       case 'setLandingPage': return <LandingPageForm {...commonProps} />;
+      case 'guidedTour': return <GuidedTourForm {...commonProps} />;
       default: return <div>Unsupported step type</div>;
     }
   };

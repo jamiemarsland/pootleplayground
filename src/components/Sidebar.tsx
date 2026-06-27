@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Image, Puzzle, Settings, Menu, ChevronDown, ChevronRight } from 'lucide-react';
+import { FileText, Image, Puzzle, Settings, Menu, ChevronDown, ChevronRight, Map } from 'lucide-react';
 import { StepType, StepCategory } from '../types/blueprint';
 
 interface SidebarProps {
@@ -32,6 +32,7 @@ const STEP_CATEGORIES: StepCategory[] = [
   { name: 'Structure', steps: ['setHomepage', 'setPostsPage', 'createNavigationMenu'], color: 'indigo' },
   { name: 'Extensions', steps: ['installPlugin', 'installTheme'], color: 'green' },
   { name: 'Launch View', steps: ['setLandingPage'], color: 'purple' },
+  { name: 'Onboarding', steps: ['guidedTour'], color: 'orange' },
 ];
 
 const STEP_ICONS = {
@@ -40,6 +41,7 @@ const STEP_ICONS = {
   installPlugin: Puzzle, installTheme: Puzzle,
   setSiteOption: Settings, defineWpConfigConst: Settings, login: Settings,
   importWxr: Settings, addClientRole: Settings, createNavigationMenu: Menu,
+  guidedTour: Map,
 };
 
 const STEP_LABELS = {
@@ -49,6 +51,7 @@ const STEP_LABELS = {
   installTheme: 'Install Theme', setSiteOption: 'Site Option',
   defineWpConfigConst: 'WP Config', login: 'Login', importWxr: 'Import WXR',
   addClientRole: 'Client Role', createNavigationMenu: 'Set Navigation Menu',
+  guidedTour: 'Guided Tour',
 };
 
 const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';

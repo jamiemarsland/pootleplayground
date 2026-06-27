@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { FileText, Image, Puzzle, Settings, X, Menu, GripVertical } from 'lucide-react';
+import { FileText, Image, Puzzle, Settings, X, Menu, GripVertical, Map } from 'lucide-react';
 import { Step } from '../types/blueprint';
 
 interface StepsListProps {
@@ -16,6 +16,7 @@ const STEP_ICONS: Record<string, React.ElementType> = {
   installPlugin: Puzzle, installTheme: Puzzle,
   setSiteOption: Settings, defineWpConfigConst: Settings, login: Settings,
   importWxr: Settings, addClientRole: Settings, createNavigationMenu: Menu,
+  guidedTour: Map,
 };
 
 const STEP_LABELS: Record<string, string> = {
@@ -25,6 +26,7 @@ const STEP_LABELS: Record<string, string> = {
   installTheme: 'Install Theme', setSiteOption: 'Site Option',
   defineWpConfigConst: 'WP Config', login: 'Login', importWxr: 'Import WXR',
   addClientRole: 'Client Role', createNavigationMenu: 'Set Navigation Menu',
+  guidedTour: 'Guided Tour',
 };
 
 const STEP_ACCENT: Record<string, string> = {
@@ -34,6 +36,7 @@ const STEP_ACCENT: Record<string, string> = {
   setLandingPage: '#dba617', setSiteOption: '#dba617',
   defineWpConfigConst: '#d63638', login: '#d63638',
   importWxr: '#50575e', addClientRole: '#50575e',
+  guidedTour: '#c17d11',
 };
 
 const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';

@@ -1,4 +1,5 @@
 import { Step, Blueprint, BlueprintStep } from '../types/blueprint';
+import { defaultTourProvider, TourMode } from './tourProviders';
 
 // UTF-8 safe base64 encoding function
 function unicodeSafeBase64Encode(str: string): string {
@@ -462,6 +463,19 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
       // This step doesn't generate a blueprint step, it just affects the landingPage URL
       // The URL is handled in generateBlueprint function
       return null;
+
+    case 'guidedTour': {
+      const mode: TourMode = data?.tourMode ?? 'none';
+      if (mode === 'none') return null;
+      if (mode === 'custom' && (!data?.tourSteps || data.tourSteps.length === 0)) return null;
+
+      const files = defaultTourProvider.generateFiles({ mode, steps: data?.tourSteps ?? [] });
+      return files.map(f => ({
+        step: 'writeFile',
+        path: f.path,
+        data: f.data,
+      }));
+    }
 
     default:
       return null;

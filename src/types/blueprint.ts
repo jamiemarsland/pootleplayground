@@ -18,7 +18,8 @@ export type StepType =
   | 'setHomepage'
   | 'setPostsPage'
   | 'createNavigationMenu'
-  | 'setLandingPage';
+  | 'setLandingPage'
+  | 'guidedTour';
 
 export interface Blueprint {
   landingPage: string;
