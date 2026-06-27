@@ -370,8 +370,8 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
             borderRadius: 4, padding: '10px 12px',
           }}>
             <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: 0, lineHeight: 1.6 }}>
-              Two files will be written to your Playground: <code>mu-plugins/pootle-tour.php</code> and{' '}
-              <code>mu-plugins/pootle-tour.js</code>. Tour data is embedded directly in the JS file.
+              One file is written to your Playground: <code>mu-plugins/pootle-tour.php</code>.
+              All CSS and JS is embedded inline — no external dependencies.
               The tour auto-starts on first visit and includes a <strong>Restart Tour</strong> button in the admin bar.
             </p>
           </div>

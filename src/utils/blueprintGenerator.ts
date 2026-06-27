@@ -476,7 +476,6 @@ function convertStepToBlueprint(step: Step, allSteps: Step[]): BlueprintStep | B
         data: f.data,
       }));
     }
-
     default:
       return null;
   }
