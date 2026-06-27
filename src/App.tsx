@@ -405,7 +405,7 @@ function getDefaultStepData(type: StepType): any {
       landingPageType: 'wp-admin'
     },
     guidedTour: {
-      tourMode: 'quick',
+      tourMode: 'none',
       tourSteps: [],
     }
   };
