@@ -307,15 +307,29 @@ function pootle_tour_assets() {
     },
   };
 
-  function init() {
+  function wireRestartBtn() {
     var btn = document.getElementById('wp-admin-bar-pootle-tour-restart');
     if (btn) {
-      btn.querySelector('a') && (btn.querySelector('a').onclick = function (e) {
-        e.preventDefault(); pootleTour.restart();
-      });
+      var a = btn.querySelector('a');
+      if (a) a.onclick = function (e) { e.preventDefault(); pootleTour.restart(); };
     }
+  }
+
+  function autoStart(attempts) {
+    if (localStorage.getItem(KEY) || !STEPS.length) return;
+    var anchor = STEPS[0].selector ? document.querySelector(STEPS[0].selector) : document.body;
+    if (anchor) {
+      wireRestartBtn();
+      pootleTour.start();
+    } else if (attempts < 20) {
+      setTimeout(function () { autoStart(attempts + 1); }, 500);
+    }
+  }
+
+  function init() {
+    wireRestartBtn();
     if (!localStorage.getItem(KEY) && STEPS.length) {
-      setTimeout(pootleTour.start, 700);
+      autoStart(0);
     }
   }
 
