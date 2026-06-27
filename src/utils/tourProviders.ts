@@ -86,7 +86,7 @@ add_action( 'admin_bar_menu', function ( WP_Admin_Bar $bar ) {
     ] );
 }, 100 );
 
-add_action( 'admin_enqueue_scripts', function () {
+function pootle_tour_enqueue() {
     wp_enqueue_script(
         'driver-js',
         'https://cdn.jsdelivr.net/npm/driver.js@${DRIVER_VERSION}/dist/driver.umd.min.js',
@@ -107,7 +107,9 @@ add_action( 'admin_enqueue_scripts', function () {
         '1.0.0',
         true
     );
-} );
+}
+add_action( 'admin_enqueue_scripts', 'pootle_tour_enqueue' );
+add_action( 'wp_enqueue_scripts', 'pootle_tour_enqueue' );
 `;
 }
 
@@ -119,7 +121,7 @@ function buildJsRunner(steps: TourStep[]): string {
   var TOUR_STEPS = ${stepsJson};
   var STORAGE_KEY = 'pootle_tour_done';
 
-  function makeSteps(steps) {
+  function makeDriverSteps(steps) {
     return steps.map(function (s) {
       return {
         element: s.selector || undefined,
@@ -128,26 +130,26 @@ function buildJsRunner(steps: TourStep[]): string {
     });
   }
 
-  function startTour(steps) {
-    var d = window.driver.js.driver({
+  function startTour() {
+    if (!window.driver || !window.driver.js) return;
+    var driverObj = window.driver.js.driver({
       showProgress: true,
       animate: true,
       allowClose: true,
-      steps: makeSteps(steps),
-      onDestroyStarted: function () {
+      steps: makeDriverSteps(TOUR_STEPS),
+      onDestroyed: function () {
         localStorage.setItem(STORAGE_KEY, '1');
-        d.destroy();
       },
     });
-    d.drive(0);
+    driverObj.drive(0);
   }
 
   window.pootleRestartTour = function () {
     localStorage.removeItem(STORAGE_KEY);
-    startTour(TOUR_STEPS);
+    startTour();
   };
 
-  document.addEventListener('DOMContentLoaded', function () {
+  function init() {
     var btn = document.getElementById('wp-admin-bar-pootle-tour-restart');
     if (btn) {
       btn.addEventListener('click', function (e) {
@@ -156,9 +158,15 @@ function buildJsRunner(steps: TourStep[]): string {
       });
     }
     if (!localStorage.getItem(STORAGE_KEY)) {
-      setTimeout(function () { startTour(TOUR_STEPS); }, 800);
+      setTimeout(startTour, 600);
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
 `;
 }
