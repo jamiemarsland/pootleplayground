@@ -107,19 +107,17 @@ add_action( 'admin_enqueue_scripts', function () {
         '1.0.0',
         true
     );
-    wp_localize_script( 'pootle-tour', 'pootleTourConfig', [
-        'dataUrl'    => content_url( 'uploads/pootle-tour.json' ),
-        'storageKey' => 'pootle_tour_done',
-    ] );
 } );
 `;
 }
 
-function buildJsRunner(): string {
+function buildJsRunner(steps: TourStep[]): string {
+  const stepsJson = JSON.stringify(steps);
   return `(function () {
   'use strict';
 
-  var cfg = window.pootleTourConfig || {};
+  var TOUR_STEPS = ${stepsJson};
+  var STORAGE_KEY = 'pootle_tour_done';
 
   function makeSteps(steps) {
     return steps.map(function (s) {
@@ -137,7 +135,7 @@ function buildJsRunner(): string {
       allowClose: true,
       steps: makeSteps(steps),
       onDestroyStarted: function () {
-        localStorage.setItem(cfg.storageKey, '1');
+        localStorage.setItem(STORAGE_KEY, '1');
         d.destroy();
       },
     });
@@ -145,21 +143,9 @@ function buildJsRunner(): string {
   }
 
   window.pootleRestartTour = function () {
-    localStorage.removeItem(cfg.storageKey);
-    loadAndRun();
+    localStorage.removeItem(STORAGE_KEY);
+    startTour(TOUR_STEPS);
   };
-
-  function loadAndRun() {
-    fetch(cfg.dataUrl)
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        var steps = data.steps || [];
-        if (steps.length) startTour(steps);
-      })
-      .catch(function (e) {
-        console.warn('[Pootle Tour] Could not load tour data.', e);
-      });
-  }
 
   document.addEventListener('DOMContentLoaded', function () {
     var btn = document.getElementById('wp-admin-bar-pootle-tour-restart');
@@ -169,8 +155,8 @@ function buildJsRunner(): string {
         window.pootleRestartTour();
       });
     }
-    if (!localStorage.getItem(cfg.storageKey)) {
-      setTimeout(loadAndRun, 800);
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      setTimeout(function () { startTour(TOUR_STEPS); }, 800);
     }
   });
 })();
@@ -189,11 +175,7 @@ export class DriverJsProvider implements TourProvider {
       },
       {
         path: '/wordpress/wp-content/mu-plugins/pootle-tour.js',
-        data: buildJsRunner(),
-      },
-      {
-        path: '/wordpress/wp-content/uploads/pootle-tour.json',
-        data: JSON.stringify({ steps }, null, 2),
+        data: buildJsRunner(steps),
       },
     ];
   }
