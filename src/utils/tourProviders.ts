@@ -383,23 +383,27 @@ function pootle_tour_assets() {
     return { top:'bottom', bottom:'top', left:'right', right:'left' }[side];
   }
 
-  /* Returns true when the given step url matches the current page */
-  function urlMatches(stepUrl) {
-    if (!stepUrl) return true;
-    /* /wp-admin/ and /wp-admin/index.php are the same page in WordPress */
-    function normPath(p) {
-      p = p.replace(/\\/+$/, '') || '/';
-      if (p === '/wp-admin' || p === '/wp-admin/index.php') return '__wpadmin';
-      return p.toLowerCase();
+  /* Returns true only when the step is clearly on a different admin page.
+     Compares only the PHP filename so scope-prefixed Playground URLs
+     (/scope:xyz/wp-admin/edit.php) do not break the match. */
+  function needsNav(stepUrl) {
+    if (!stepUrl) return false;
+    function fileName(url) {
+      var p = url.split('?')[0];
+      var f = p.split('/').pop();
+      return (!f || f === '') ? 'index.php' : f;
     }
-    var qIdx     = stepUrl.indexOf('?');
-    var stepPath = normPath(qIdx === -1 ? stepUrl : stepUrl.slice(0, qIdx));
-    var stepQs   = qIdx === -1 ? '' : stepUrl.slice(qIdx + 1);
-    var curPath  = normPath(window.location.pathname);
-    if (stepPath !== curPath) return false;
-    /* If the step URL has no query string, any query on the current page is acceptable */
-    if (!stepQs) return true;
-    return stepQs === window.location.search.replace(/^\\?/, '');
+    var stepFile = fileName(stepUrl);
+    var curFile  = fileName(window.location.pathname);
+    /* Both the WP dashboard and /wp-admin/index.php share the same file */
+    if (stepFile === 'wp-admin') stepFile = 'index.php';
+    if (curFile  === 'wp-admin') curFile  = 'index.php';
+    if (stepFile !== curFile) return true;
+    /* Same file — also check query string so edit.php?post_type=page
+       is treated as different from edit.php?post=5&action=edit */
+    var stepQs = stepUrl.indexOf('?') !== -1 ? stepUrl.slice(stepUrl.indexOf('?') + 1) : '';
+    if (!stepQs) return false;
+    return stepQs !== window.location.search.replace(/^\\?/, '');
   }
 
   /* Navigate to a step that lives on a different page */
@@ -620,7 +624,7 @@ function pootle_tour_assets() {
   /* Navigate to a step's page if needed; otherwise show in place.
      Only called from explicit user actions (Next / Back / dot clicks). */
   function goTo(i) {
-    if (STEPS[i].url && !urlMatches(STEPS[i].url)) {
+    if (needsNav(STEPS[i].url)) {
       navigateTo(i);
     } else {
       show(i);
@@ -656,7 +660,7 @@ function pootle_tour_assets() {
       if (!tip) build();
       active = false;
       /* If step 0 is on a different page, navigate there first */
-      if (STEPS.length && STEPS[0].url && !urlMatches(STEPS[0].url)) {
+      if (STEPS.length && needsNav(STEPS[0].url)) {
         navigateTo(0);
         return;
       }
