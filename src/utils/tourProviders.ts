@@ -364,6 +364,7 @@ function pootle_tour_assets() {
 (function () {
   var STEPS   = JSON.parse('${stepsJson}');
   var KEY     = '${tourKey}';
+  var IDX_KEY = '${tourKey}_idx';
   var idx     = 0;
   var active  = false;
   var overlay = null;
@@ -380,6 +381,21 @@ function pootle_tour_assets() {
 
   function opp(side) {
     return { top:'bottom', bottom:'top', left:'right', right:'left' }[side];
+  }
+
+  /* Returns true when the given step url matches the current page */
+  function urlMatches(stepUrl) {
+    if (!stepUrl) return true;
+    var cur = window.location.pathname + window.location.search;
+    /* Normalise: strip trailing slash, lowercase */
+    function norm(u) { return u.replace(/\\/+$/, '').toLowerCase(); }
+    return norm(cur) === norm(stepUrl);
+  }
+
+  /* Navigate to a step that lives on a different page */
+  function navigateTo(i) {
+    localStorage.setItem(IDX_KEY, String(i));
+    window.location.href = STEPS[i].url || window.location.href;
   }
 
   /* ── DOM construction ────────────────────────────────── */
@@ -566,6 +582,14 @@ function pootle_tour_assets() {
   /* ── show a step ─────────────────────────────────────── */
   function show(i) {
     idx = i;
+    var s = STEPS[i];
+
+    /* If this step belongs on a different page, navigate there */
+    if (s.url && !urlMatches(s.url)) {
+      navigateTo(i);
+      return;
+    }
+
     if (!active) {
       /* first show: just appear */
       tip.style.opacity = '0';
@@ -616,8 +640,14 @@ function pootle_tour_assets() {
     },
     restart: function () {
       localStorage.removeItem(KEY);
+      localStorage.removeItem(IDX_KEY);
       if (!tip) build();
       active = false;
+      /* If step 0 is on a different page, navigate there first */
+      if (STEPS.length && STEPS[0].url && !urlMatches(STEPS[0].url)) {
+        navigateTo(0);
+        return;
+      }
       show(0);
       document.addEventListener('keydown', onKey);
     },
@@ -632,6 +662,7 @@ function pootle_tour_assets() {
     },
     stop: function () {
       localStorage.setItem(KEY, '1');
+      localStorage.removeItem(IDX_KEY);
       active = false;
       if (overlay)  overlay.style.display  = 'none';
       if (tip)      tip.style.display      = 'none';
@@ -662,9 +693,37 @@ function pootle_tour_assets() {
 
   function init() {
     wireRestartBtn();
-    if (!localStorage.getItem(KEY) && STEPS.length) {
-      autoStart(0);
+    if (localStorage.getItem(KEY)) return; /* tour was dismissed */
+    if (!STEPS.length) return;
+
+    /* Resume mid-tour after a page navigation */
+    var pending = localStorage.getItem(IDX_KEY);
+    if (pending !== null) {
+      var resumeIdx = parseInt(pending, 10);
+      localStorage.removeItem(IDX_KEY);
+      if (resumeIdx >= 0 && resumeIdx < STEPS.length) {
+        if (!tip) build();
+        active = false;
+        document.addEventListener('keydown', onKey);
+        /* Wait for the page elements to be ready */
+        function tryResume(attempts) {
+          var s = STEPS[resumeIdx];
+          var anchor = s.selector ? document.querySelector(s.selector) : document.body;
+          if (anchor) {
+            wireRestartBtn();
+            show(resumeIdx);
+          } else if (attempts < 20) {
+            setTimeout(function () { tryResume(attempts + 1); }, 500);
+          } else {
+            show(resumeIdx); /* show anyway, falls back to body */
+          }
+        }
+        tryResume(0);
+        return;
+      }
     }
+
+    autoStart(0);
   }
 
   if (document.readyState === 'loading') {
