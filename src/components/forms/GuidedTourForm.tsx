@@ -1,9 +1,9 @@
 import React, { useRef, useState } from 'react';
 import {
   Plus, Trash2, GripVertical, Map, Zap, Ban, Code,
-  ChevronDown, ChevronUp, Info, Copy, Sparkles,
+  ChevronDown, ChevronUp, Info, Copy, Sparkles, BookOpen,
 } from 'lucide-react';
-import { TourStep, TourMode, QUICK_INTRO_STEPS } from '../../utils/tourProviders';
+import { TourStep, TourMode, QUICK_INTRO_STEPS, QUICK_START_STEPS } from '../../utils/tourProviders';
 import { TOUR_TEMPLATES, TourTemplate } from '../../utils/wpSelectors';
 import { WpSelectorPicker } from './WpSelectorPicker';
 
@@ -28,9 +28,10 @@ const labelStyle: React.CSSProperties = {
 };
 
 const MODE_OPTIONS: { value: TourMode; label: string; icon: React.ElementType; desc: string }[] = [
-  { value: 'none',   label: 'No Tour',      icon: Ban,  desc: 'No guided tour will be added.' },
-  { value: 'quick',  label: 'Quick Intro',  icon: Zap,  desc: 'Pre-built tour covering Dashboard, Pages, Appearance, and Plugins.' },
-  { value: 'custom', label: 'Custom Tour',  icon: Map,  desc: 'Build your own step-by-step tour with custom selectors.' },
+  { value: 'none',       label: 'No Tour',         icon: Ban,      desc: 'No guided tour will be added.' },
+  { value: 'quick',      label: 'Quick Intro',     icon: Zap,      desc: 'Pre-built tour covering Dashboard, Pages, Appearance, and Plugins.' },
+  { value: 'quickstart', label: 'Quick Start',     icon: BookOpen, desc: 'Guided "First Site in 5 Minutes" walkthrough — great for beginners.' },
+  { value: 'custom',     label: 'Custom Tour',     icon: Map,      desc: 'Build your own step-by-step tour with custom selectors.' },
 ];
 
 function makeId() {
@@ -132,7 +133,11 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
     setDragOver(null);
   };
 
-  const previewSteps = tourMode === 'quick' ? QUICK_INTRO_STEPS : tourSteps;
+  const previewSteps = tourMode === 'quick'
+    ? QUICK_INTRO_STEPS
+    : tourMode === 'quickstart'
+    ? QUICK_START_STEPS
+    : tourSteps;
   const previewJson  = JSON.stringify({ steps: previewSteps }, null, 2);
 
   return (
@@ -209,6 +214,74 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                 </li>
               ))}
             </ol>
+          </div>
+        )}
+
+        {/* Quick start preview */}
+        {tourMode === 'quickstart' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Intro card */}
+            <div style={{
+              background: 'var(--accent-bg)', border: '1px solid var(--accent-border)',
+              borderRadius: 4, padding: '14px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <BookOpen size={14} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>
+                  Your First WordPress Site in 5 Minutes
+                </span>
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 10px', lineHeight: 1.6 }}>
+                A {QUICK_START_STEPS.length}-step tour that guides complete beginners through the core WordPress workflow — from creating pages to publishing a live site.
+              </p>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' as const }}>
+                {['Phase 1: Site Structure', 'Phase 2: Block Editor', 'Phase 3: Navigation', 'Phase 4: Homepage Setup'].map(phase => (
+                  <span
+                    key={phase}
+                    style={{
+                      fontSize: 11, fontWeight: 600, padding: '3px 8px',
+                      background: 'rgba(34,113,177,0.12)', color: 'var(--accent)',
+                      borderRadius: 10,
+                    }}
+                  >
+                    {phase}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Step list */}
+            <div style={{ border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ padding: '7px 12px', background: 'var(--bg-app)', borderBottom: '1px solid var(--border-light)', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>
+                {QUICK_START_STEPS.length} Steps
+              </div>
+              {QUICK_START_STEPS.map((s, i) => (
+                <div
+                  key={s.id}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10,
+                    padding: '8px 12px',
+                    borderTop: i === 0 ? 'none' : '1px solid var(--border-light)',
+                  }}
+                >
+                  <span style={{
+                    width: 18, height: 18, borderRadius: '50%', background: 'var(--accent-bg)',
+                    border: '1px solid var(--accent-border)', display: 'inline-flex',
+                    alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1,
+                    fontSize: 10, fontWeight: 700, color: 'var(--accent)',
+                  }}>
+                    {i + 1}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{s.title}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                      {s.description.slice(0, 90)}{s.description.length > 90 ? '…' : ''}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

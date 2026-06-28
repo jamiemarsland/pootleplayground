@@ -9,7 +9,7 @@ export interface TourStep {
   align?: 'start' | 'center' | 'end';
 }
 
-export type TourMode = 'none' | 'quick' | 'custom';
+export type TourMode = 'none' | 'quick' | 'quickstart' | 'custom';
 
 export interface TourConfig {
   mode: TourMode;
@@ -66,6 +66,131 @@ export const QUICK_INTRO_STEPS: TourStep[] = [
     selector: '#menu-plugins',
     url: '/wp-admin/',
     order: 5,
+  },
+];
+
+export const QUICK_START_STEPS: TourStep[] = [
+  // ── Phase 1: Site Structure ──────────────────────────
+  {
+    id: 'qs-1',
+    title: 'Phase 1 of 4 — Create Your Site Structure',
+    description: "Before designing anything, build your main pages. Pages hold content that doesn't change often — like a Homepage, About, or Contact page.",
+    selector: '#menu-pages',
+    url: '/wp-admin/edit.php?post_type=page',
+    order: 1,
+    side: 'right',
+  },
+  {
+    id: 'qs-2',
+    title: 'Create 4 Pages',
+    description: 'Click "Add New Page" and create: Home, About, Contact, and Blog. Give each a title and click Publish. Return here once all four are created.',
+    selector: '.page-title-action',
+    url: '/wp-admin/edit.php?post_type=page',
+    order: 2,
+    side: 'bottom',
+  },
+  {
+    id: 'qs-3',
+    title: 'Site Structure Ready',
+    description: 'Great — you now have the basic structure of a website. Your pages list should show Home, About, Contact, and Blog. Click Next to learn about editing page content.',
+    selector: '.wp-list-table',
+    url: '/wp-admin/edit.php?post_type=page',
+    order: 3,
+    side: 'top',
+  },
+  // ── Phase 2: Block Editor ────────────────────────────
+  {
+    id: 'qs-4',
+    title: 'Phase 2 of 4 — The Block Editor',
+    description: "Open your Home page to edit it. WordPress uses blocks — every piece of content (headings, paragraphs, images) is a block you can move and style independently.",
+    selector: '.edit-post-layout',
+    url: '/wp-admin/post-new.php?post_type=page',
+    order: 4,
+    side: 'top',
+  },
+  {
+    id: 'qs-5',
+    title: 'The Block Inserter (+)',
+    description: 'Click the + button (top-left of the toolbar) to browse and add any type of block — headings, images, buttons, columns, and hundreds more. This is how you build pages.',
+    selector: '.edit-post-header-toolbar',
+    url: '/wp-admin/post-new.php?post_type=page',
+    order: 5,
+    side: 'bottom',
+  },
+  {
+    id: 'qs-6',
+    title: 'The Writing Canvas',
+    description: 'This is your page canvas. Click to start typing or press + to add blocks. Try adding a Heading block with your site name, then a Paragraph block beneath it.',
+    selector: '.block-editor-writing-flow',
+    url: '/wp-admin/post-new.php?post_type=page',
+    order: 6,
+    side: 'top',
+  },
+  {
+    id: 'qs-7',
+    title: 'Block & Page Settings',
+    description: 'The right sidebar shows settings for the selected block or the whole page — typography, colours, spacing, and page-level options like templates.',
+    selector: '.interface-complementary-area',
+    url: '/wp-admin/post-new.php?post_type=page',
+    order: 7,
+    side: 'left',
+  },
+  {
+    id: 'qs-8',
+    title: 'Block Editor Mastered',
+    description: "Most WordPress content creation happens here. When you're done editing, click Update or Publish. Click Next to set up your navigation.",
+    selector: '.edit-post-header',
+    url: '/wp-admin/post-new.php?post_type=page',
+    order: 8,
+    side: 'bottom',
+  },
+  // ── Phase 3: Navigation ──────────────────────────────
+  {
+    id: 'qs-9',
+    title: 'Phase 3 of 4 — Build Your Navigation',
+    description: 'Navigation menus help visitors move around your site. Go to Appearance and look for Navigation (block themes) or Menus (classic themes).',
+    selector: '#menu-appearance',
+    url: '/wp-admin/',
+    order: 9,
+    side: 'right',
+  },
+  {
+    id: 'qs-10',
+    title: 'Add Your Menu Links',
+    description: 'Add links to Home, About, Blog, and Contact, then save the navigation. Your visitors can now move between the main sections of your site.',
+    selector: '#menu-appearance',
+    url: '/wp-admin/',
+    order: 10,
+    side: 'right',
+  },
+  // ── Phase 4: Reading Settings ────────────────────────
+  {
+    id: 'qs-11',
+    title: 'Phase 4 of 4 — Set Your Homepage',
+    description: "By default WordPress shows your latest posts on the front page. Go to Settings → Reading to choose a static page as your homepage instead.",
+    selector: '#menu-settings',
+    url: '/wp-admin/options-reading.php',
+    order: 11,
+    side: 'right',
+  },
+  {
+    id: 'qs-12',
+    title: 'Choose a Static Page',
+    description: 'Under "Your homepage displays", select "A static page". Set Homepage to your "Home" page and Posts page to your "Blog" page, then click Save Changes.',
+    selector: '.wrap form',
+    url: '/wp-admin/options-reading.php',
+    order: 12,
+    side: 'top',
+  },
+  // ── Completion ───────────────────────────────────────
+  {
+    id: 'qs-13',
+    title: 'You\'re all set!',
+    description: "You've completed the essential WordPress setup: created your site structure, learned the block editor, built a navigation menu, and configured your homepage. That's the core workflow used by millions of WordPress sites.",
+    selector: '#wpadminbar',
+    url: '/wp-admin/',
+    order: 13,
+    side: 'bottom',
   },
 ];
 
@@ -545,7 +670,11 @@ export class DriverJsProvider implements TourProvider {
   name = 'driver.js';
 
   generateFiles(config: TourConfig): TourFile[] {
-    const steps = config.mode === 'quick' ? QUICK_INTRO_STEPS : config.steps;
+    const steps = config.mode === 'quick'
+      ? QUICK_INTRO_STEPS
+      : config.mode === 'quickstart'
+      ? QUICK_START_STEPS
+      : config.steps;
     return [
       {
         path: '/wordpress/wp-content/mu-plugins/pootle-tour.php',
