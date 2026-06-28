@@ -386,10 +386,20 @@ function pootle_tour_assets() {
   /* Returns true when the given step url matches the current page */
   function urlMatches(stepUrl) {
     if (!stepUrl) return true;
-    var cur = window.location.pathname + window.location.search;
-    /* Normalise: strip trailing slash, lowercase */
-    function norm(u) { return u.replace(/\\/+$/, '').toLowerCase(); }
-    return norm(cur) === norm(stepUrl);
+    /* /wp-admin/ and /wp-admin/index.php are the same page in WordPress */
+    function normPath(p) {
+      p = p.replace(/\\/+$/, '') || '/';
+      if (p === '/wp-admin' || p === '/wp-admin/index.php') return '__wpadmin';
+      return p.toLowerCase();
+    }
+    var qIdx     = stepUrl.indexOf('?');
+    var stepPath = normPath(qIdx === -1 ? stepUrl : stepUrl.slice(0, qIdx));
+    var stepQs   = qIdx === -1 ? '' : stepUrl.slice(qIdx + 1);
+    var curPath  = normPath(window.location.pathname);
+    if (stepPath !== curPath) return false;
+    /* If the step URL has no query string, any query on the current page is acceptable */
+    if (!stepQs) return true;
+    return stepQs === window.location.search.replace(/^\\?/, '');
   }
 
   /* Navigate to a step that lives on a different page */
