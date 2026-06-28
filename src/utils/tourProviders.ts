@@ -194,8 +194,18 @@ export const QUICK_START_STEPS: TourStep[] = [
   },
 ];
 
+function tourHash(steps: TourStep[]): string {
+  const str = steps.map(s => s.id).join(',');
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) + h) ^ str.charCodeAt(i);
+  }
+  return (h >>> 0).toString(36);
+}
+
 function buildPhpPlugin(steps: TourStep[]): string {
   const stepsJson = JSON.stringify(steps).replace(/'/g, "\\'");
+  const tourKey   = `pootle_tour_${tourHash(steps)}`;
 
   return `<?php
 /**
@@ -348,7 +358,7 @@ function pootle_tour_assets() {
 <script id="pootle-tour-js">
 (function () {
   var STEPS   = JSON.parse('${stepsJson}');
-  var KEY     = 'pootle_tour_done';
+  var KEY     = '${tourKey}';
   var idx     = 0;
   var active  = false;
   var overlay = null;
