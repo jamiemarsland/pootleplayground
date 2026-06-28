@@ -1,6 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { Plus, Trash2, GripVertical, Map, Zap, Ban, Code, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import {
+  Plus, Trash2, GripVertical, Map, Zap, Ban, Code,
+  ChevronDown, ChevronUp, Info, Copy, Sparkles,
+} from 'lucide-react';
 import { TourStep, TourMode, QUICK_INTRO_STEPS } from '../../utils/tourProviders';
+import { TOUR_TEMPLATES, TourTemplate } from '../../utils/wpSelectors';
+import { WpSelectorPicker } from './WpSelectorPicker';
 
 interface GuidedTourFormProps {
   data: any;
@@ -23,36 +28,50 @@ const labelStyle: React.CSSProperties = {
 };
 
 const MODE_OPTIONS: { value: TourMode; label: string; icon: React.ElementType; desc: string }[] = [
-  { value: 'none', label: 'No Tour', icon: Ban, desc: 'No guided tour will be added.' },
-  { value: 'quick', label: 'Quick Intro', icon: Zap, desc: 'Pre-built tour covering Dashboard, Pages, Appearance, and Plugins.' },
-  { value: 'custom', label: 'Custom Tour', icon: Map, desc: 'Build your own step-by-step tour with custom selectors.' },
+  { value: 'none',   label: 'No Tour',      icon: Ban,  desc: 'No guided tour will be added.' },
+  { value: 'quick',  label: 'Quick Intro',  icon: Zap,  desc: 'Pre-built tour covering Dashboard, Pages, Appearance, and Plugins.' },
+  { value: 'custom', label: 'Custom Tour',  icon: Map,  desc: 'Build your own step-by-step tour with custom selectors.' },
 ];
 
+function makeId() {
+  return `ts-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 function newStep(order: number): TourStep {
-  return {
-    id: `ts-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    title: '',
-    description: '',
-    selector: '',
-    url: '',
-    order,
-  };
+  return { id: makeId(), title: '', description: '', selector: '', url: '', order };
 }
 
 export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
-  const tourMode: TourMode = data?.tourMode ?? 'none';
+  const tourMode: TourMode    = data?.tourMode  ?? 'none';
   const tourSteps: TourStep[] = data?.tourSteps ?? [];
-  const [showJson, setShowJson] = useState(false);
-  const [expandedStep, setExpandedStep] = useState<string | null>(null);
+
+  const [showJson, setShowJson]           = useState(false);
+  const [expandedStep, setExpandedStep]   = useState<string | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
   const dragIndex = useRef<number | null>(null);
-  const [dragOver, setDragOver] = useState<number | null>(null);
+  const [dragOver, setDragOver]           = useState<number | null>(null);
 
   const update = (patch: Partial<typeof data>) => onChange({ ...data, ...patch });
 
+  /* ── step CRUD ──────────────────────────────────────── */
   const addStep = () => {
     const next = [...tourSteps, newStep(tourSteps.length + 1)];
     update({ tourSteps: next });
     setExpandedStep(next[next.length - 1].id);
+  };
+
+  const duplicateStep = (id: string) => {
+    const i = tourSteps.findIndex(s => s.id === id);
+    if (i === -1) return;
+    const orig = tourSteps[i];
+    const copy: TourStep = { ...orig, id: makeId(), title: orig.title ? `${orig.title} (copy)` : '' };
+    const next = [
+      ...tourSteps.slice(0, i + 1),
+      copy,
+      ...tourSteps.slice(i + 1),
+    ].map((s, idx) => ({ ...s, order: idx + 1 }));
+    update({ tourSteps: next });
+    setExpandedStep(copy.id);
   };
 
   const removeStep = (id: string) => {
@@ -60,10 +79,37 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
     if (expandedStep === id) setExpandedStep(null);
   };
 
-  const updateStep = (id: string, patch: Partial<TourStep>) => {
+  const updateStep = (id: string, patch: Partial<TourStep>) =>
     update({ tourSteps: tourSteps.map(s => s.id === id ? { ...s, ...patch } : s) });
+
+  /* ── templates ──────────────────────────────────────── */
+  const applyTemplate = (template: TourTemplate) => {
+    const base = tourSteps.length;
+    const newSteps: TourStep[] = template.steps.map((s, i) => ({
+      id: makeId(),
+      order: base + i + 1,
+      title: s.title,
+      description: s.description,
+      selector: s.selector,
+      url: s.url ?? '',
+      side: s.side,
+      align: s.align,
+    }));
+    const next = [...tourSteps, ...newSteps];
+    update({ tourSteps: next });
+    setShowTemplates(false);
+    if (newSteps.length) setExpandedStep(newSteps[0].id);
   };
 
+  const importQuickIntro = () => {
+    const steps: TourStep[] = QUICK_INTRO_STEPS.map((s, i) => ({
+      ...s, id: makeId(), order: i + 1,
+    }));
+    update({ tourSteps: steps });
+    setExpandedStep(steps[0].id);
+  };
+
+  /* ── drag-and-drop ──────────────────────────────────── */
   const handleDragStart = (_e: React.DragEvent, index: number) => {
     dragIndex.current = index;
   };
@@ -87,15 +133,16 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
   };
 
   const previewSteps = tourMode === 'quick' ? QUICK_INTRO_STEPS : tourSteps;
-  const previewJson = JSON.stringify({ steps: previewSteps }, null, 2);
+  const previewJson  = JSON.stringify({ steps: previewSteps }, null, 2);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: WP_FONT, overflowY: 'auto' }}>
+
       {/* Header */}
       <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid var(--border-light)' }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px' }}>Guided Tour</h2>
         <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: 0 }}>
-          Add an interactive walkthrough to your WordPress Playground, powered by Driver.js.
+          Add an interactive walkthrough to your WordPress Playground.
         </p>
       </div>
 
@@ -157,51 +204,136 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
             <ol style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
               {QUICK_INTRO_STEPS.map(s => (
                 <li key={s.id} style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  <strong style={{ color: 'var(--text-primary)' }}>{s.title}</strong> — {s.description.slice(0, 70)}{s.description.length > 70 ? '…' : ''}
+                  <strong style={{ color: 'var(--text-primary)' }}>{s.title}</strong>
+                  {' — '}{s.description.slice(0, 70)}{s.description.length > 70 ? '…' : ''}
                 </li>
               ))}
             </ol>
           </div>
         )}
 
-        {/* Custom tour builder */}
+        {/* ── Custom tour builder ── */}
         {tourMode === 'custom' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+            {/* Toolbar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
               <label style={{ ...labelStyle, marginBottom: 0 }}>
                 Tour Steps ({tourSteps.length})
               </label>
-              <button
-                type="button"
-                onClick={addStep}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px',
-                  background: 'var(--accent)', color: '#fff', border: 'none',
-                  borderRadius: 3, cursor: 'pointer', fontSize: 12, fontWeight: 500,
-                  fontFamily: WP_FONT,
-                }}
-              >
-                <Plus size={12} />
-                Add Step
-              </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  type="button"
+                  onClick={() => setShowTemplates(t => !t)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 4, padding: '5px 9px',
+                    border: `1px solid ${showTemplates ? 'var(--accent-border)' : 'var(--border-input)'}`,
+                    borderRadius: 3,
+                    background: showTemplates ? 'var(--accent-bg)' : 'transparent',
+                    color: showTemplates ? 'var(--accent)' : 'var(--text-secondary)',
+                    cursor: 'pointer', fontSize: 12, fontWeight: 500, fontFamily: WP_FONT,
+                    transition: 'all 0.12s',
+                  }}
+                >
+                  <Sparkles size={12} />
+                  Templates
+                  <ChevronDown size={10} style={{ transform: showTemplates ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
+                </button>
+                <button
+                  type="button"
+                  onClick={addStep}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px',
+                    background: 'var(--accent)', color: '#fff', border: 'none',
+                    borderRadius: 3, cursor: 'pointer', fontSize: 12, fontWeight: 500,
+                    fontFamily: WP_FONT,
+                  }}
+                >
+                  <Plus size={12} />
+                  Add Step
+                </button>
+              </div>
             </div>
 
-            {tourSteps.length === 0 && (
+            {/* Templates panel */}
+            {showTemplates && (
               <div style={{
-                padding: '24px 16px', textAlign: 'center',
-                border: '2px dashed var(--border)', borderRadius: 4,
+                border: '1px solid var(--accent-border)',
+                borderRadius: 4, overflow: 'hidden',
+                background: 'var(--accent-bg)',
               }}>
-                <Map size={24} style={{ color: 'var(--text-muted)', margin: '0 auto 8px' }} />
-                <p style={{ fontSize: 13, color: 'var(--text-tertiary)', margin: 0 }}>
-                  No steps yet. Click "Add Step" to begin building your tour.
-                </p>
+                <div style={{ padding: '9px 12px 5px', fontSize: 11, fontWeight: 700, color: 'var(--accent)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Click a template to append its steps
+                </div>
+                {TOUR_TEMPLATES.map(template => (
+                  <button
+                    key={template.name}
+                    type="button"
+                    onClick={() => applyTemplate(template)}
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      gap: 12, padding: '8px 12px', border: 'none',
+                      borderTop: '1px solid var(--accent-border)',
+                      background: 'transparent', cursor: 'pointer', textAlign: 'left',
+                      fontFamily: WP_FONT, transition: 'background 0.1s',
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.background = 'rgba(34,113,177,0.09)'; }}
+                    onMouseOut={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
+                        {template.name}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {template.description}
+                      </div>
+                    </div>
+                    <Plus size={13} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                  </button>
+                ))}
               </div>
             )}
 
+            {/* Empty state */}
+            {tourSteps.length === 0 && (
+              <div style={{
+                padding: '28px 16px', textAlign: 'center',
+                border: '2px dashed var(--border)', borderRadius: 4,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
+              }}>
+                <Map size={26} style={{ color: 'var(--text-muted)' }} />
+                <div>
+                  <p style={{ fontSize: 13, color: 'var(--text-tertiary)', margin: '0 0 4px' }}>
+                    No steps yet.
+                  </p>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0 }}>
+                    Add a blank step, pick a template above, or import the Quick Intro.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={importQuickIntro}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px',
+                    border: '1px solid var(--accent-border)', borderRadius: 3,
+                    background: 'var(--accent-bg)', color: 'var(--accent)',
+                    cursor: 'pointer', fontSize: 12, fontWeight: 600, fontFamily: WP_FONT,
+                    transition: 'all 0.12s',
+                  }}
+                  onMouseOver={e => { e.currentTarget.style.background = 'var(--accent)'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseOut={e => { e.currentTarget.style.background = 'var(--accent-bg)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                >
+                  <Zap size={13} />
+                  Import Quick Intro Steps
+                </button>
+              </div>
+            )}
+
+            {/* Step list */}
             {tourSteps.map((step, index) => {
-              const isOpen = expandedStep === step.id;
+              const isOpen     = expandedStep === step.id;
               const isDragging = dragIndex.current === index;
-              const isOver = dragOver === index;
+              const isOver     = dragOver === index;
 
               return (
                 <div
@@ -220,12 +352,7 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                   }}
                 >
                   {/* Step header */}
-                  <div
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
-                      cursor: 'pointer', userSelect: 'none',
-                    }}
-                  >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', userSelect: 'none' }}>
                     <GripVertical size={14} style={{ color: 'var(--text-muted)', cursor: 'grab', flexShrink: 0 }} />
                     <span style={{
                       width: 20, height: 20, borderRadius: '50%', background: 'var(--accent-bg)',
@@ -236,13 +363,32 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                       {index + 1}
                     </span>
                     <span
-                      style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}
+                      style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500, cursor: 'pointer' }}
                       onClick={() => setExpandedStep(isOpen ? null : step.id)}
                     >
                       {step.title || <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>Untitled step</span>}
                     </span>
+
+                    {/* Duplicate */}
                     <button
                       type="button"
+                      title="Duplicate step"
+                      onClick={() => duplicateStep(step.id)}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 24, height: 24, border: 'none', background: 'transparent',
+                        cursor: 'pointer', borderRadius: 2, color: 'var(--text-muted)', flexShrink: 0,
+                      }}
+                      onMouseOver={e => { e.currentTarget.style.background = 'var(--bg-hover)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                      onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+                    >
+                      <Copy size={12} />
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      title="Remove step"
                       onClick={() => removeStep(step.id)}
                       style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -252,8 +398,10 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                       onMouseOver={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.color = '#dc2626'; }}
                       onMouseOut={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
                     >
-                      <Trash2 size={13} />
+                      <Trash2 size={12} />
                     </button>
+
+                    {/* Expand/collapse */}
                     <button
                       type="button"
                       onClick={() => setExpandedStep(isOpen ? null : step.id)}
@@ -270,10 +418,11 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                   {/* Step fields */}
                   {isOpen && (
                     <div style={{
-                      padding: '0 12px 12px 44px', display: 'flex', flexDirection: 'column', gap: 10,
+                      padding: '12px 12px 12px 44px',
                       borderTop: '1px solid var(--border-light)',
-                      paddingTop: 12,
+                      display: 'flex', flexDirection: 'column', gap: 10,
                     }}>
+
                       <div>
                         <label style={labelStyle}>Title *</label>
                         <input
@@ -285,6 +434,7 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                           onBlur={e => { e.target.style.borderColor = 'var(--border-input)'; e.target.style.boxShadow = 'none'; }}
                         />
                       </div>
+
                       <div>
                         <label style={labelStyle}>Description *</label>
                         <textarea
@@ -296,20 +446,20 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                           onBlur={e => { e.target.style.borderColor = 'var(--border-input)'; e.target.style.boxShadow = 'none'; }}
                         />
                       </div>
+
                       <div>
                         <label style={labelStyle}>CSS Selector *</label>
-                        <input
-                          style={inputStyle}
+                        <WpSelectorPicker
                           value={step.selector}
-                          onChange={e => updateStep(step.id, { selector: e.target.value })}
-                          placeholder="e.g. #menu-pages or .edit-post-layout"
-                          onFocus={e => { e.target.style.borderColor = 'var(--accent)'; e.target.style.boxShadow = '0 0 0 1px var(--accent)'; }}
-                          onBlur={e => { e.target.style.borderColor = 'var(--border-input)'; e.target.style.boxShadow = 'none'; }}
+                          onChange={val => updateStep(step.id, { selector: val })}
+                          onPick={result => updateStep(step.id, {
+                            selector: result.selector,
+                            ...(result.side && !step.side ? { side: result.side } : {}),
+                            ...(result.url  && !step.url  ? { url:  result.url  } : {}),
+                          })}
                         />
-                        <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, display: 'block' }}>
-                          The element to highlight on the page.
-                        </span>
                       </div>
+
                       <div>
                         <label style={labelStyle}>Page URL (optional)</label>
                         <input
@@ -324,6 +474,7 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                           The admin page this step appears on (for reference).
                         </span>
                       </div>
+
                       <div style={{ display: 'flex', gap: 10 }}>
                         <div style={{ flex: 1 }}>
                           <label style={labelStyle}>Popover Side</label>
@@ -352,6 +503,7 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
                           </select>
                         </div>
                       </div>
+
                     </div>
                   )}
                 </div>
@@ -360,7 +512,7 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
           </div>
         )}
 
-        {/* JSON Preview (for quick and custom) */}
+        {/* JSON Preview */}
         {tourMode !== 'none' && (
           <div style={{ border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
             <button
@@ -376,7 +528,9 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', flex: 1, textAlign: 'left' }}>
                 Preview Tour JSON
               </span>
-              {showJson ? <ChevronUp size={13} style={{ color: 'var(--text-tertiary)' }} /> : <ChevronDown size={13} style={{ color: 'var(--text-tertiary)' }} />}
+              {showJson
+                ? <ChevronUp size={13} style={{ color: 'var(--text-tertiary)' }} />
+                : <ChevronDown size={13} style={{ color: 'var(--text-tertiary)' }} />}
             </button>
             {showJson && (
               <pre style={{
@@ -400,10 +554,16 @@ export function GuidedTourForm({ data, onChange }: GuidedTourFormProps) {
             <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: 0, lineHeight: 1.6 }}>
               One file is written to your Playground: <code>mu-plugins/pootle-tour.php</code>.
               All CSS and JS is embedded inline — no external dependencies.
-              The tour auto-starts on first visit and includes a <strong>Restart Tour</strong> button in the admin bar.
+              The tour auto-starts on first visit and includes a <strong>Restart Tour</strong> button
+              in the admin bar. Use{' '}
+              <kbd style={{ fontSize: 11, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 2 }}>→</kbd>{' '}
+              <kbd style={{ fontSize: 11, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 2 }}>←</kbd>{' '}
+              <kbd style={{ fontSize: 11, padding: '1px 4px', border: '1px solid var(--border)', borderRadius: 2 }}>Esc</kbd>{' '}
+              to navigate.
             </p>
           </div>
         )}
+
       </div>
     </div>
   );
