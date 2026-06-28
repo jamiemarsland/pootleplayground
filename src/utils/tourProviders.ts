@@ -210,7 +210,7 @@ function buildPhpPlugin(steps: TourStep[]): string {
   const stepsJson = JSON.stringify(steps)
     .replace(/\\/g, '\\\\')
     .replace(/'/g, "\\'");
-  const tourKey   = `pootle_tour_${tourHash(steps)}`;
+  const tourKey   = `pootle_tour_v3_${tourHash(steps)}`;
 
   return `<?php
 /**
@@ -696,15 +696,10 @@ function pootle_tour_assets() {
     }
   }
 
-  function autoStart(attempts) {
+  function autoStart() {
     if (localStorage.getItem(KEY) || !STEPS.length) return;
-    var anchor = STEPS[0].selector ? document.querySelector(STEPS[0].selector) : document.body;
-    if (anchor) {
-      wireRestartBtn();
-      window.pootleTour.start();
-    } else if (attempts < 20) {
-      setTimeout(function () { autoStart(attempts + 1); }, 500);
-    }
+    wireRestartBtn();
+    window.pootleTour.start();
   }
 
   function init() {
@@ -739,7 +734,7 @@ function pootle_tour_assets() {
       }
     }
 
-    autoStart(0);
+    autoStart();
   }
 
   if (document.readyState === 'loading') {
