@@ -589,17 +589,9 @@ function pootle_tour_assets() {
     tip.style.top     = Math.round(placed.top)  + 'px';
   }
 
-  /* ── show a step ─────────────────────────────────────── */
+  /* ── show a step (tooltip only; never navigates) ────────── */
   function show(i) {
     idx = i;
-    var s = STEPS[i];
-
-    /* If this step belongs on a different page, navigate there */
-    if (s.url && !urlMatches(s.url)) {
-      navigateTo(i);
-      return;
-    }
-
     if (!active) {
       /* first show: just appear */
       tip.style.opacity = '0';
@@ -623,6 +615,16 @@ function pootle_tour_assets() {
       }, 160);
     }
     active = true;
+  }
+
+  /* Navigate to a step's page if needed; otherwise show in place.
+     Only called from explicit user actions (Next / Back / dot clicks). */
+  function goTo(i) {
+    if (STEPS[i].url && !urlMatches(STEPS[i].url)) {
+      navigateTo(i);
+    } else {
+      show(i);
+    }
   }
 
   /* ── keyboard navigation ─────────────────────────────── */
@@ -662,13 +664,13 @@ function pootle_tour_assets() {
       document.addEventListener('keydown', onKey);
     },
     next: function () {
-      if (idx < STEPS.length - 1) show(idx + 1);
+      if (idx < STEPS.length - 1) goTo(idx + 1);
     },
     prev: function () {
-      if (idx > 0) show(idx - 1);
+      if (idx > 0) goTo(idx - 1);
     },
     show: function (i) {
-      if (i >= 0 && i < STEPS.length) show(i);
+      if (i >= 0 && i < STEPS.length) goTo(i);
     },
     stop: function () {
       localStorage.setItem(KEY, '1');
