@@ -176,7 +176,7 @@ export const QUICK_START_STEPS: TourStep[] = [
   {
     id: 'qs-12',
     title: 'Choose a Static Page',
-    description: 'Under "Your homepage displays", select "A static page". Set Homepage to your "Home" page and Posts page to your "Blog" page, then click Save Changes.',
+    description: 'Under Your homepage displays, select A static page. Set Homepage to your Home page and Posts page to your Blog page, then click Save Changes.',
     selector: '.wrap form',
     url: '/wp-admin/options-reading.php',
     order: 12,
@@ -204,7 +204,12 @@ function tourHash(steps: TourStep[]): string {
 }
 
 function buildPhpPlugin(steps: TourStep[]): string {
-  const stepsJson = JSON.stringify(steps).replace(/'/g, "\\'");
+  // Escape backslashes first (JSON.stringify emits \" for double quotes inside strings;
+  // embedding that in a single-quoted JS string would unescap it → invalid JSON.parse input).
+  // Order matters: backslashes must be doubled before single-quotes are escaped.
+  const stepsJson = JSON.stringify(steps)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'");
   const tourKey   = `pootle_tour_${tourHash(steps)}`;
 
   return `<?php
