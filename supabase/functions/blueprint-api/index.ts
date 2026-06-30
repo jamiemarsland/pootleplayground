@@ -780,10 +780,13 @@ function expandTourStep(step: any): any {
   return step;
 }
 
-// ── UTF-8-safe base64 decode (mirrors unicodeSafeBase64Encode on the client) ──
+// ── UTF-8-safe base64 decode — accepts standard or URL-safe base64 ──────────
 
 function base64DecodeUtf8(b64: string): string {
-  const binary = atob(b64);
+  // Convert URL-safe base64 (RFC 4648 §5) to standard base64 and restore padding
+  const standard = b64.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = standard + '=='.slice(0, (4 - (standard.length % 4)) % 4);
+  const binary = atob(padded);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new TextDecoder().decode(bytes);

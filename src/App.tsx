@@ -51,10 +51,18 @@ const unicodeSafeBase64Encode = (str: string): string => {
   return btoa(binaryString);
 };
 
+// URL-safe base64 (RFC 4648 §5): no +/= chars, safe as a query parameter value
+const urlSafeBase64Encode = (str: string): string => {
+  return unicodeSafeBase64Encode(str)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+};
+
 /* For blueprints with a guided tour, the full PHP plugin (~30KB) makes the hash URL too
-   large for WP Playground. Instead, encode the compressed blueprint as a base64 ?inline=
-   parameter to the blueprint-api edge function — WP Playground fetches it, the edge
-   function decodes and expands the tour, and returns the full blueprint (~2KB URL total). */
+   large for WP Playground. Instead, encode the compressed blueprint as URL-safe base64 in a
+   ?inline= parameter to the blueprint-api edge function — WP Playground fetches it, the
+   edge function decodes and expands the tour, and returns the full blueprint. */
 function computePlaygroundUrl(blueprint: Blueprint, pootleSteps: Step[]): string {
   try {
     const hasTour = pootleSteps.some(
@@ -62,10 +70,9 @@ function computePlaygroundUrl(blueprint: Blueprint, pootleSteps: Step[]): string
     );
     if (hasTour) {
       const compressed = compressBlueprintForStorage(blueprint, pootleSteps);
-      const encoded = encodeURIComponent(unicodeSafeBase64Encode(JSON.stringify(compressed)));
+      const b64 = urlSafeBase64Encode(JSON.stringify(compressed));
       const apiBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blueprint-api`;
-      const blueprintUrl = encodeURIComponent(`${apiBase}?inline=${encoded}`);
-      return `https://playground.wordpress.net/?blueprint-url=${blueprintUrl}`;
+      return `https://playground.wordpress.net/?blueprint-url=${encodeURIComponent(`${apiBase}?inline=${b64}`)}`;
     }
     return `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(blueprint))}`;
   } catch {
