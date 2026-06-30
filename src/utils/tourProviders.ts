@@ -210,7 +210,7 @@ function buildPhpPlugin(steps: TourStep[]): string {
   const stepsJson = JSON.stringify(steps)
     .replace(/\\/g, '\\\\')
     .replace(/'/g, "\\'");
-  const tourKey   = `pootle_tour_v3_${tourHash(steps)}`;
+  const tourKey   = `pootle_tour_${tourHash(steps)}`;
 
   return `<?php
 /**
@@ -408,7 +408,7 @@ function pootle_tour_assets() {
 
   /* Navigate to a step that lives on a different page */
   function navigateTo(i) {
-    localStorage.setItem(IDX_KEY, String(i));
+    sessionStorage.setItem(IDX_KEY, String(i));
     window.location.href = STEPS[i].url || window.location.href;
   }
 
@@ -655,8 +655,8 @@ function pootle_tour_assets() {
       document.addEventListener('keydown', onKey);
     },
     restart: function () {
-      localStorage.removeItem(KEY);
-      localStorage.removeItem(IDX_KEY);
+      sessionStorage.removeItem(KEY);
+      sessionStorage.removeItem(IDX_KEY);
       if (!tip) build();
       active = false;
       /* If step 0 is on a different page, navigate there first */
@@ -677,8 +677,8 @@ function pootle_tour_assets() {
       if (i >= 0 && i < STEPS.length) goTo(i);
     },
     stop: function () {
-      localStorage.setItem(KEY, '1');
-      localStorage.removeItem(IDX_KEY);
+      sessionStorage.setItem(KEY, '1');
+      sessionStorage.removeItem(IDX_KEY);
       active = false;
       if (overlay)  overlay.style.display  = 'none';
       if (tip)      tip.style.display      = 'none';
@@ -697,21 +697,21 @@ function pootle_tour_assets() {
   }
 
   function autoStart() {
-    if (localStorage.getItem(KEY) || !STEPS.length) return;
+    if (sessionStorage.getItem(KEY) || !STEPS.length) return;
     wireRestartBtn();
     window.pootleTour.start();
   }
 
   function init() {
     wireRestartBtn();
-    if (localStorage.getItem(KEY)) return; /* tour was dismissed */
+    if (sessionStorage.getItem(KEY)) return; /* tour was dismissed */
     if (!STEPS.length) return;
 
     /* Resume mid-tour after a page navigation */
-    var pending = localStorage.getItem(IDX_KEY);
+    var pending = sessionStorage.getItem(IDX_KEY);
     if (pending !== null) {
       var resumeIdx = parseInt(pending, 10);
-      localStorage.removeItem(IDX_KEY);
+      sessionStorage.removeItem(IDX_KEY);
       if (resumeIdx >= 0 && resumeIdx < STEPS.length) {
         if (!tip) build();
         active = false;
