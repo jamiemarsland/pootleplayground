@@ -821,7 +821,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const pathParts = url.pathname.split("/").filter(Boolean);
-    const slug = pathParts[1];
+    const slug = pathParts[pathParts.length - 1];
 
     if (!slug) {
       return new Response(JSON.stringify({ error: "Missing slug" }), {

@@ -17,7 +17,6 @@ interface HeaderProps {
   onShowSharedPlaygrounds?: () => void;
   isDark: boolean;
   onToggleTheme: () => void;
-  launchUrl?: string;
 }
 
 const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
@@ -37,7 +36,6 @@ export function Header({
   onShowSharedPlaygrounds,
   isDark,
   onToggleTheme,
-  launchUrl,
 }: HeaderProps) {
   const [isLaunching, setIsLaunching] = useState(false);
 
@@ -91,7 +89,7 @@ export function Header({
 
   const handleLaunch = () => {
     setIsLaunching(true);
-    window.open(launchUrl ?? createPlaygroundUrl(), '_blank');
+    window.open(createPlaygroundUrl(), '_blank');
     setTimeout(() => setIsLaunching(false), 2000);
   };
 

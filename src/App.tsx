@@ -51,35 +51,6 @@ const unicodeSafeBase64Encode = (str: string): string => {
   return btoa(binaryString);
 };
 
-// URL-safe base64 (RFC 4648 §5): no +/= chars, safe as a query parameter value
-const urlSafeBase64Encode = (str: string): string => {
-  return unicodeSafeBase64Encode(str)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-};
-
-/* For blueprints with a guided tour, the full PHP plugin (~30KB) makes the hash URL too
-   large for WP Playground. Instead, encode the compressed blueprint as URL-safe base64 in a
-   ?inline= parameter to the blueprint-api edge function — WP Playground fetches it, the
-   edge function decodes and expands the tour, and returns the full blueprint. */
-function computePlaygroundUrl(blueprint: Blueprint, pootleSteps: Step[]): string {
-  try {
-    const hasTour = pootleSteps.some(
-      s => s.type === 'guidedTour' && s.data?.tourMode && s.data.tourMode !== 'none'
-    );
-    if (hasTour) {
-      const compressed = compressBlueprintForStorage(blueprint, pootleSteps);
-      const b64 = urlSafeBase64Encode(JSON.stringify(compressed));
-      const apiBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/blueprint-api`;
-      return `https://playground.wordpress.net/?blueprint-url=${encodeURIComponent(`${apiBase}?inline=${b64}`)}`;
-    }
-    return `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(blueprint))}`;
-  } catch {
-    return 'https://playground.wordpress.net/';
-  }
-}
-
 function Builder() {
   const navigate = useNavigate();
   const [steps, setSteps] = useState<Step[]>([]);
@@ -293,7 +264,6 @@ function Builder() {
   };
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
-  const playgroundUrl = computePlaygroundUrl(blueprint, steps);
 
   return (
     <div className="min-h-screen relative" style={{ background: 'var(--bg-app)' }}>
@@ -312,7 +282,6 @@ function Builder() {
         onShowSharedPlaygrounds={() => navigate('/shared')}
         isDark={isDark}
         onToggleTheme={() => setIsDark(d => !d)}
-        launchUrl={steps.length > 0 ? playgroundUrl : undefined}
       />
       
       <div className="flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 56px - 41px)' }}>
@@ -372,7 +341,7 @@ function Builder() {
       <SharePlaygroundModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
-        currentPlaygroundUrl={steps.length > 0 ? playgroundUrl : undefined}
+        currentPlaygroundUrl={steps.length > 0 ? `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(blueprint))}` : undefined}
         blueprintJson={steps.length > 0 ? compressBlueprintForStorage(blueprint, steps) : null}
       />
 
