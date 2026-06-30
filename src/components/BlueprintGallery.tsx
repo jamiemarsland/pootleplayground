@@ -776,7 +776,9 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
     );
 
     const blueprintJson = JSON.stringify(nativeBlueprint);
-    const compressed = btoa(blueprintJson);
+    const utf8Bytes = new TextEncoder().encode(blueprintJson);
+    const binaryString = Array.from(utf8Bytes).map(b => String.fromCharCode(b)).join('');
+    const compressed = btoa(binaryString);
     const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
 
     window.open(playgroundUrl, '_blank');
@@ -791,7 +793,10 @@ export function BlueprintGallery({ onSelectBlueprint, onBack }: BlueprintGallery
       blueprint.blueprint_data.landingPageType as 'wp-admin' | 'front-page'
     );
 
-    const compressed = btoa(JSON.stringify(nativeBlueprint));
+    const json = JSON.stringify(nativeBlueprint);
+    const utf8Bytes = new TextEncoder().encode(json);
+    const binaryString = Array.from(utf8Bytes).map(b => String.fromCharCode(b)).join('');
+    const compressed = btoa(binaryString);
     const playgroundUrl = `https://playground.wordpress.net/#${compressed}`;
 
     setShareModal({ isOpen: true, url: playgroundUrl, blueprintJson: nativeBlueprint });
