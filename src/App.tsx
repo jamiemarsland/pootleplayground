@@ -16,10 +16,34 @@ import { McpInstructionsPage } from './components/McpInstructionsPage';
 import { VersionAnnouncementModal } from './components/VersionAnnouncementModal';
 import { PlaygroundRedirectPage } from './components/PlaygroundRedirectPage';
 import { SharedPlaygroundsPage } from './components/SharedPlaygroundsPage';
-import { Step, StepType } from './types/blueprint';
+import { Step, StepType, Blueprint } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
 import './App.css';
+
+/* Replace the large inline PHP plugin with a compact placeholder before storing in the
+   database. The blueprint-api edge function re-expands it using the same generation logic,
+   keeping the stored JSONB small regardless of tour size. */
+function compressBlueprintForStorage(blueprint: Blueprint, pootleSteps: Step[]): Blueprint {
+  const tourPootleStep = pootleSteps.find(s => s.type === 'guidedTour');
+  if (!tourPootleStep) return blueprint;
+  const mode: string = tourPootleStep.data?.tourMode ?? 'none';
+  if (mode === 'none') return blueprint;
+  const customSteps = mode === 'custom' ? (tourPootleStep.data?.tourSteps ?? []) : [];
+  return {
+    ...blueprint,
+    steps: blueprint.steps.map(step => {
+      if (
+        step.step === 'writeFile' &&
+        step.path === '/wordpress/wp-content/mu-plugins/pootle-tour.php' &&
+        typeof step.data === 'string'
+      ) {
+        return { step: 'writeFile', path: step.path, data: { _pootle_tour: true, mode, steps: customSteps } };
+      }
+      return step;
+    }),
+  };
+}
 
 function Builder() {
   const navigate = useNavigate();
@@ -320,7 +344,7 @@ function Builder() {
             return undefined;
           }
         })()}
-        blueprintJson={steps.length > 0 ? blueprint : null}
+        blueprintJson={steps.length > 0 ? compressBlueprintForStorage(blueprint, steps) : null}
       />
 
       <AiPromptSidebar

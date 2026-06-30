@@ -86,9 +86,10 @@ export function SharePlaygroundModal({
 
       setShortUrl(`${window.location.origin}/p/${slug}`);
       setStep('success');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Failed to create short link. Please try again.');
+      const detail = err?.message ?? (typeof err === 'string' ? err : '');
+      setError(detail ? `Failed to create short link: ${detail}` : 'Failed to create short link. Please try again.');
     } finally {
       setSaving(false);
     }
