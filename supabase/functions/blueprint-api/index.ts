@@ -780,6 +780,15 @@ function expandTourStep(step: any): any {
   return step;
 }
 
+// ── UTF-8-safe base64 decode (mirrors unicodeSafeBase64Encode on the client) ──
+
+function base64DecodeUtf8(b64: string): string {
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
 // ── Request handler ────────────────────────────────────────────────────────
 
 Deno.serve(async (req: Request) => {
@@ -789,6 +798,25 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
+
+    // ?inline=BASE64 — decode compressed blueprint, expand tour, return JSON
+    const inlineParam = url.searchParams.get("inline");
+    if (inlineParam) {
+      const jsonStr = base64DecodeUtf8(inlineParam);
+      const blueprint = JSON.parse(jsonStr) as any;
+      if (blueprint?.steps && Array.isArray(blueprint.steps)) {
+        blueprint.steps = blueprint.steps.map(expandTourStep);
+      }
+      return new Response(JSON.stringify(blueprint), {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=300",
+        },
+      });
+    }
+
     const pathParts = url.pathname.split("/").filter(Boolean);
     const slug = pathParts[1];
 
