@@ -1,0 +1,106 @@
+{
+  "tools": [
+    {
+      "name": "get_blueprint_summary",
+      "description": "Reads the current blueprint settings, runtime versions, and a paginated summary of configured steps. Use before adding structural steps that reference existing pages or when checking what is currently in the builder.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for paginated step results, starting at 1."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Maximum steps to return per page (1 to 12, defaults to 12)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": true
+      }
+    },
+    {
+      "name": "configure_blueprint",
+      "description": "Updates the blueprint site title, PHP version, WordPress version, or default landing view. Use when setting site metadata or runtime environment versions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_title": {
+            "type": "string",
+            "description": "WordPress site title displayed in the builder and applied as blogname."
+          },
+          "php_version": {
+            "type": "string",
+            "enum": ["7.4", "8.0", "8.1", "8.2", "8.3"],
+            "description": "Target PHP runtime version for the WordPress Playground."
+          },
+          "wp_version": {
+            "type": "string",
+            "enum": ["latest", "7.0", "6.9", "6.8", "6.7", "6.6", "6.5", "6.4", "6.3", "6.2"],
+            "description": "Target WordPress core version."
+          },
+          "landing_page_type": {
+            "type": "string",
+            "enum": ["wp-admin", "front-page", "custom"],
+            "description": "Initial view opened when the Playground launches."
+          },
+          "custom_landing_url": {
+            "type": "string",
+            "description": "Relative WordPress path (e.g. /about) used when landing_page_type is custom."
+          }
+        }
+      }
+    },
+    {
+      "name": "add_blueprint_steps",
+      "description": "Appends one or more configured setup steps to the blueprint in order and selects the last added step. Use when building a site with pages, posts, media, plugins, themes, menus, homepage settings, or a guided tour.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Ordered list of WordPress setup steps to append to the blueprint.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "addPage",
+                    "addPost",
+                    "addMedia",
+                    "installPlugin",
+                    "installTheme",
+                    "setHomepage",
+                    "setPostsPage",
+                    "createNavigationMenu",
+                    "setLandingPage",
+                    "guidedTour",
+                    "setSiteOption",
+                    "defineWpConfigConst",
+                    "login",
+                    "importWxr",
+                    "addClientRole"
+                  ],
+                  "description": "Kind of WordPress setup step to append."
+                },
+                "config": {
+                  "type": "object",
+                  "description": "Step fields matching the type (e.g. postTitle, slug or url, pageTitle, menuName, menuItems, tourMode)."
+                }
+              },
+              "required": ["type", "config"]
+            }
+          }
+        },
+        "required": ["steps"]
+      }
+    }
+  ]
+}

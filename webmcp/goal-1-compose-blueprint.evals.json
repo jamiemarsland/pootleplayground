@@ -1,0 +1,137 @@
+[
+  {
+    "name": "Configure site metadata and runtime versions",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Set the site title to Sweet Crumb Bakery, use PHP 8.3 and WordPress 6.8, and open on the front page."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "configure_blueprint",
+        "arguments": {
+          "site_title": "Sweet Crumb Bakery",
+          "php_version": "8.3",
+          "wp_version": "6.8",
+          "landing_page_type": "front-page"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Batch-compose theme, plugin, pages, homepage, and menu",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Install the Ollie theme and Contact Form 7 plugin, create Home and Contact pages, set Home as the homepage, and add both to a primary Main Menu."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "add_blueprint_steps",
+        "arguments": {
+          "steps": {
+            "$type": "array"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Inspect existing blueprint before wiring homepage to existing page",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Check what pages I already have in this blueprint, then set the About page as the static homepage."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_blueprint_summary",
+        "arguments": {},
+        "mockOutput": {
+          "title": "Agency Demo",
+          "php_version": "8.2",
+          "wp_version": "latest",
+          "landing_page_type": "wp-admin",
+          "page": 1,
+          "page_size": 12,
+          "total_count": 2,
+          "total_pages": 1,
+          "steps": [
+            { "index": 1, "id": "addPage-1", "type": "addPage", "summary": "About" },
+            { "index": 2, "id": "addPage-2", "type": "addPage", "summary": "Services" }
+          ]
+        }
+      },
+      {
+        "functionName": "add_blueprint_steps",
+        "arguments": {
+          "steps": [
+            {
+              "type": "setHomepage",
+              "config": {
+                "option": "existing",
+                "pageTitle": "About"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Mid-chain recovery when referenced homepage page does not exist",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Set the Pricing page as the static homepage."
+      },
+      {
+        "role": "model",
+        "type": "functioncall",
+        "name": "add_blueprint_steps",
+        "arguments": {
+          "steps": [
+            {
+              "type": "setHomepage",
+              "config": { "option": "existing", "pageTitle": "Pricing" }
+            }
+          ]
+        }
+      },
+      {
+        "role": "user",
+        "type": "functionresponse",
+        "name": "add_blueprint_steps",
+        "response": {
+          "result": {
+            "error": "No addPage step titled \"Pricing\" was found. Add the page first or pass option: \"create\".",
+            "isError": true
+          }
+        }
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "add_blueprint_steps",
+        "arguments": {
+          "steps": [
+            {
+              "type": "setHomepage",
+              "config": {
+                "option": "create",
+                "title": { "$pattern": "^Pricing$" }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
