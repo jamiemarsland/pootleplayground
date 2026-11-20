@@ -1,0 +1,101 @@
+[
+  {
+    "name": "Resolve second page coreference, rename it, and move plugin first",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Rename the second page to Our Story and move WooCommerce to step 1."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "list_blueprint_steps",
+        "arguments": {},
+        "mockOutput": {
+          "page": 1,
+          "page_size": 12,
+          "total_count": 4,
+          "total_pages": 1,
+          "steps": [
+            { "index": 1, "id": "addPage-1", "type": "addPage", "summary": "Home", "dependents": [] },
+            { "index": 2, "id": "addPage-2", "type": "addPage", "summary": "About", "dependents": [] },
+            { "index": 3, "id": "setHomepage-3", "type": "setHomepage", "summary": "Home", "dependents": [] },
+            { "index": 4, "id": "installPlugin-4", "type": "installPlugin", "summary": "woocommerce", "dependents": [] }
+          ]
+        }
+      },
+      {
+        "unordered": [
+          {
+            "functionName": "update_blueprint_step",
+            "arguments": {
+              "step_id": "addPage-2",
+              "updates": { "postTitle": "Our Story" }
+            }
+          },
+          {
+            "functionName": "reorder_blueprint_steps",
+            "arguments": {
+              "step_id": "installPlugin-4",
+              "to_index": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Inspect single step details by title",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Show me the exact settings for the Main Menu step."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_blueprint_step",
+        "arguments": {
+          "title": { "$pattern": "Main Menu" }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Mid-chain recovery when deleting a page referenced by setHomepage",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Delete the Home page and also remove any step that depended on it."
+      },
+      {
+        "role": "model",
+        "type": "functioncall",
+        "name": "remove_blueprint_steps",
+        "arguments": { "step_ids": ["addPage-1"] }
+      },
+      {
+        "role": "user",
+        "type": "functionresponse",
+        "name": "remove_blueprint_steps",
+        "response": {
+          "result": {
+            "error": "Cannot remove step \"Home\" (addPage-1) because it is referenced by: setHomepage-3 (setHomepage). Confirm and retry with force: true or include dependent steps in step_ids.",
+            "isError": true
+          }
+        }
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "remove_blueprint_steps",
+        "arguments": {
+          "step_ids": { "$contains": "addPage-1" }
+        }
+      }
+    ]
+  }
+]

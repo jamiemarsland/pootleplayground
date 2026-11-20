@@ -19,6 +19,7 @@ import { SharedPlaygroundsPage } from './components/SharedPlaygroundsPage';
 import { Step, StepType, Blueprint } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
+import { useManageStepsWebMCP } from './hooks/useManageStepsWebMCP';
 import './App.css';
 
 /* Replace the large inline PHP plugin with a compact placeholder before storing in the
@@ -264,6 +265,14 @@ function Builder() {
   };
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
+
+  useManageStepsWebMCP({
+    steps,
+    selectedStep,
+    onStepsChange: setSteps,
+    onSelectStep: setSelectedStep,
+    onReset: handleReset,
+  });
 
   return (
     <div className="min-h-screen relative" style={{ background: 'var(--bg-app)' }}>

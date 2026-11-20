@@ -1,0 +1,167 @@
+{
+  "tools": [
+    {
+      "name": "list_blueprint_steps",
+      "description": "Lists configured blueprint steps in execution order with step IDs, types, summaries, and dependency references. Use when inspecting the sequence or resolving references like 'the second page' before editing, reordering, or removing steps.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "addPage",
+                "addPost",
+                "addMedia",
+                "installPlugin",
+                "installTheme",
+                "setHomepage",
+                "setPostsPage",
+                "createNavigationMenu",
+                "setLandingPage",
+                "guidedTour",
+                "setSiteOption",
+                "defineWpConfigConst",
+                "login",
+                "importWxr",
+                "addClientRole"
+              ]
+            },
+            "description": "Optional step types to filter by. Defaults to all step types."
+          },
+          "query": {
+            "type": "string",
+            "description": "Optional keyword to match against step titles, plugin/theme slugs, or menu names."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Page number for paginated results, starting at 1."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12,
+            "description": "Maximum steps per page (1 to 12, defaults to 12)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": true
+      }
+    },
+    {
+      "name": "get_blueprint_step",
+      "description": "Reads full configuration details and downstream dependencies for a single blueprint step. Use when checking exact step fields or checking whether other steps depend on a page before modifying it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "description": "Exact step identifier returned by list_blueprint_steps."
+          },
+          "step_index": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based position of the step in the blueprint sequence."
+          },
+          "title": {
+            "type": "string",
+            "description": "Page title, post title, menu name, or plugin/theme slug to locate."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": true
+      }
+    },
+    {
+      "name": "update_blueprint_step",
+      "description": "Updates configuration fields on an existing blueprint step and selects it in the editor panel. Use when refining a step's title, content, plugin/theme source, menu items, or tour settings.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "description": "Exact step identifier to update."
+          },
+          "step_index": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based position of the step to update."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title, menu name, or slug identifying the target step."
+          },
+          "updates": {
+            "type": "object",
+            "description": "Fields to merge into the step configuration (e.g. postTitle, postContent, slug, activate, tourMode)."
+          }
+        },
+        "required": ["updates"]
+      }
+    },
+    {
+      "name": "reorder_blueprint_steps",
+      "description": "Moves an existing blueprint step to a new 1-based position in the execution sequence. Use when fixing setup order so pages or plugins run before dependent steps.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "step_id": {
+            "type": "string",
+            "description": "Exact step identifier to move."
+          },
+          "from_index": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Current 1-based position of the step to move."
+          },
+          "title": {
+            "type": "string",
+            "description": "Title, menu name, or plugin/theme slug of the step to move."
+          },
+          "to_index": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Target 1-based position in the blueprint sequence."
+          }
+        },
+        "required": ["to_index"]
+      }
+    },
+    {
+      "name": "remove_blueprint_steps",
+      "description": "Removes one or more steps from the blueprint, or resets the entire blueprint when reset_all is true. Use when pruning unwanted steps or clearing the draft after user confirmation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "step_ids": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Step identifiers to remove."
+          },
+          "step_indices": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 1 },
+            "description": "1-based positions of steps to remove."
+          },
+          "reset_all": {
+            "type": "boolean",
+            "description": "Set true to clear all steps and reset the blueprint to defaults."
+          },
+          "force": {
+            "type": "boolean",
+            "description": "Set true to proceed even when downstream steps reference a page being removed."
+          }
+        }
+      },
+      "annotations": {
+        "consequentialHint": true
+      }
+    }
+  ]
+}
