@@ -1,0 +1,103 @@
+[
+  {
+    "name": "Preview generated blueprint JSON before downloading",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Show me the generated blueprint JSON first, then download it."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "preview_blueprint_json",
+        "arguments": {},
+        "mockOutput": {
+          "total_chars": 420,
+          "offset": 0,
+          "limit": 1000,
+          "next_offset": null,
+          "truncated": false,
+          "step_count": 3,
+          "landing_page": "/",
+          "json_slice": "{\"landingPage\":\"/\",\"steps\":[]}"
+        }
+      },
+      {
+        "functionName": "export_blueprint_json",
+        "arguments": {}
+      }
+    ]
+  },
+  {
+    "name": "Hand off private gallery save to SaveBlueprintModal",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Save this privately as Sweet Crumb Bakery Demo with description Ollie theme and Contact Form 7."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "initiate_save_blueprint",
+        "arguments": {
+          "title": "Sweet Crumb Bakery Demo",
+          "description": { "$pattern": "Ollie.*Contact Form 7" },
+          "is_public": false
+        }
+      }
+    ]
+  },
+  {
+    "name": "Hand off short link creation to SharePlaygroundModal",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Create a shareable link titled Client Review Site."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "initiate_share_playground",
+        "arguments": {
+          "title": "Client Review Site"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Mid-chain recovery when popup blocker prevents launch_playground",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Launch the blueprint in WordPress Playground, and if popups are blocked, open the share dialog instead so I can open the link manually."
+      },
+      {
+        "role": "model",
+        "type": "functioncall",
+        "name": "launch_playground",
+        "arguments": {}
+      },
+      {
+        "role": "user",
+        "type": "functionresponse",
+        "name": "launch_playground",
+        "response": {
+          "result": {
+            "error": "Browser blocked opening a new tab for WordPress Playground. Ask the user to allow popups, click Launch, or use initiate_share_playground.",
+            "isError": true
+          }
+        }
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "initiate_share_playground",
+        "arguments": {}
+      }
+    ]
+  }
+]

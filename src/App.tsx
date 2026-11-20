@@ -19,6 +19,11 @@ import { SharedPlaygroundsPage } from './components/SharedPlaygroundsPage';
 import { Step, StepType, Blueprint } from './types/blueprint';
 import { generateBlueprint } from './utils/blueprintGenerator';
 import { convertNativeBlueprintToPootleSteps } from './utils/nativeBlueprintConverter';
+import {
+  usePublishShareWebMCP,
+  type SaveDialogPrefill,
+  type ShareDialogPrefill,
+} from './hooks/usePublishShareWebMCP';
 import './App.css';
 
 /* Replace the large inline PHP plugin with a compact placeholder before storing in the
@@ -77,6 +82,8 @@ function Builder() {
   }>({ isOpen: false, title: '', message: '', type: 'info' });
   const [showVersionAnnouncement, setShowVersionAnnouncement] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [saveModalPrefill, setSaveModalPrefill] = useState<SaveDialogPrefill | null>(null);
+  const [shareModalPrefill, setShareModalPrefill] = useState<ShareDialogPrefill | null>(null);
 
   useEffect(() => {
     const hasSeenAnnouncement = localStorage.getItem('hasSeenV16Announcement');
@@ -264,6 +271,28 @@ function Builder() {
   };
 
   const blueprint = generateBlueprint(steps, blueprintTitle, landingPageType, customLandingUrl, phpVersion, wpVersion);
+  const currentPlaygroundUrl =
+    steps.length > 0
+      ? `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(blueprint))}`
+      : undefined;
+
+  usePublishShareWebMCP({
+    blueprint,
+    blueprintTitle,
+    stepCount: steps.length,
+    playgroundUrl: currentPlaygroundUrl,
+    onExportBlueprint: handleExportBlueprint,
+    onOpenSaveModal: (prefill) => {
+      setShowShareModal(false);
+      setSaveModalPrefill(prefill);
+      setShowSaveModal(true);
+    },
+    onOpenShareModal: (prefill) => {
+      setShowSaveModal(false);
+      setShareModalPrefill(prefill);
+      setShowShareModal(true);
+    },
+  });
 
   return (
     <div className="min-h-screen relative" style={{ background: 'var(--bg-app)' }}>
@@ -320,7 +349,10 @@ function Builder() {
 
       <SaveBlueprintModal
         isOpen={showSaveModal}
-        onClose={() => setShowSaveModal(false)}
+        onClose={() => {
+          setShowSaveModal(false);
+          setSaveModalPrefill(null);
+        }}
         blueprintData={{
           blueprintTitle,
           landingPageType,
@@ -328,6 +360,7 @@ function Builder() {
           steps
         }}
         onSuccess={handleSaveSuccess}
+        initialDraft={saveModalPrefill}
       />
 
       <AlertModal
@@ -340,9 +373,14 @@ function Builder() {
 
       <SharePlaygroundModal
         isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        currentPlaygroundUrl={steps.length > 0 ? `https://playground.wordpress.net/#${unicodeSafeBase64Encode(JSON.stringify(blueprint))}` : undefined}
+        onClose={() => {
+          setShowShareModal(false);
+          setShareModalPrefill(null);
+        }}
+        currentPlaygroundUrl={currentPlaygroundUrl}
         blueprintJson={steps.length > 0 ? compressBlueprintForStorage(blueprint, steps) : null}
+        initialTitle={shareModalPrefill?.title}
+        initialDescription={shareModalPrefill?.description}
       />
 
       <AiPromptSidebar

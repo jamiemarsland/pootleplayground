@@ -1,0 +1,85 @@
+{
+  "tools": [
+    {
+      "name": "preview_blueprint_json",
+      "description": "Returns a paginated slice of the generated WordPress Playground blueprint JSON along with total step count and byte length. Use when inspecting or validating the generated JSON before exporting, launching, or sharing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Character offset in the formatted blueprint JSON to start reading from (defaults to 0)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 1200,
+            "description": "Maximum JSON characters to return in this slice (defaults to 1000)."
+          }
+        }
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "untrustedContentHint": true
+      }
+    },
+    {
+      "name": "export_blueprint_json",
+      "description": "Triggers a browser download of the current blueprint as a formatted JSON file. Use when the user asks to download or export their blueprint.json locally.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "launch_playground",
+      "description": "Opens the generated blueprint in WordPress Playground in a new browser tab. Use when the user asks to launch, test, or run their configured blueprint live.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "annotations": {
+        "consequentialHint": true
+      }
+    },
+    {
+      "name": "initiate_save_blueprint",
+      "description": "Opens the Save Blueprint dialog pre-filled with optional title, description, and visibility so the user can review and confirm saving to the gallery. Use when the user wants to save or publish their blueprint.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Optional title to pre-fill in the Save Blueprint dialog (defaults to current site title)."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional summary describing what the blueprint includes."
+          },
+          "is_public": {
+            "type": "boolean",
+            "description": "Whether to pre-toggle Share Publicly in the gallery dialog (user confirms before saving)."
+          }
+        }
+      }
+    },
+    {
+      "name": "initiate_share_playground",
+      "description": "Opens the Share Playground dialog pre-filled with the current blueprint URL and optional title or description so the user can review and create a short link. Use when the user wants a shareable Playground link.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Optional title to pre-fill for the shared Playground link."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description to pre-fill for the shared Playground link."
+          }
+        }
+      }
+    }
+  ]
+}

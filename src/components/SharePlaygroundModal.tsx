@@ -8,6 +8,8 @@ interface SharePlaygroundModalProps {
   onClose: () => void;
   currentPlaygroundUrl?: string;
   blueprintJson?: object | null;
+  initialTitle?: string;
+  initialDescription?: string;
 }
 
 const WP_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif';
@@ -30,6 +32,8 @@ export function SharePlaygroundModal({
   onClose,
   currentPlaygroundUrl,
   blueprintJson,
+  initialTitle = '',
+  initialDescription = '',
 }: SharePlaygroundModalProps) {
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [url, setUrl] = useState('');
@@ -45,14 +49,14 @@ export function SharePlaygroundModal({
     if (isOpen) {
       setStep('form');
       setUrl(currentPlaygroundUrl || '');
-      setTitle('');
-      setDescription('');
+      setTitle(initialTitle);
+      setDescription(initialDescription);
       setError('');
       setShortUrl('');
       setCopied(false);
       setUrlWarning('');
     }
-  }, [isOpen, currentPlaygroundUrl]);
+  }, [isOpen, currentPlaygroundUrl, initialTitle, initialDescription]);
 
   useEffect(() => {
     if (url && !isValidPlaygroundUrl(url)) {

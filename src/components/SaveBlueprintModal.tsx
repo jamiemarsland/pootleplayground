@@ -1,22 +1,29 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Save, Loader2, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ConfirmModal } from './ConfirmModal';
 import { getUserId } from '../utils/userManager';
 import { uploadScreenshot, validateImageFile } from '../utils/screenshotUpload';
 
+export interface SaveBlueprintDraft {
+  title?: string;
+  description?: string;
+  isPublic?: boolean;
+}
+
 interface SaveBlueprintModalProps {
   isOpen: boolean;
   onClose: () => void;
   blueprintData: {
     blueprintTitle: string;
-    landingPageType: 'wp-admin' | 'front-page';
+    landingPageType: 'wp-admin' | 'front-page' | 'custom';
     steps: any[];
   };
   onSuccess: () => void;
+  initialDraft?: SaveBlueprintDraft | null;
 }
 
-export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }: SaveBlueprintModalProps) {
+export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess, initialDraft }: SaveBlueprintModalProps) {
   const [title, setTitle] = useState(blueprintData.blueprintTitle || '');
   const [description, setDescription] = useState('');
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
@@ -27,6 +34,15 @@ export function SaveBlueprintModal({ isOpen, onClose, blueprintData, onSuccess }
   const [error, setError] = useState('');
   const [showConfirm, setShowConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(initialDraft?.title ?? blueprintData.blueprintTitle ?? '');
+      setDescription(initialDraft?.description ?? '');
+      setIsPublic(initialDraft?.isPublic ?? true);
+      setError('');
+    }
+  }, [isOpen, blueprintData.blueprintTitle, initialDraft]);
 
   if (!isOpen) return null;
 
